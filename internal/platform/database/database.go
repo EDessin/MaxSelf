@@ -9,16 +9,21 @@ import (
 	"gorm.io/gorm"
 )
 
+var (
+	openAttempts = 30
+	openSleep    = 2 * time.Second
+)
+
 func Open(databaseURL string) (*gorm.DB, error) {
 	var db *gorm.DB
 	var err error
-	for attempt := 1; attempt <= 30; attempt++ {
+	for attempt := 1; attempt <= openAttempts; attempt++ {
 		db, err = gorm.Open(postgres.Open(databaseURL), &gorm.Config{})
 		if err == nil {
 			break
 		}
 		log.Printf("database connection attempt %d failed: %v", attempt, err)
-		time.Sleep(2 * time.Second)
+		time.Sleep(openSleep)
 	}
 	if err != nil {
 		return nil, fmt.Errorf("open database after retries: %w", err)

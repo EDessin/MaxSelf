@@ -24,7 +24,7 @@ export APP_NAME DB_CONTAINER DB_IMAGE DB_PORT POSTGRES_USER POSTGRES_PASSWORD PO
 export DATABASE_URL JWT_SECRET FRONTEND_URL IDENTITY_SERVICE_URL ACTIVITY_SERVICE_URL PROGRESS_SERVICE_URL
 export GOOGLE_CLIENT_ID GOOGLE_CLIENT_SECRET GOOGLE_REDIRECT_URL GOMODCACHE GOCACHE GOSUMDB
 
-.PHONY: help dev db-up db-down db-reset db-logs db-shell services api identity activity progress web test build-web compose-config ps
+.PHONY: help dev db-up db-down db-reset db-logs db-shell services api identity activity progress web test coverage coverage-backend coverage-web build-web compose-config ps
 
 help:
 	@printf "\nMaxSelf local development\n\n"
@@ -33,6 +33,7 @@ help:
 	@printf "  make services       Run Go microservices locally, without Angular\n"
 	@printf "  make web            Run Angular locally on http://localhost:4201\n"
 	@printf "  make test           Run backend tests\n"
+	@printf "  make coverage       Run backend + frontend coverage checks (90%% statement/line target)\n"
 	@printf "  make build-web      Build Angular frontend\n"
 	@printf "  make db-down        Stop and remove the local PostgreSQL container\n"
 	@printf "  make db-reset       Recreate the local database from scratch\n\n"
@@ -73,7 +74,15 @@ web:
 	@cd web && npm start -- --port 4201
 
 test:
-	@go test ./...
+	@go test ./cmd/... ./internal/...
+
+coverage: coverage-backend coverage-web
+
+coverage-backend:
+	@bash scripts/check-go-coverage.sh 90
+
+coverage-web:
+	@cd web && npm run test:coverage
 
 build-web:
 	@cd web && npm run build
