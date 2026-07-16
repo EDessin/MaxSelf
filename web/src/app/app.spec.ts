@@ -170,12 +170,22 @@ describe('App', () => {
     expect(root.textContent).toContain('Cardio');
     expect(root.textContent).toContain('Strength');
     expect(root.textContent).toContain('Fuel');
-    expect(root.textContent).toContain('5 consistency XP');
-    expect(root.textContent).toContain('10 consistency XP');
     expect(root.textContent).not.toContain('99 XP');
     expect(root.textContent).toContain('Recent Wins');
     expect(Array.from(root.querySelectorAll('.quest-column-header span')).map((header) => header.textContent?.trim()))
       .toEqual(['Cardio', 'Strength', 'Fuel', 'Recovery', 'Mindset']);
+    expect(Array.from(root.querySelectorAll('.quest-column-header')).map((header) => [
+      header.querySelector('span')?.textContent?.trim(),
+      header.querySelector('strong')?.textContent?.trim(),
+      header.querySelector('small')?.textContent?.trim()
+    ].join(' ')))
+      .toEqual([
+        'Cardio 30 total XP 5 consistency XP',
+        'Strength 40 total XP 10 consistency XP',
+        'Fuel 35 total XP 15 consistency XP',
+        'Recovery 55 total XP 20 consistency XP',
+        'Mindset 25 total XP 25 consistency XP'
+      ]);
     expect(root.querySelectorAll('.action-tile').length).toBe(allRules.length);
     expect(root.querySelectorAll('.quest-column').length).toBe(5);
     expect(root.querySelectorAll('tbody tr').length).toBe(allRules.length);

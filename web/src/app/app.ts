@@ -32,6 +32,7 @@ interface CategoryMeta {
 }
 
 interface QuestColumn extends CategoryMeta {
+  totalXp: number;
   consistencyXp: number;
   rules: ActivityRule[];
 }
@@ -114,6 +115,7 @@ export class App implements OnInit {
 
     return this.categoryMeta.map((category) => ({
       ...category,
+      totalXp: stats[category.key] || 0,
       consistencyXp: stats[category.consistencyKey] || 0,
       rules: rules.filter((rule) => rule.stat === category.key)
     }));

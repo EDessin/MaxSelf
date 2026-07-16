@@ -319,9 +319,19 @@ textarea {
   text-transform: uppercase;
 }
 
+.quest-column-header strong,
+.quest-column-header small {
+  line-height: 1.2;
+}
+
 .quest-column-header strong {
   font-size: 0.95rem;
-  line-height: 1.2;
+}
+
+.quest-column-header small {
+  color: #475569;
+  font-size: 0.78rem;
+  font-weight: 800;
 }
 
 .quest-list {
