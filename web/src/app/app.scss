@@ -288,15 +288,52 @@ textarea {
 
 .quick-actions {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 0.8rem;
   margin: 1rem 0;
+}
+
+.quest-column {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.quest-column-header {
+  display: grid;
+  min-height: 4.8rem;
+  align-content: center;
+  gap: 0.3rem;
+  padding: 0.85rem;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--column-color) 14%, white);
+  color: #111827;
+  border: 1px solid color-mix(in srgb, var(--column-color) 28%, white);
+}
+
+.quest-column-header span {
+  color: var(--column-color);
+  font-size: 0.8rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.quest-column-header strong {
+  font-size: 0.95rem;
+  line-height: 1.2;
+}
+
+.quest-list {
+  display: grid;
+  align-content: start;
+  gap: 0.75rem;
 }
 
 .action-tile {
   display: grid;
   gap: 0.55rem;
-  min-height: 10.5rem;
+  min-height: 9.2rem;
   padding: 1rem;
   border: 1px solid rgba(15, 23, 42, 0.08);
   border-radius: 8px;

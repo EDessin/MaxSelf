@@ -9,7 +9,7 @@ import { App } from './app';
 
 const rule = {
   type: 'exercise',
-  title: 'Move Your Body',
+  title: 'Strength Session',
   xp: 40,
   stat: 'strength',
   icon: 'dumbbell',
@@ -17,7 +17,7 @@ const rule = {
 };
 
 const allRules = [
-  { type: 'cardio', title: 'Cardio Session', xp: 30, stat: 'cardio', icon: 'flame', color: '#ef4444' },
+  { type: 'cardio', title: 'Cardio Session', xp: 30, stat: 'cardio', icon: 'flame', color: '#f59e0b' },
   rule,
   { type: 'healthy_meal', title: 'Nourishing Meal', xp: 25, stat: 'fuel', icon: 'apple', color: '#22c55e' },
   { type: 'hydration', title: 'Hydration Boost', xp: 10, stat: 'fuel', icon: 'droplet', color: '#38bdf8' },
@@ -46,7 +46,11 @@ function dashboard(totalXp = 0) {
         fuel: 0,
         recovery: 0,
         mindset: 0,
-        consistency: 0
+        cardio_consistency: 0,
+        strength_consistency: 0,
+        fuel_consistency: 0,
+        recovery_consistency: 0,
+        mindset_consistency: 0
       }
     },
     activities: [],
@@ -70,7 +74,12 @@ function fullDashboard() {
         fuel: 35,
         recovery: 55,
         mindset: 25,
-        consistency: 15
+        cardio_consistency: 5,
+        strength_consistency: 10,
+        fuel_consistency: 15,
+        recovery_consistency: 20,
+        mindset_consistency: 25,
+        consistency: 99
       }
     },
     activities: allRules.map((activityRule, index) => ({
@@ -158,10 +167,17 @@ describe('App', () => {
     expect(root.textContent).toContain('Level');
     expect(root.textContent).toContain('140 total XP');
     expect(root.textContent).toContain('Core Stats');
+    expect(root.textContent).toContain('Cardio');
     expect(root.textContent).toContain('Strength');
     expect(root.textContent).toContain('Fuel');
+    expect(root.textContent).toContain('5 consistency XP');
+    expect(root.textContent).toContain('10 consistency XP');
+    expect(root.textContent).not.toContain('99 XP');
     expect(root.textContent).toContain('Recent Wins');
+    expect(Array.from(root.querySelectorAll('.quest-column-header span')).map((header) => header.textContent?.trim()))
+      .toEqual(['Cardio', 'Strength', 'Fuel', 'Recovery', 'Mindset']);
     expect(root.querySelectorAll('.action-tile').length).toBe(allRules.length);
+    expect(root.querySelectorAll('.quest-column').length).toBe(5);
     expect(root.querySelectorAll('tbody tr').length).toBe(allRules.length);
     expect(app.progressPercent()).toBe(20);
     expect(app.todayXp()).toBe(allRules.reduce((sum, activityRule) => sum + activityRule.xp, 0));

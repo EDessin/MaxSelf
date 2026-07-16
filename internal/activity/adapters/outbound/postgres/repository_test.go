@@ -31,7 +31,7 @@ func TestRepositoryCreateAndListByUser(t *testing.T) {
 		ID:         "activity-1",
 		UserID:     "user-1",
 		Type:       domain.TypeExercise,
-		Title:      "Move Your Body",
+		Title:      "Strength Session",
 		Notes:      "run",
 		XP:         40,
 		Stat:       domain.StatStrength,

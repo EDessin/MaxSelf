@@ -108,22 +108,34 @@
       </section>
 
       <section class="quick-actions">
-        @for (rule of rules(); track rule.type) {
-          <button type="button" class="action-tile" [style.--tile-color]="rule.color" (click)="openActivity(rule)">
-            <span class="icon-pill">
-              @switch (rule.icon) {
-                @case ('dumbbell') { <svg lucideDumbbell size="24"></svg> }
-                @case ('apple') { <svg lucideApple size="24"></svg> }
-                @case ('droplet') { <svg lucideDroplet size="24"></svg> }
-                @case ('moon') { <svg lucideMoon size="24"></svg> }
-                @case ('sparkles') { <svg lucideSparkles size="24"></svg> }
-                @case ('heart-pulse') { <svg lucideHeartPulse size="24"></svg> }
-                @default { <svg lucideStar size="24"></svg> }
+        @for (column of questColumns(); track column.key) {
+          <div class="quest-column" [style.--column-color]="column.color">
+            <header class="quest-column-header">
+              <span>{{ column.label }}</span>
+              <strong>{{ column.consistencyXp }} consistency XP</strong>
+            </header>
+
+            <div class="quest-list">
+              @for (rule of column.rules; track rule.type) {
+                <button type="button" class="action-tile" [style.--tile-color]="rule.color" (click)="openActivity(rule)">
+                  <span class="icon-pill">
+                    @switch (rule.icon) {
+                      @case ('flame') { <svg lucideFlame size="24"></svg> }
+                      @case ('dumbbell') { <svg lucideDumbbell size="24"></svg> }
+                      @case ('apple') { <svg lucideApple size="24"></svg> }
+                      @case ('droplet') { <svg lucideDroplet size="24"></svg> }
+                      @case ('moon') { <svg lucideMoon size="24"></svg> }
+                      @case ('sparkles') { <svg lucideSparkles size="24"></svg> }
+                      @case ('heart-pulse') { <svg lucideHeartPulse size="24"></svg> }
+                      @default { <svg lucideStar size="24"></svg> }
+                    }
+                  </span>
+                  <strong>{{ rule.title }}</strong>
+                  <span>+{{ rule.xp }} XP</span>
+                </button>
               }
-            </span>
-            <strong>{{ rule.title }}</strong>
-            <span>+{{ rule.xp }} XP</span>
-          </button>
+            </div>
+          </div>
         }
       </section>
 
@@ -172,6 +184,7 @@
                   <span class="activity-name" [style.--activity-color]="colorFor(activity.type)">
                     <span class="mini-icon">
                       @switch (iconFor(activity.type)) {
+                        @case ('flame') { <svg lucideFlame size="16"></svg> }
                         @case ('dumbbell') { <svg lucideDumbbell size="16"></svg> }
                         @case ('apple') { <svg lucideApple size="16"></svg> }
                         @case ('droplet') { <svg lucideDroplet size="16"></svg> }

@@ -39,11 +39,11 @@ func newFacadeHandler(t *testing.T) (http.Handler, string) {
 	activityServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch {
 		case r.URL.Path == "/activity-types":
-			httpx.JSON(w, http.StatusOK, []application.ActivityRule{{Type: "exercise", Title: "Move Your Body", XP: 40, Stat: "strength"}})
+			httpx.JSON(w, http.StatusOK, []application.ActivityRule{{Type: "exercise", Title: "Strength Session", XP: 40, Stat: "strength"}})
 		case r.URL.Path == "/activities" && r.Method == http.MethodGet:
-			httpx.JSON(w, http.StatusOK, []application.Activity{{ID: "activity-1", UserID: "user-1", Type: "exercise", Title: "Move Your Body", XP: 40, Stat: "strength", OccurredAt: time.Now()}})
+			httpx.JSON(w, http.StatusOK, []application.Activity{{ID: "activity-1", UserID: "user-1", Type: "exercise", Title: "Strength Session", XP: 40, Stat: "strength", OccurredAt: time.Now()}})
 		case r.URL.Path == "/activities" && r.Method == http.MethodPost:
-			httpx.JSON(w, http.StatusCreated, application.Activity{ID: "activity-2", UserID: "user-1", Type: "exercise", Title: "Move Your Body", XP: 40, Stat: "strength", OccurredAt: time.Now()})
+			httpx.JSON(w, http.StatusCreated, application.Activity{ID: "activity-2", UserID: "user-1", Type: "exercise", Title: "Strength Session", XP: 40, Stat: "strength", OccurredAt: time.Now()})
 		default:
 			http.NotFound(w, r)
 		}

@@ -24,6 +24,18 @@ import { TextareaModule } from 'primeng/textarea';
 import { finalize, switchMap, tap } from 'rxjs';
 import { ActivityRule, AuthMode, Dashboard, MaxSelfApi } from './maxself-api.service';
 
+interface CategoryMeta {
+  key: string;
+  label: string;
+  color: string;
+  consistencyKey: string;
+}
+
+interface QuestColumn extends CategoryMeta {
+  consistencyXp: number;
+  rules: ActivityRule[];
+}
+
 @Component({
   selector: 'app-root',
   imports: [
@@ -72,8 +84,8 @@ export class App implements OnInit {
   activitySaving = signal(false);
 
   fallbackRules: ActivityRule[] = [
-    { type: 'cardio', title: 'Cardio Session', xp: 30, stat: 'cardio', icon: 'flame', color: '#ef4444' },
-    { type: 'exercise', title: 'Move Your Body', xp: 40, stat: 'strength', icon: 'dumbbell', color: '#ff5a5f' },
+    { type: 'cardio', title: 'Cardio Session', xp: 30, stat: 'cardio', icon: 'flame', color: '#f59e0b' },
+    { type: 'exercise', title: 'Strength Session', xp: 40, stat: 'strength', icon: 'dumbbell', color: '#ff5a5f' },
     { type: 'healthy_meal', title: 'Nourishing Meal', xp: 25, stat: 'fuel', icon: 'apple', color: '#22c55e' },
     { type: 'hydration', title: 'Hydration Boost', xp: 10, stat: 'fuel', icon: 'droplet', color: '#38bdf8' },
     { type: 'sleep', title: 'Sleep Goal Met', xp: 35, stat: 'recovery', icon: 'moon', color: '#6366f1' },
@@ -81,18 +93,30 @@ export class App implements OnInit {
     { type: 'recovery', title: 'Recovery Ritual', xp: 20, stat: 'recovery', icon: 'heart-pulse', color: '#14b8a6' }
   ];
 
-  statMeta = [
-    { key: 'cardio', label: 'Cardio', color: '#ef4444' },
-    { key: 'strength', label: 'Strength', color: '#ff5a5f' },
-    { key: 'fuel', label: 'Fuel', color: '#22c55e' },
-    { key: 'recovery', label: 'Recovery', color: '#6366f1' },
-    { key: 'mindset', label: 'Mindset', color: '#a855f7' },
-    { key: 'consistency', label: 'Consistency', color: '#f59e0b' }
+  categoryMeta: CategoryMeta[] = [
+    { key: 'cardio', label: 'Cardio', color: '#f59e0b', consistencyKey: 'cardio_consistency' },
+    { key: 'strength', label: 'Strength', color: '#ff5a5f', consistencyKey: 'strength_consistency' },
+    { key: 'fuel', label: 'Fuel', color: '#22c55e', consistencyKey: 'fuel_consistency' },
+    { key: 'recovery', label: 'Recovery', color: '#6366f1', consistencyKey: 'recovery_consistency' },
+    { key: 'mindset', label: 'Mindset', color: '#a855f7', consistencyKey: 'mindset_consistency' }
   ];
+
+  statMeta = this.categoryMeta.map(({ key, label, color }) => ({ key, label, color }));
 
   rules = computed(() => {
     const dashboard = this.dashboard();
     return dashboard?.rules?.length ? dashboard.rules : this.fallbackRules;
+  });
+
+  questColumns = computed<QuestColumn[]>(() => {
+    const stats = this.dashboard()?.progress.stats ?? {};
+    const rules = this.rules();
+
+    return this.categoryMeta.map((category) => ({
+      ...category,
+      consistencyXp: stats[category.consistencyKey] || 0,
+      rules: rules.filter((rule) => rule.stat === category.key)
+    }));
   });
 
   progressPercent = computed(() => {

@@ -32,7 +32,9 @@ func (s Service) Award(ctx context.Context, award domain.Award) (domain.Profile,
 
 	profile.TotalXP += award.XP
 	profile.Stats[award.Stat] += award.XP
-	profile.Stats[domain.StatConsistency] += 5
+	if consistencyStat := domain.ConsistencyStatFor(award.Stat); consistencyStat != "" {
+		profile.Stats[consistencyStat] += 5
+	}
 	profile.StreakDays, profile.LastActivityDate = domain.UpdatedStreak(profile.StreakDays, profile.LastActivityDate, award.OccurredAt)
 	profile.Level, profile.CurrentLevelXP, profile.NextLevelXP = domain.LevelFor(profile.TotalXP)
 
@@ -51,12 +53,16 @@ func (s Service) Get(ctx context.Context, userID string) (domain.Profile, error)
 			CurrentLevelXP: 0,
 			NextLevelXP:    domain.XPNeededForLevel(1),
 			Stats: map[domain.Stat]int{
-				domain.StatCardio:      0,
-				domain.StatStrength:    0,
-				domain.StatFuel:        0,
-				domain.StatRecovery:    0,
-				domain.StatMindset:     0,
-				domain.StatConsistency: 0,
+				domain.StatCardio:              0,
+				domain.StatStrength:            0,
+				domain.StatFuel:                0,
+				domain.StatRecovery:            0,
+				domain.StatMindset:             0,
+				domain.StatCardioConsistency:   0,
+				domain.StatStrengthConsistency: 0,
+				domain.StatFuelConsistency:     0,
+				domain.StatRecoveryConsistency: 0,
+				domain.StatMindsetConsistency:  0,
 			},
 		}
 	}

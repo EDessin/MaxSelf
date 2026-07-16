@@ -38,7 +38,7 @@ func (r *fakeActivityRepository) ListByUser(_ context.Context, _ string, limit i
 		ID:         "activity-1",
 		UserID:     "user-1",
 		Type:       domain.TypeExercise,
-		Title:      "Move Your Body",
+		Title:      "Strength Session",
 		XP:         40,
 		Stat:       domain.StatStrength,
 		OccurredAt: time.Now(),

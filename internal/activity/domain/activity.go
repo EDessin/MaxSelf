@@ -50,8 +50,8 @@ type ActivityRule struct {
 
 func Rules() []ActivityRule {
 	return []ActivityRule{
-		{Type: TypeCardio, Title: "Cardio Session", XP: 30, Stat: StatCardio, Icon: "flame", Color: "#ef4444"},
-		{Type: TypeExercise, Title: "Move Your Body", XP: 40, Stat: StatStrength, Icon: "dumbbell", Color: "#ff5a5f"},
+		{Type: TypeCardio, Title: "Cardio Session", XP: 30, Stat: StatCardio, Icon: "flame", Color: "#f59e0b"},
+		{Type: TypeExercise, Title: "Strength Session", XP: 40, Stat: StatStrength, Icon: "dumbbell", Color: "#ff5a5f"},
 		{Type: TypeHealthyMeal, Title: "Nourishing Meal", XP: 25, Stat: StatFuel, Icon: "apple", Color: "#22c55e"},
 		{Type: TypeHydration, Title: "Hydration Boost", XP: 10, Stat: StatFuel, Icon: "droplet", Color: "#38bdf8"},
 		{Type: TypeSleep, Title: "Sleep Goal Met", XP: 35, Stat: StatRecovery, Icon: "moon", Color: "#6366f1"},

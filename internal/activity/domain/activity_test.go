@@ -13,12 +13,15 @@ func TestRulesAndRuleFor(t *testing.T) {
 	if rules[0].Title != "Cardio Session" || rules[0].XP != 30 || rules[0].Stat != StatCardio {
 		t.Fatalf("unexpected first rule: %+v", rules[0])
 	}
+	if rules[0].Color != "#f59e0b" {
+		t.Fatalf("expected cardio to use consistency yellow, got %s", rules[0].Color)
+	}
 
 	rule, err := RuleFor(TypeExercise)
 	if err != nil {
 		t.Fatalf("RuleFor returned error: %v", err)
 	}
-	if rule.Title != "Move Your Body" || rule.XP != 40 || rule.Stat != StatStrength {
+	if rule.Title != "Strength Session" || rule.XP != 40 || rule.Stat != StatStrength {
 		t.Fatalf("unexpected exercise rule: %+v", rule)
 	}
 

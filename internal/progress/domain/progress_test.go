@@ -39,6 +39,23 @@ func TestXPNeededForLevelNormalizesLowLevels(t *testing.T) {
 	}
 }
 
+func TestConsistencyStatFor(t *testing.T) {
+	tests := map[Stat]Stat{
+		StatCardio:    StatCardioConsistency,
+		StatStrength:  StatStrengthConsistency,
+		StatFuel:      StatFuelConsistency,
+		StatRecovery:  StatRecoveryConsistency,
+		StatMindset:   StatMindsetConsistency,
+		Stat("other"): "",
+	}
+
+	for stat, want := range tests {
+		if got := ConsistencyStatFor(stat); got != want {
+			t.Fatalf("ConsistencyStatFor(%s) = %s, want %s", stat, got, want)
+		}
+	}
+}
+
 func TestUpdatedStreak(t *testing.T) {
 	base := time.Date(2026, 7, 16, 12, 0, 0, 0, time.FixedZone("CEST", 2*60*60))
 

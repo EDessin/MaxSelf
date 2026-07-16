@@ -49,8 +49,9 @@ func TestRepositorySaveProfileUpsertsProgressAndStats(t *testing.T) {
 		StreakDays:       4,
 		LastActivityDate: &last,
 		Stats: map[domain.Stat]int{
-			domain.StatStrength:    40,
-			domain.StatConsistency: 5,
+			domain.StatStrength:            40,
+			domain.StatStrengthConsistency: 5,
+			domain.StatConsistency:         3,
 		},
 	}
 
@@ -68,10 +69,20 @@ func TestRepositorySaveProfileUpsertsProgressAndStats(t *testing.T) {
 	if err != nil {
 		t.Fatalf("GetProfile returned error: %v", err)
 	}
-	if got.TotalXP != 170 || got.Stats[domain.StatStrength] != 80 || got.Stats[domain.StatConsistency] != 5 {
+	if got.TotalXP != 170 || got.Stats[domain.StatStrength] != 80 || got.Stats[domain.StatStrengthConsistency] != 5 {
 		t.Fatalf("unexpected saved profile: %+v", got)
 	}
-	if got.Stats[domain.StatCardio] != 0 || got.Stats[domain.StatFuel] != 0 || got.Stats[domain.StatMindset] != 0 || got.Stats[domain.StatRecovery] != 0 {
+	if got.Stats[domain.StatConsistency] != 3 {
+		t.Fatalf("legacy consistency row should be preserved when present: %+v", got.Stats)
+	}
+	if got.Stats[domain.StatCardio] != 0 ||
+		got.Stats[domain.StatFuel] != 0 ||
+		got.Stats[domain.StatMindset] != 0 ||
+		got.Stats[domain.StatRecovery] != 0 ||
+		got.Stats[domain.StatCardioConsistency] != 0 ||
+		got.Stats[domain.StatFuelConsistency] != 0 ||
+		got.Stats[domain.StatRecoveryConsistency] != 0 ||
+		got.Stats[domain.StatMindsetConsistency] != 0 {
 		t.Fatalf("expected missing stats to default to zero: %+v", got.Stats)
 	}
 	if got.LastActivityDate == nil || !got.LastActivityDate.Equal(last) {

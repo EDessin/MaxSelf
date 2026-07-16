@@ -5,12 +5,17 @@ import "time"
 type Stat string
 
 const (
-	StatCardio      Stat = "cardio"
-	StatStrength    Stat = "strength"
-	StatFuel        Stat = "fuel"
-	StatRecovery    Stat = "recovery"
-	StatMindset     Stat = "mindset"
-	StatConsistency Stat = "consistency"
+	StatCardio              Stat = "cardio"
+	StatStrength            Stat = "strength"
+	StatFuel                Stat = "fuel"
+	StatRecovery            Stat = "recovery"
+	StatMindset             Stat = "mindset"
+	StatConsistency         Stat = "consistency"
+	StatCardioConsistency   Stat = "cardio_consistency"
+	StatStrengthConsistency Stat = "strength_consistency"
+	StatFuelConsistency     Stat = "fuel_consistency"
+	StatRecoveryConsistency Stat = "recovery_consistency"
+	StatMindsetConsistency  Stat = "mindset_consistency"
 )
 
 type Profile struct {
@@ -31,6 +36,23 @@ type Award struct {
 	XP         int
 	Stat       Stat
 	OccurredAt time.Time
+}
+
+func ConsistencyStatFor(stat Stat) Stat {
+	switch stat {
+	case StatCardio:
+		return StatCardioConsistency
+	case StatStrength:
+		return StatStrengthConsistency
+	case StatFuel:
+		return StatFuelConsistency
+	case StatRecovery:
+		return StatRecoveryConsistency
+	case StatMindset:
+		return StatMindsetConsistency
+	default:
+		return ""
+	}
 }
 
 func LevelFor(totalXP int) (level int, currentLevelXP int, nextLevelXP int) {

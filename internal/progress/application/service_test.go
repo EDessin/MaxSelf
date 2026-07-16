@@ -55,8 +55,11 @@ func TestAwardUpdatesExistingProfile(t *testing.T) {
 	if profile.TotalXP != 130 || profile.Level != 2 || profile.CurrentLevelXP != 30 || profile.NextLevelXP != 200 {
 		t.Fatalf("unexpected leveled profile: %+v", profile)
 	}
-	if profile.Stats[domain.StatStrength] != 50 || profile.Stats[domain.StatConsistency] != 5 {
+	if profile.Stats[domain.StatStrength] != 50 || profile.Stats[domain.StatStrengthConsistency] != 5 {
 		t.Fatalf("unexpected stats: %+v", profile.Stats)
+	}
+	if profile.Stats[domain.StatConsistency] != 0 {
+		t.Fatalf("legacy consistency should not be incremented, got %+v", profile.Stats)
 	}
 	if profile.StreakDays != 3 {
 		t.Fatalf("expected streak 3, got %d", profile.StreakDays)
@@ -82,6 +85,9 @@ func TestAwardCreatesFallbackProfileAndPropagatesSaveError(t *testing.T) {
 	if repo.savedProfile.UserID != "user-1" || repo.savedProfile.Stats[domain.StatFuel] != 10 {
 		t.Fatalf("fallback profile was not built before save: %+v", repo.savedProfile)
 	}
+	if repo.savedProfile.Stats[domain.StatFuelConsistency] != 5 {
+		t.Fatalf("fallback profile did not assign fuel consistency: %+v", repo.savedProfile.Stats)
+	}
 }
 
 func TestGetReturnsStoredOrDefaultProfile(t *testing.T) {
@@ -104,7 +110,18 @@ func TestGetReturnsStoredOrDefaultProfile(t *testing.T) {
 	if profile.UserID != "user-2" || profile.Level != 1 || profile.NextLevelXP != 100 {
 		t.Fatalf("unexpected fallback profile: %+v", profile)
 	}
-	for _, stat := range []domain.Stat{domain.StatCardio, domain.StatStrength, domain.StatFuel, domain.StatRecovery, domain.StatMindset, domain.StatConsistency} {
+	for _, stat := range []domain.Stat{
+		domain.StatCardio,
+		domain.StatStrength,
+		domain.StatFuel,
+		domain.StatRecovery,
+		domain.StatMindset,
+		domain.StatCardioConsistency,
+		domain.StatStrengthConsistency,
+		domain.StatFuelConsistency,
+		domain.StatRecoveryConsistency,
+		domain.StatMindsetConsistency,
+	} {
 		if profile.Stats[stat] != 0 {
 			t.Fatalf("expected default stat %s to be zero, got %+v", stat, profile.Stats)
 		}
