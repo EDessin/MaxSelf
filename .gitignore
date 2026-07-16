@@ -1,0 +1,17 @@
+.cache/
+.env
+dist/
+tmp/
+
+# Go
+*.test
+coverage.out
+
+# Angular
+web/node_modules/
+web/dist/
+web/.angular/
+
+# OS/editor
+.DS_Store
+.idea/

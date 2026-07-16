@@ -1,0 +1,243 @@
+<main class="app-shell">
+  @if (!dashboard()) {
+    <section class="auth-layout">
+      <div class="brand-panel">
+        <div class="brand-mark">
+          <svg lucideShield size="42"></svg>
+          <svg lucideSparkles size="28"></svg>
+        </div>
+        <h1>MaxSelf</h1>
+        <p>Level up your health. Maximize your life.</p>
+
+        <div class="preview-card">
+          <div>
+            <span>Starter Quest</span>
+            <strong>Earn your first 100 Health XP</strong>
+          </div>
+          <p-progressbar [value]="68" [showValue]="false"></p-progressbar>
+        </div>
+      </div>
+
+      <p-card styleClass="auth-card">
+        <ng-template pTemplate="header">
+          <div class="auth-card-header">
+            <svg lucideZap size="30"></svg>
+            <div>
+              <span>{{ authMode === 'login' ? 'Welcome back' : 'Create player' }}</span>
+              <strong>{{ authMode === 'login' ? 'Continue your streak' : 'Start your first run' }}</strong>
+            </div>
+          </div>
+        </ng-template>
+
+        <div class="auth-switch">
+          <button type="button" [class.active]="authMode === 'login'" (click)="authMode = 'login'">Login</button>
+          <button type="button" [class.active]="authMode === 'register'" (click)="authMode = 'register'">Register</button>
+        </div>
+
+        @if (authMode === 'register') {
+          <label>
+            <span>Display name</span>
+            <input pInputText [(ngModel)]="displayName" />
+          </label>
+        }
+
+        <label>
+          <span>Email</span>
+          <input pInputText type="email" [(ngModel)]="email" />
+        </label>
+
+        <label>
+          <span>Password</span>
+          <input pInputText type="password" [(ngModel)]="password" />
+        </label>
+
+        @if (authError()) {
+          <p class="error">{{ authError() }}</p>
+        }
+
+        <button type="button" class="app-button primary-action" [class.is-loading]="authPending()" [disabled]="authPending()" (click)="submitAuth()">
+          @if (authPending()) {
+            <span class="button-spinner" aria-hidden="true"></span>
+          } @else {
+            <svg lucideStar size="18"></svg>
+          }
+          <span>{{ authMode === 'login' ? 'Enter MaxSelf' : 'Create MaxSelf' }}</span>
+        </button>
+
+        <button type="button" class="app-button secondary-action google-action" (click)="googleLogin()">
+          <span class="google-dot">G</span>
+          <span>Continue with Google</span>
+        </button>
+      </p-card>
+    </section>
+  } @else if (dashboard(); as dashboard) {
+    <section class="dashboard">
+      <header class="topbar">
+        <div class="logo-lockup">
+          <div class="mini-mark"><svg lucideShield size="26"></svg></div>
+          <div>
+            <strong>MaxSelf</strong>
+            <span>{{ dashboard.user.displayName }}</span>
+          </div>
+        </div>
+        <button type="button" class="app-button secondary-action topbar-action" (click)="logout()">Logout</button>
+      </header>
+
+      <section class="hero-band">
+        <div class="level-badge">
+          <svg lucideTrophy size="42"></svg>
+          <span>Level</span>
+          <strong>{{ dashboard.progress.level }}</strong>
+        </div>
+
+        <div class="level-copy">
+          <span class="eyebrow">Today: {{ todayXp() }} Health XP</span>
+          <h2>Your healthy self is gaining momentum.</h2>
+          <p-progressbar [value]="progressPercent()"></p-progressbar>
+          <div class="xp-row">
+            <span>{{ dashboard.progress.currentLevelXp }} / {{ dashboard.progress.nextLevelXp }} XP</span>
+            <span>{{ dashboard.progress.totalXp }} total XP</span>
+          </div>
+        </div>
+
+        <div class="streak-tile">
+          <svg lucideFlame size="34"></svg>
+          <span>{{ dashboard.progress.streakDays }}</span>
+          <strong>day streak</strong>
+        </div>
+      </section>
+
+      <section class="quick-actions">
+        @for (rule of rules(); track rule.type) {
+          <button type="button" class="action-tile" [style.--tile-color]="rule.color" (click)="openActivity(rule)">
+            <span class="icon-pill">
+              @switch (rule.icon) {
+                @case ('dumbbell') { <svg lucideDumbbell size="24"></svg> }
+                @case ('apple') { <svg lucideApple size="24"></svg> }
+                @case ('droplet') { <svg lucideDroplet size="24"></svg> }
+                @case ('moon') { <svg lucideMoon size="24"></svg> }
+                @case ('sparkles') { <svg lucideSparkles size="24"></svg> }
+                @case ('heart-pulse') { <svg lucideHeartPulse size="24"></svg> }
+                @default { <svg lucideStar size="24"></svg> }
+              }
+            </span>
+            <strong>{{ rule.title }}</strong>
+            <span>+{{ rule.xp }} XP</span>
+          </button>
+        }
+      </section>
+
+      <section class="content-grid">
+        <p-card styleClass="panel-card stats-card">
+          <ng-template pTemplate="header">
+            <div class="section-heading">
+              <svg lucideSparkles size="22"></svg>
+              <strong>Core Stats</strong>
+            </div>
+          </ng-template>
+
+          <div class="stat-list">
+            @for (stat of statMeta; track stat.key) {
+              <div class="stat-row">
+                <div class="stat-label">
+                  <span class="stat-dot" [style.background]="stat.color"></span>
+                  <span>{{ stat.label }}</span>
+                </div>
+                <strong>{{ dashboard.progress.stats[stat.key] || 0 }} XP</strong>
+              </div>
+            }
+          </div>
+        </p-card>
+
+        <p-card styleClass="panel-card history-card">
+          <ng-template pTemplate="header">
+            <div class="section-heading">
+              <svg lucideCalendarCheck size="22"></svg>
+              <strong>Recent Wins</strong>
+            </div>
+          </ng-template>
+
+          <p-table [value]="dashboard.activities" [tableStyle]="{ 'min-width': '36rem' }">
+            <ng-template pTemplate="header">
+              <tr>
+                <th>Action</th>
+                <th>Stat</th>
+                <th>XP</th>
+                <th>When</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-activity>
+              <tr>
+                <td>
+                  <span class="activity-name" [style.--activity-color]="colorFor(activity.type)">
+                    <span class="mini-icon">
+                      @switch (iconFor(activity.type)) {
+                        @case ('dumbbell') { <svg lucideDumbbell size="16"></svg> }
+                        @case ('apple') { <svg lucideApple size="16"></svg> }
+                        @case ('droplet') { <svg lucideDroplet size="16"></svg> }
+                        @case ('moon') { <svg lucideMoon size="16"></svg> }
+                        @case ('sparkles') { <svg lucideSparkles size="16"></svg> }
+                        @case ('heart-pulse') { <svg lucideHeartPulse size="16"></svg> }
+                        @default { <svg lucideStar size="16"></svg> }
+                      }
+                    </span>
+                    {{ activity.title }}
+                  </span>
+                </td>
+                <td>{{ activity.stat }}</td>
+                <td>+{{ activity.xp }}</td>
+                <td>{{ activity.occurredAt | date:'short' }}</td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="4">No wins yet. Pick a quest above to start gaining XP.</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </p-card>
+      </section>
+    </section>
+  }
+
+  @if (activityDialogOpen() && selectedRule(); as selectedRule) {
+    <div class="modal-backdrop" (click)="closeActivityDialog()">
+      <section class="activity-dialog" role="dialog" aria-modal="true" aria-labelledby="activity-dialog-title" (click)="$event.stopPropagation()">
+        <header class="dialog-header">
+          <div class="dialog-heading">
+            <svg lucideZap size="22"></svg>
+            <strong id="activity-dialog-title">{{ selectedRule.title }}</strong>
+          </div>
+          <button type="button" class="icon-button" aria-label="Close activity dialog" (click)="closeActivityDialog()">
+            <svg lucideX size="18"></svg>
+          </button>
+        </header>
+
+        <div class="activity-form">
+          <div class="xp-preview" [style.--tile-color]="selectedRule.color">
+            <span>Reward</span>
+            <strong>+{{ selectedRule.xp }} Health XP</strong>
+          </div>
+
+          <label>
+            <span>Notes</span>
+            <textarea pTextarea rows="4" [(ngModel)]="activityNotes" placeholder="What did you do?"></textarea>
+          </label>
+
+          @if (activityError()) {
+            <p class="error">{{ activityError() }}</p>
+          }
+
+          <button type="button" class="app-button primary-action" [class.is-loading]="activitySaving()" [disabled]="activitySaving()" (click)="saveActivity()">
+            @if (activitySaving()) {
+              <span class="button-spinner" aria-hidden="true"></span>
+            } @else {
+              <svg lucideZap size="18"></svg>
+            }
+            <span>Claim XP</span>
+          </button>
+        </div>
+      </section>
+    </div>
+  }
+</main>
