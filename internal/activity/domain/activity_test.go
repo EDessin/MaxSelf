@@ -7,8 +7,11 @@ import (
 
 func TestRulesAndRuleFor(t *testing.T) {
 	rules := Rules()
-	if len(rules) != 6 {
-		t.Fatalf("expected 6 rules, got %d", len(rules))
+	if len(rules) != 7 {
+		t.Fatalf("expected 7 rules, got %d", len(rules))
+	}
+	if rules[0].Title != "Cardio Session" || rules[0].XP != 30 || rules[0].Stat != StatCardio {
+		t.Fatalf("unexpected first rule: %+v", rules[0])
 	}
 
 	rule, err := RuleFor(TypeExercise)

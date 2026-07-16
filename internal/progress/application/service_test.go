@@ -104,7 +104,7 @@ func TestGetReturnsStoredOrDefaultProfile(t *testing.T) {
 	if profile.UserID != "user-2" || profile.Level != 1 || profile.NextLevelXP != 100 {
 		t.Fatalf("unexpected fallback profile: %+v", profile)
 	}
-	for _, stat := range []domain.Stat{domain.StatStrength, domain.StatFuel, domain.StatRecovery, domain.StatMindset, domain.StatConsistency} {
+	for _, stat := range []domain.Stat{domain.StatCardio, domain.StatStrength, domain.StatFuel, domain.StatRecovery, domain.StatMindset, domain.StatConsistency} {
 		if profile.Stats[stat] != 0 {
 			t.Fatalf("expected default stat %s to be zero, got %+v", stat, profile.Stats)
 		}

@@ -71,7 +71,7 @@ func TestRepositorySaveProfileUpsertsProgressAndStats(t *testing.T) {
 	if got.TotalXP != 170 || got.Stats[domain.StatStrength] != 80 || got.Stats[domain.StatConsistency] != 5 {
 		t.Fatalf("unexpected saved profile: %+v", got)
 	}
-	if got.Stats[domain.StatFuel] != 0 || got.Stats[domain.StatMindset] != 0 || got.Stats[domain.StatRecovery] != 0 {
+	if got.Stats[domain.StatCardio] != 0 || got.Stats[domain.StatFuel] != 0 || got.Stats[domain.StatMindset] != 0 || got.Stats[domain.StatRecovery] != 0 {
 		t.Fatalf("expected missing stats to default to zero: %+v", got.Stats)
 	}
 	if got.LastActivityDate == nil || !got.LastActivityDate.Equal(last) {

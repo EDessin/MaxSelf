@@ -72,6 +72,7 @@ export class App implements OnInit {
   activitySaving = signal(false);
 
   fallbackRules: ActivityRule[] = [
+    { type: 'cardio', title: 'Cardio Session', xp: 30, stat: 'cardio', icon: 'flame', color: '#ef4444' },
     { type: 'exercise', title: 'Move Your Body', xp: 40, stat: 'strength', icon: 'dumbbell', color: '#ff5a5f' },
     { type: 'healthy_meal', title: 'Nourishing Meal', xp: 25, stat: 'fuel', icon: 'apple', color: '#22c55e' },
     { type: 'hydration', title: 'Hydration Boost', xp: 10, stat: 'fuel', icon: 'droplet', color: '#38bdf8' },
@@ -81,6 +82,7 @@ export class App implements OnInit {
   ];
 
   statMeta = [
+    { key: 'cardio', label: 'Cardio', color: '#ef4444' },
     { key: 'strength', label: 'Strength', color: '#ff5a5f' },
     { key: 'fuel', label: 'Fuel', color: '#22c55e' },
     { key: 'recovery', label: 'Recovery', color: '#6366f1' },

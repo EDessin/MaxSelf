@@ -17,6 +17,7 @@ const rule = {
 };
 
 const allRules = [
+  { type: 'cardio', title: 'Cardio Session', xp: 30, stat: 'cardio', icon: 'flame', color: '#ef4444' },
   rule,
   { type: 'healthy_meal', title: 'Nourishing Meal', xp: 25, stat: 'fuel', icon: 'apple', color: '#22c55e' },
   { type: 'hydration', title: 'Hydration Boost', xp: 10, stat: 'fuel', icon: 'droplet', color: '#38bdf8' },
@@ -40,6 +41,7 @@ function dashboard(totalXp = 0) {
       nextLevelXp: 100,
       streakDays: totalXp > 0 ? 1 : 0,
       stats: {
+        cardio: 0,
         strength: totalXp,
         fuel: 0,
         recovery: 0,
@@ -63,6 +65,7 @@ function fullDashboard() {
       nextLevelXp: 200,
       streakDays: 3,
       stats: {
+        cardio: 30,
         strength: 40,
         fuel: 35,
         recovery: 55,

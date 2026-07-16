@@ -55,6 +55,7 @@ func (r Repository) GetProfile(ctx context.Context, userID string) (domain.Profi
 		return domain.Profile{}, err
 	}
 	stats := map[domain.Stat]int{
+		domain.StatCardio:      0,
 		domain.StatStrength:    0,
 		domain.StatFuel:        0,
 		domain.StatRecovery:    0,

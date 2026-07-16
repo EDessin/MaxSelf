@@ -51,6 +51,7 @@ func (s Service) Get(ctx context.Context, userID string) (domain.Profile, error)
 			CurrentLevelXP: 0,
 			NextLevelXP:    domain.XPNeededForLevel(1),
 			Stats: map[domain.Stat]int{
+				domain.StatCardio:      0,
 				domain.StatStrength:    0,
 				domain.StatFuel:        0,
 				domain.StatRecovery:    0,

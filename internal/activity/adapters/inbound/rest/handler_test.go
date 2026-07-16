@@ -63,8 +63,8 @@ func TestRoutesHealthAndRules(t *testing.T) {
 	if err := json.NewDecoder(recorder.Body).Decode(&rules); err != nil {
 		t.Fatalf("decode rules: %v", err)
 	}
-	if len(rules) != 6 {
-		t.Fatalf("expected 6 rules, got %d", len(rules))
+	if len(rules) != 7 {
+		t.Fatalf("expected 7 rules, got %d", len(rules))
 	}
 }
 

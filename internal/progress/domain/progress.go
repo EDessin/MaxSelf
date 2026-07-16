@@ -5,6 +5,7 @@ import "time"
 type Stat string
 
 const (
+	StatCardio      Stat = "cardio"
 	StatStrength    Stat = "strength"
 	StatFuel        Stat = "fuel"
 	StatRecovery    Stat = "recovery"
