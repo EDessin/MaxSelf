@@ -74,6 +74,7 @@ web:
 	@cd web && npm start -- --port 4201
 
 test:
+	@bash scripts/env_test.sh
 	@go test ./cmd/... ./internal/...
 
 coverage: coverage-backend coverage-web

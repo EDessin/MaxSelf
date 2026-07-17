@@ -100,7 +100,8 @@ The first playable slice includes:
 
 ## Local Development
 
-Copy the environment example if you want to customize secrets:
+Copy the environment example if you want to customize secrets. The local
+`make dev` and `make services` scripts read this `.env` file automatically:
 
 ```bash
 cp .env.example .env
@@ -168,6 +169,9 @@ GOOGLE_CLIENT_ID=...
 GOOGLE_CLIENT_SECRET=...
 GOOGLE_REDIRECT_URL=http://localhost:8081/auth/google/callback
 ```
+
+If you already had `make dev` or `make services` running, restart it after
+editing `.env`; running services do not reload environment variables.
 
 MaxSelf uses Google only to prove identity. The app still issues its own JWT
 for MaxSelf API access.
