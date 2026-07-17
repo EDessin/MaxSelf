@@ -41,17 +41,40 @@ func TestXPNeededForLevelNormalizesLowLevels(t *testing.T) {
 
 func TestConsistencyStatFor(t *testing.T) {
 	tests := map[Stat]Stat{
-		StatCardio:    StatCardioConsistency,
-		StatStrength:  StatStrengthConsistency,
-		StatFuel:      StatFuelConsistency,
-		StatRecovery:  StatRecoveryConsistency,
-		StatMindset:   StatMindsetConsistency,
-		Stat("other"): "",
+		StatCardio:     StatCardioConsistency,
+		StatStrength:   StatStrengthConsistency,
+		StatFuel:       StatFuelConsistency,
+		StatRecovery:   StatRecoveryConsistency,
+		StatMindset:    StatMindsetConsistency,
+		StatBiometrics: StatBiometricsConsistency,
+		Stat("other"):  "",
 	}
 
 	for stat, want := range tests {
 		if got := ConsistencyStatFor(stat); got != want {
 			t.Fatalf("ConsistencyStatFor(%s) = %s, want %s", stat, got, want)
+		}
+	}
+}
+
+func TestDefaultStatsIncludesTrackedStats(t *testing.T) {
+	stats := DefaultStats()
+	for _, stat := range []Stat{
+		StatCardio,
+		StatStrength,
+		StatFuel,
+		StatRecovery,
+		StatMindset,
+		StatBiometrics,
+		StatCardioConsistency,
+		StatStrengthConsistency,
+		StatFuelConsistency,
+		StatRecoveryConsistency,
+		StatMindsetConsistency,
+		StatBiometricsConsistency,
+	} {
+		if xp, ok := stats[stat]; !ok || xp != 0 {
+			t.Fatalf("expected default stat %s to be present at zero, got %+v", stat, stats)
 		}
 	}
 }

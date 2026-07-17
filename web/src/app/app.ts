@@ -9,9 +9,12 @@ import {
   LucideFlame,
   LucideHeartPulse,
   LucideMoon,
+  LucideRuler,
+  LucideScanLine,
   LucideShield,
   LucideSparkles,
   LucideStar,
+  LucideTestTube,
   LucideTrophy,
   LucideX,
   LucideZap
@@ -54,9 +57,12 @@ interface QuestColumn extends CategoryMeta {
     LucideFlame,
     LucideHeartPulse,
     LucideMoon,
+    LucideRuler,
+    LucideScanLine,
     LucideShield,
     LucideSparkles,
     LucideStar,
+    LucideTestTube,
     LucideTrophy,
     LucideX,
     LucideZap
@@ -91,7 +97,10 @@ export class App implements OnInit {
     { type: 'hydration', title: 'Hydration Boost', xp: 10, stat: 'fuel', icon: 'droplet', color: '#38bdf8' },
     { type: 'sleep', title: 'Sleep Goal Met', xp: 35, stat: 'recovery', icon: 'moon', color: '#6366f1' },
     { type: 'mindfulness', title: 'Mindset Moment', xp: 20, stat: 'mindset', icon: 'sparkles', color: '#a855f7' },
-    { type: 'recovery', title: 'Recovery Ritual', xp: 20, stat: 'recovery', icon: 'heart-pulse', color: '#14b8a6' }
+    { type: 'recovery', title: 'Recovery Ritual', xp: 20, stat: 'recovery', icon: 'heart-pulse', color: '#14b8a6' },
+    { type: 'body_check_in', title: 'Body Check-In', xp: 15, stat: 'biometrics', icon: 'ruler', color: '#0891b2' },
+    { type: 'lab_results', title: 'Lab Results', xp: 25, stat: 'biometrics', icon: 'test-tube', color: '#0891b2' },
+    { type: 'body_scan', title: 'Body Composition Scan', xp: 35, stat: 'biometrics', icon: 'scan-line', color: '#0891b2' }
   ];
 
   categoryMeta: CategoryMeta[] = [
@@ -99,7 +108,8 @@ export class App implements OnInit {
     { key: 'strength', label: 'Strength', color: '#ff5a5f', consistencyKey: 'strength_consistency' },
     { key: 'fuel', label: 'Fuel', color: '#22c55e', consistencyKey: 'fuel_consistency' },
     { key: 'recovery', label: 'Recovery', color: '#6366f1', consistencyKey: 'recovery_consistency' },
-    { key: 'mindset', label: 'Mindset', color: '#a855f7', consistencyKey: 'mindset_consistency' }
+    { key: 'mindset', label: 'Mindset', color: '#a855f7', consistencyKey: 'mindset_consistency' },
+    { key: 'biometrics', label: 'Biometrics', color: '#0891b2', consistencyKey: 'biometrics_consistency' }
   ];
 
   statMeta = this.categoryMeta.map(({ key, label, color }) => ({ key, label, color }));

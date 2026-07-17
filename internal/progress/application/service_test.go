@@ -88,6 +88,19 @@ func TestAwardCreatesFallbackProfileAndPropagatesSaveError(t *testing.T) {
 	if repo.savedProfile.Stats[domain.StatFuelConsistency] != 5 {
 		t.Fatalf("fallback profile did not assign fuel consistency: %+v", repo.savedProfile.Stats)
 	}
+
+	profile, err := NewService(&fakeProgressRepository{getErr: errors.New("not found")}).Award(context.Background(), domain.Award{
+		UserID:     "user-2",
+		XP:         15,
+		Stat:       domain.StatBiometrics,
+		OccurredAt: time.Now(),
+	})
+	if err != nil {
+		t.Fatalf("biometrics award returned error: %v", err)
+	}
+	if profile.Stats[domain.StatBiometrics] != 15 || profile.Stats[domain.StatBiometricsConsistency] != 5 {
+		t.Fatalf("fallback profile did not assign biometrics stats: %+v", profile.Stats)
+	}
 }
 
 func TestGetReturnsStoredOrDefaultProfile(t *testing.T) {
@@ -116,11 +129,13 @@ func TestGetReturnsStoredOrDefaultProfile(t *testing.T) {
 		domain.StatFuel,
 		domain.StatRecovery,
 		domain.StatMindset,
+		domain.StatBiometrics,
 		domain.StatCardioConsistency,
 		domain.StatStrengthConsistency,
 		domain.StatFuelConsistency,
 		domain.StatRecoveryConsistency,
 		domain.StatMindsetConsistency,
+		domain.StatBiometricsConsistency,
 	} {
 		if profile.Stats[stat] != 0 {
 			t.Fatalf("expected default stat %s to be zero, got %+v", stat, profile.Stats)

@@ -25,7 +25,7 @@ func (s Service) Award(ctx context.Context, award domain.Award) (domain.Profile,
 		profile = domain.Profile{
 			UserID:      award.UserID,
 			Level:       1,
-			Stats:       map[domain.Stat]int{},
+			Stats:       domain.DefaultStats(),
 			NextLevelXP: domain.XPNeededForLevel(1),
 		}
 	}
@@ -52,18 +52,7 @@ func (s Service) Get(ctx context.Context, userID string) (domain.Profile, error)
 			Level:          1,
 			CurrentLevelXP: 0,
 			NextLevelXP:    domain.XPNeededForLevel(1),
-			Stats: map[domain.Stat]int{
-				domain.StatCardio:              0,
-				domain.StatStrength:            0,
-				domain.StatFuel:                0,
-				domain.StatRecovery:            0,
-				domain.StatMindset:             0,
-				domain.StatCardioConsistency:   0,
-				domain.StatStrengthConsistency: 0,
-				domain.StatFuelConsistency:     0,
-				domain.StatRecoveryConsistency: 0,
-				domain.StatMindsetConsistency:  0,
-			},
+			Stats:          domain.DefaultStats(),
 		}
 	}
 	return profile, nil
