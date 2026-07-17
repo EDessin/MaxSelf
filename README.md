@@ -107,6 +107,11 @@ Copy the environment example if you want to customize secrets. The local
 cp .env.example .env
 ```
 
+The example is set up for local source runs. If your existing `.env` was copied
+from an older version and contains Docker hostnames such as `postgres`,
+`identity`, `activity`, or `progress`, the local scripts normalize those to
+`localhost` before starting services.
+
 For the normal local development loop, use the Makefile. It starts only
 PostgreSQL in Docker, then runs the Go services and Angular frontend directly
 from your local source tree:
