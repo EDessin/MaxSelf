@@ -54,18 +54,7 @@ func (r Repository) GetProfile(ctx context.Context, userID string) (domain.Profi
 	if err := r.db.WithContext(ctx).Where("user_id = ?", userID).Find(&statModels).Error; err != nil {
 		return domain.Profile{}, err
 	}
-	stats := map[domain.Stat]int{
-		domain.StatCardio:              0,
-		domain.StatStrength:            0,
-		domain.StatFuel:                0,
-		domain.StatRecovery:            0,
-		domain.StatMindset:             0,
-		domain.StatCardioConsistency:   0,
-		domain.StatStrengthConsistency: 0,
-		domain.StatFuelConsistency:     0,
-		domain.StatRecoveryConsistency: 0,
-		domain.StatMindsetConsistency:  0,
-	}
+	stats := domain.DefaultStats()
 	for _, model := range statModels {
 		stats[domain.Stat(model.Stat)] = model.XP
 	}

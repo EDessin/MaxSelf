@@ -7,8 +7,8 @@ import (
 
 func TestRulesAndRuleFor(t *testing.T) {
 	rules := Rules()
-	if len(rules) != 7 {
-		t.Fatalf("expected 7 rules, got %d", len(rules))
+	if len(rules) != 10 {
+		t.Fatalf("expected 10 rules, got %d", len(rules))
 	}
 	if rules[0].Title != "Cardio Session" || rules[0].XP != 30 || rules[0].Stat != StatCardio {
 		t.Fatalf("unexpected first rule: %+v", rules[0])
@@ -23,6 +23,14 @@ func TestRulesAndRuleFor(t *testing.T) {
 	}
 	if rule.Title != "Strength Session" || rule.XP != 40 || rule.Stat != StatStrength {
 		t.Fatalf("unexpected exercise rule: %+v", rule)
+	}
+
+	rule, err = RuleFor(TypeBodyScan)
+	if err != nil {
+		t.Fatalf("RuleFor returned error for body scan: %v", err)
+	}
+	if rule.Title != "Body Composition Scan" || rule.XP != 35 || rule.Stat != StatBiometrics || rule.Icon != "scan-line" || rule.Color != "#0891b2" {
+		t.Fatalf("unexpected body scan rule: %+v", rule)
 	}
 
 	_, err = RuleFor(ActivityType("unknown"))

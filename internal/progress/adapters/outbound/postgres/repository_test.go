@@ -79,10 +79,12 @@ func TestRepositorySaveProfileUpsertsProgressAndStats(t *testing.T) {
 		got.Stats[domain.StatFuel] != 0 ||
 		got.Stats[domain.StatMindset] != 0 ||
 		got.Stats[domain.StatRecovery] != 0 ||
+		got.Stats[domain.StatBiometrics] != 0 ||
 		got.Stats[domain.StatCardioConsistency] != 0 ||
 		got.Stats[domain.StatFuelConsistency] != 0 ||
 		got.Stats[domain.StatRecoveryConsistency] != 0 ||
-		got.Stats[domain.StatMindsetConsistency] != 0 {
+		got.Stats[domain.StatMindsetConsistency] != 0 ||
+		got.Stats[domain.StatBiometricsConsistency] != 0 {
 		t.Fatalf("expected missing stats to default to zero: %+v", got.Stats)
 	}
 	if got.LastActivityDate == nil || !got.LastActivityDate.Equal(last) {

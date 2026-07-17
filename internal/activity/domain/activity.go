@@ -16,12 +16,16 @@ const (
 	TypeSleep       ActivityType = "sleep"
 	TypeMindfulness ActivityType = "mindfulness"
 	TypeRecovery    ActivityType = "recovery"
+	TypeBodyCheckIn ActivityType = "body_check_in"
+	TypeLabResults  ActivityType = "lab_results"
+	TypeBodyScan    ActivityType = "body_scan"
 
 	StatCardio      Stat = "cardio"
 	StatStrength    Stat = "strength"
 	StatFuel        Stat = "fuel"
 	StatRecovery    Stat = "recovery"
 	StatMindset     Stat = "mindset"
+	StatBiometrics  Stat = "biometrics"
 	StatConsistency Stat = "consistency"
 )
 
@@ -57,6 +61,9 @@ func Rules() []ActivityRule {
 		{Type: TypeSleep, Title: "Sleep Goal Met", XP: 35, Stat: StatRecovery, Icon: "moon", Color: "#6366f1"},
 		{Type: TypeMindfulness, Title: "Mindset Moment", XP: 20, Stat: StatMindset, Icon: "sparkles", Color: "#a855f7"},
 		{Type: TypeRecovery, Title: "Recovery Ritual", XP: 20, Stat: StatRecovery, Icon: "heart-pulse", Color: "#14b8a6"},
+		{Type: TypeBodyCheckIn, Title: "Body Check-In", XP: 15, Stat: StatBiometrics, Icon: "ruler", Color: "#0891b2"},
+		{Type: TypeLabResults, Title: "Lab Results", XP: 25, Stat: StatBiometrics, Icon: "test-tube", Color: "#0891b2"},
+		{Type: TypeBodyScan, Title: "Body Composition Scan", XP: 35, Stat: StatBiometrics, Icon: "scan-line", Color: "#0891b2"},
 	}
 }
 

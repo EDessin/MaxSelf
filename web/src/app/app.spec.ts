@@ -24,6 +24,9 @@ const allRules = [
   { type: 'sleep', title: 'Sleep Goal Met', xp: 35, stat: 'recovery', icon: 'moon', color: '#6366f1' },
   { type: 'mindfulness', title: 'Mindset Moment', xp: 20, stat: 'mindset', icon: 'sparkles', color: '#a855f7' },
   { type: 'recovery', title: 'Recovery Ritual', xp: 20, stat: 'recovery', icon: 'heart-pulse', color: '#14b8a6' },
+  { type: 'body_check_in', title: 'Body Check-In', xp: 15, stat: 'biometrics', icon: 'ruler', color: '#0891b2' },
+  { type: 'lab_results', title: 'Lab Results', xp: 25, stat: 'biometrics', icon: 'test-tube', color: '#0891b2' },
+  { type: 'body_scan', title: 'Body Composition Scan', xp: 35, stat: 'biometrics', icon: 'scan-line', color: '#0891b2' },
   { type: 'bonus', title: 'Bonus Quest', xp: 5, stat: 'mindset', icon: 'unknown', color: '#f59e0b' }
 ];
 
@@ -46,11 +49,13 @@ function dashboard(totalXp = 0) {
         fuel: 0,
         recovery: 0,
         mindset: 0,
+        biometrics: 0,
         cardio_consistency: 0,
         strength_consistency: 0,
         fuel_consistency: 0,
         recovery_consistency: 0,
-        mindset_consistency: 0
+        mindset_consistency: 0,
+        biometrics_consistency: 0
       }
     },
     activities: [],
@@ -74,11 +79,13 @@ function fullDashboard() {
         fuel: 35,
         recovery: 55,
         mindset: 25,
+        biometrics: 75,
         cardio_consistency: 5,
         strength_consistency: 10,
         fuel_consistency: 15,
         recovery_consistency: 20,
         mindset_consistency: 25,
+        biometrics_consistency: 30,
         consistency: 99
       }
     },
@@ -170,10 +177,11 @@ describe('App', () => {
     expect(root.textContent).toContain('Cardio');
     expect(root.textContent).toContain('Strength');
     expect(root.textContent).toContain('Fuel');
+    expect(root.textContent).toContain('Biometrics');
     expect(root.textContent).not.toContain('99 XP');
     expect(root.textContent).toContain('Recent Wins');
     expect(Array.from(root.querySelectorAll('.quest-column-header span')).map((header) => header.textContent?.trim()))
-      .toEqual(['Cardio', 'Strength', 'Fuel', 'Recovery', 'Mindset']);
+      .toEqual(['Cardio', 'Strength', 'Fuel', 'Recovery', 'Mindset', 'Biometrics']);
     expect(Array.from(root.querySelectorAll('.quest-column-header')).map((header) => [
       header.querySelector('span')?.textContent?.trim(),
       header.querySelector('strong')?.textContent?.trim(),
@@ -184,10 +192,11 @@ describe('App', () => {
         'Strength 40 total XP 10 consistency XP',
         'Fuel 35 total XP 15 consistency XP',
         'Recovery 55 total XP 20 consistency XP',
-        'Mindset 25 total XP 25 consistency XP'
+        'Mindset 25 total XP 25 consistency XP',
+        'Biometrics 75 total XP 30 consistency XP'
       ]);
     expect(root.querySelectorAll('.action-tile').length).toBe(allRules.length);
-    expect(root.querySelectorAll('.quest-column').length).toBe(5);
+    expect(root.querySelectorAll('.quest-column').length).toBe(6);
     expect(root.querySelectorAll('tbody tr').length).toBe(allRules.length);
     expect(app.progressPercent()).toBe(20);
     expect(app.todayXp()).toBe(allRules.reduce((sum, activityRule) => sum + activityRule.xp, 0));

@@ -5,17 +5,19 @@ import "time"
 type Stat string
 
 const (
-	StatCardio              Stat = "cardio"
-	StatStrength            Stat = "strength"
-	StatFuel                Stat = "fuel"
-	StatRecovery            Stat = "recovery"
-	StatMindset             Stat = "mindset"
-	StatConsistency         Stat = "consistency"
-	StatCardioConsistency   Stat = "cardio_consistency"
-	StatStrengthConsistency Stat = "strength_consistency"
-	StatFuelConsistency     Stat = "fuel_consistency"
-	StatRecoveryConsistency Stat = "recovery_consistency"
-	StatMindsetConsistency  Stat = "mindset_consistency"
+	StatCardio                Stat = "cardio"
+	StatStrength              Stat = "strength"
+	StatFuel                  Stat = "fuel"
+	StatRecovery              Stat = "recovery"
+	StatMindset               Stat = "mindset"
+	StatBiometrics            Stat = "biometrics"
+	StatConsistency           Stat = "consistency"
+	StatCardioConsistency     Stat = "cardio_consistency"
+	StatStrengthConsistency   Stat = "strength_consistency"
+	StatFuelConsistency       Stat = "fuel_consistency"
+	StatRecoveryConsistency   Stat = "recovery_consistency"
+	StatMindsetConsistency    Stat = "mindset_consistency"
+	StatBiometricsConsistency Stat = "biometrics_consistency"
 )
 
 type Profile struct {
@@ -50,8 +52,27 @@ func ConsistencyStatFor(stat Stat) Stat {
 		return StatRecoveryConsistency
 	case StatMindset:
 		return StatMindsetConsistency
+	case StatBiometrics:
+		return StatBiometricsConsistency
 	default:
 		return ""
+	}
+}
+
+func DefaultStats() map[Stat]int {
+	return map[Stat]int{
+		StatCardio:                0,
+		StatStrength:              0,
+		StatFuel:                  0,
+		StatRecovery:              0,
+		StatMindset:               0,
+		StatBiometrics:            0,
+		StatCardioConsistency:     0,
+		StatStrengthConsistency:   0,
+		StatFuelConsistency:       0,
+		StatRecoveryConsistency:   0,
+		StatMindsetConsistency:    0,
+		StatBiometricsConsistency: 0,
 	}
 }
 
