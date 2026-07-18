@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -127,7 +128,7 @@ func TestFacadeRoutes(t *testing.T) {
 }
 
 func TestFacadeRoutesReturnErrors(t *testing.T) {
-	handler, _ := newFacadeHandler(t)
+	handler, token := newFacadeHandler(t)
 
 	for _, route := range []string{"/api/auth/register", "/api/auth/login"} {
 		recorder := httptest.NewRecorder()
@@ -155,5 +156,70 @@ func TestFacadeRoutesReturnErrors(t *testing.T) {
 	handler.ServeHTTP(recorder, request)
 	if recorder.Code != http.StatusGone {
 		t.Fatalf("expected bad create activity request, got %d", recorder.Code)
+	}
+
+	request = httptest.NewRequest(http.MethodPost, "/api/integrations/google-health/connect", nil)
+	request.Header.Set("Authorization", "Bearer "+token)
+	recorder = httptest.NewRecorder()
+	handler.ServeHTTP(recorder, request)
+	if recorder.Code != http.StatusNotImplemented {
+		t.Fatalf("expected unconfigured connect, got %d", recorder.Code)
+	}
+
+	recorder = httptest.NewRecorder()
+	handler.ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/api/integrations/google-health/callback?state=bad&code=bad", nil))
+	if recorder.Code != http.StatusFound {
+		t.Fatalf("expected callback error redirect, got %d", recorder.Code)
+	}
+
+	request = httptest.NewRequest(http.MethodPost, "/api/integrations/google-health/sync", nil)
+	request.Header.Set("Authorization", "Bearer "+token)
+	recorder = httptest.NewRecorder()
+	handler.ServeHTTP(recorder, request)
+	if recorder.Code != http.StatusNotImplemented {
+		t.Fatalf("expected unconfigured sync, got %d", recorder.Code)
+	}
+
+	recorder = httptest.NewRecorder()
+	handler.ServeHTTP(recorder, httptest.NewRequest(http.MethodPost, "/api/biometrics/waist-to-height", strings.NewReader(`{`)))
+	if recorder.Code != http.StatusBadRequest {
+		t.Fatalf("expected invalid waist request, got %d", recorder.Code)
+	}
+
+	request = httptest.NewRequest(http.MethodPost, "/api/biometrics/waist-to-height", strings.NewReader(`{"waistCentimeters":80,"heightCentimeters":180}`))
+	request.Header.Set("Authorization", "Bearer "+token)
+	recorder = httptest.NewRecorder()
+	handler.ServeHTTP(recorder, request)
+	if recorder.Code != http.StatusNotImplemented {
+		t.Fatalf("expected unconfigured waist route, got %d", recorder.Code)
+	}
+
+	request = httptest.NewRequest(http.MethodPost, "/api/quest-claims/claim-1/claim", nil)
+	request.Header.Set("Authorization", "Bearer "+token)
+	recorder = httptest.NewRecorder()
+	handler.ServeHTTP(recorder, request)
+	if recorder.Code != http.StatusNotImplemented {
+		t.Fatalf("expected unconfigured quest claim route, got %d", recorder.Code)
+	}
+}
+
+func TestIntegrationErrorStatuses(t *testing.T) {
+	handler := NewHandler(application.Service{}, config.Config{})
+	tests := []struct {
+		err  error
+		code int
+	}{
+		{application.ErrGoogleHealthNotConfigured, http.StatusNotImplemented},
+		{application.ErrGoogleHealthNotConnected, http.StatusConflict},
+		{application.ErrQuestClaimNotFound, http.StatusNotFound},
+		{application.ErrQuestClaimAlreadyClaimed, http.StatusConflict},
+		{errors.New("other"), http.StatusBadRequest},
+	}
+	for _, tt := range tests {
+		recorder := httptest.NewRecorder()
+		handler.integrationError(recorder, tt.err)
+		if recorder.Code != tt.code {
+			t.Fatalf("expected %d for %v, got %d", tt.code, tt.err, recorder.Code)
+		}
 	}
 }

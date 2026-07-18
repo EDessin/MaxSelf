@@ -6,6 +6,7 @@ import Aura from '@primeuix/themes/aura';
 import { providePrimeNG } from 'primeng/config';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { App } from './app';
+import { MaxSelfApi } from './maxself-api.service';
 
 const rule = {
   type: 'exercise',
@@ -43,6 +44,17 @@ const claim = {
   questDate: '2026-07-17',
   status: 'pending',
   createdAt: new Date().toISOString()
+};
+
+const secondClaim = {
+  ...claim,
+  id: 'claim-2',
+  type: 'sleep',
+  title: 'Sleep Goal Met',
+  xp: 35,
+  stat: 'recovery',
+  sourceId: 'sleep-1',
+  evidence: '450 minutes asleep'
 };
 
 function dashboard(totalXp = 0) {
@@ -332,6 +344,160 @@ describe('App', () => {
     expect(root.querySelector('.activity-dialog')).not.toBeNull();
     expect(root.textContent).toContain('Running · 35 min');
     expect(root.textContent).toContain('1 new quest ready to claim.');
+  });
+
+  it('should connect Google Health and surface configuration errors', async () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    fixture.detectChanges();
+    app.token = 'token';
+
+    app.connectGoogleHealth();
+
+    let request = http!.expectOne('http://localhost:8080/api/integrations/google-health/connect');
+    expect(request.request.method).toBe('POST');
+    request.flush({ url: `${window.location.origin}${window.location.pathname}` });
+
+    expect(app.connectPending()).toBe(false);
+
+    app.connectGoogleHealth();
+    request = http!.expectOne('http://localhost:8080/api/integrations/google-health/connect');
+    request.flush({ error: 'missing config' }, { status: 501, statusText: 'Not Implemented' });
+
+    expect(app.connectPending()).toBe(false);
+    expect(app.syncError()).toBe('Google Health is not configured yet.');
+  });
+
+  it('should report sync failures and empty sync results', async () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    fixture.detectChanges();
+    app.token = 'token';
+    app.dashboard.set({
+      ...dashboard(),
+      googleHealth: { connected: false, pendingClaims: 0 }
+    });
+
+    app.syncGoogleHealth();
+
+    let request = http!.expectOne('http://localhost:8080/api/integrations/google-health/sync');
+    request.flush({ error: 'not connected' }, { status: 409, statusText: 'Conflict' });
+    await fixture.whenStable();
+
+    expect(app.syncPending()).toBe(false);
+    expect(app.syncError()).toBe('Connect Google Health before syncing.');
+
+    app.dashboard.set({
+      ...dashboard(),
+      googleHealth: { connected: true, pendingClaims: 0 }
+    });
+    app.syncGoogleHealth();
+
+    request = http!.expectOne('http://localhost:8080/api/integrations/google-health/sync');
+    request.flush({
+      createdClaims: 0,
+      pendingClaims: [],
+      dashboard: {
+        ...dashboard(),
+        googleHealth: { connected: true, pendingClaims: 0 },
+        questClaims: []
+      }
+    });
+    await fixture.whenStable();
+
+    expect(app.activityDialogOpen()).toBe(false);
+    expect(app.selectedClaim()).toBeUndefined();
+    expect(app.syncMessage()).toBe('No new quests were unlocked from the latest sync.');
+  });
+
+  it('should submit a waist measurement and open the generated claim', async () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    fixture.detectChanges();
+    app.token = 'token';
+    app.dashboard.set(dashboard());
+
+    app.submitWaistMeasurement();
+    expect(app.activityError()).toBe('Enter both waist and height measurements.');
+    http!.expectNone('http://localhost:8080/api/biometrics/waist-to-height');
+
+    app.waistCentimeters = 80;
+    app.heightCentimeters = 180;
+    app.submitWaistMeasurement();
+
+    const request = http!.expectOne('http://localhost:8080/api/biometrics/waist-to-height');
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual({ waistCentimeters: 80, heightCentimeters: 180 });
+    request.flush({
+      createdClaims: 1,
+      pendingClaims: [{
+        ...claim,
+        id: 'waist-claim',
+        type: 'waist_to_height_ratio',
+        title: 'Waist-to-Height Ratio',
+        xp: 15,
+        stat: 'biometrics',
+        source: 'manual',
+        evidence: 'Waist 80.0 cm, height 180.0 cm, ratio 0.44'
+      }],
+      dashboard: {
+        ...dashboard(),
+        questClaims: []
+      }
+    });
+    await fixture.whenStable();
+
+    expect(app.waistSaving()).toBe(false);
+    expect(app.waistDialogOpen()).toBe(false);
+    expect(app.activityDialogOpen()).toBe(true);
+    expect(app.selectedClaim()?.type).toBe('waist_to_height_ratio');
+  });
+
+  it('should show a waist measurement error when saving fails', async () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    fixture.detectChanges();
+    app.token = 'token';
+    app.waistCentimeters = 80;
+    app.heightCentimeters = 180;
+
+    app.submitWaistMeasurement();
+
+    http!.expectOne('http://localhost:8080/api/biometrics/waist-to-height')
+      .flush({ error: 'nope' }, { status: 500, statusText: 'Server Error' });
+    await fixture.whenStable();
+
+    expect(app.waistSaving()).toBe(false);
+    expect(app.activityError()).toBe('Could not save the measurement. Please try again.');
+  });
+
+  it('should open existing pending claims and advance through a multi-claim queue', async () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    fixture.detectChanges();
+    app.token = 'token';
+
+    app.openPendingClaims();
+    expect(app.activityDialogOpen()).toBe(false);
+
+    app.dashboard.set({ ...dashboard(), questClaims: [claim, secondClaim] });
+    app.openPendingClaims();
+
+    expect(app.activityDialogOpen()).toBe(true);
+    expect(app.selectedClaim()?.id).toBe('claim-1');
+
+    app.saveActivity();
+    http!.expectOne('http://localhost:8080/api/quest-claims/claim-1/claim')
+      .flush({ ...dashboard(30), questClaims: [secondClaim] });
+    await fixture.whenStable();
+
+    expect(app.activityDialogOpen()).toBe(true);
+    expect(app.selectedClaim()?.id).toBe('claim-2');
+  });
+
+  it('should expose the Google login URL from the API service', () => {
+    const api = TestBed.inject(MaxSelfApi);
+    expect(api.googleLoginUrl()).toBe('http://localhost:8080/api/auth/google/login');
   });
 
   it('should leave the login button loading state after authentication completes', async () => {
