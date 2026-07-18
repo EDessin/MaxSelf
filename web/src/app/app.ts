@@ -106,16 +106,16 @@ export class App implements OnInit {
 
   fallbackRules: ActivityRule[] = [
     { type: 'cardio', title: 'Cardio Session', xp: 30, stat: 'cardio', icon: 'flame', color: '#f59e0b' },
-    { type: 'daily_steps_bronze', title: 'Daily Steps — Bronze', xp: 20, stat: 'cardio', icon: 'footprints', color: '#cd7f32', tier: 'Bronze', thresholdValue: 6000, thresholdUnit: 'steps', followUpType: 'daily_steps_silver' },
-    { type: 'daily_steps_silver', title: 'Daily Steps — Silver', xp: 30, stat: 'cardio', icon: 'footprints', color: '#94a3b8', tier: 'Silver', thresholdValue: 8000, thresholdUnit: 'steps', followUpType: 'daily_steps_gold', prerequisiteType: 'daily_steps_bronze' },
+    { type: 'daily_steps_bronze', title: 'Daily Steps — Bronze', xp: 20, stat: 'cardio', icon: 'footprints', color: '#f59e0b', tier: 'Bronze', thresholdValue: 6000, thresholdUnit: 'steps', followUpType: 'daily_steps_silver' },
+    { type: 'daily_steps_silver', title: 'Daily Steps — Silver', xp: 30, stat: 'cardio', icon: 'footprints', color: '#f59e0b', tier: 'Silver', thresholdValue: 8000, thresholdUnit: 'steps', followUpType: 'daily_steps_gold', prerequisiteType: 'daily_steps_bronze' },
     { type: 'daily_steps_gold', title: 'Daily Steps — Gold', xp: 45, stat: 'cardio', icon: 'footprints', color: '#f59e0b', tier: 'Gold', thresholdValue: 10000, thresholdUnit: 'steps', followUpType: 'daily_steps_diamond', prerequisiteType: 'daily_steps_silver' },
-    { type: 'daily_steps_diamond', title: 'Daily Steps — Diamond', xp: 70, stat: 'cardio', icon: 'footprints', color: '#67e8f9', tier: 'Diamond', thresholdValue: 15000, thresholdUnit: 'steps', prerequisiteType: 'daily_steps_gold' },
+    { type: 'daily_steps_diamond', title: 'Daily Steps — Diamond', xp: 70, stat: 'cardio', icon: 'footprints', color: '#f59e0b', tier: 'Diamond', thresholdValue: 15000, thresholdUnit: 'steps', prerequisiteType: 'daily_steps_gold' },
     { type: 'exercise', title: 'Strength Session', xp: 40, stat: 'strength', icon: 'dumbbell', color: '#ff5a5f' },
     { type: 'healthy_meal', title: 'Nourishing Meal', xp: 25, stat: 'fuel', icon: 'apple', color: '#22c55e' },
-    { type: 'hydration_bronze', title: 'Hydration Boost — Bronze', xp: 10, stat: 'fuel', icon: 'droplet', color: '#cd7f32', tier: 'Bronze', thresholdValue: 500, thresholdUnit: 'ml', followUpType: 'hydration_silver' },
-    { type: 'hydration_silver', title: 'Hydration Boost — Silver', xp: 15, stat: 'fuel', icon: 'droplet', color: '#94a3b8', tier: 'Silver', thresholdValue: 1000, thresholdUnit: 'ml', followUpType: 'hydration_gold', prerequisiteType: 'hydration_bronze' },
-    { type: 'hydration_gold', title: 'Hydration Boost — Gold', xp: 20, stat: 'fuel', icon: 'droplet', color: '#f59e0b', tier: 'Gold', thresholdValue: 1500, thresholdUnit: 'ml', followUpType: 'hydration_diamond', prerequisiteType: 'hydration_silver' },
-    { type: 'hydration_diamond', title: 'Hydration Boost — Diamond', xp: 30, stat: 'fuel', icon: 'droplet', color: '#67e8f9', tier: 'Diamond', thresholdValue: 2000, thresholdUnit: 'ml', prerequisiteType: 'hydration_gold' },
+    { type: 'hydration_bronze', title: 'Hydration Boost — Bronze', xp: 10, stat: 'fuel', icon: 'droplet', color: '#22c55e', tier: 'Bronze', thresholdValue: 500, thresholdUnit: 'ml', followUpType: 'hydration_silver' },
+    { type: 'hydration_silver', title: 'Hydration Boost — Silver', xp: 15, stat: 'fuel', icon: 'droplet', color: '#22c55e', tier: 'Silver', thresholdValue: 1000, thresholdUnit: 'ml', followUpType: 'hydration_gold', prerequisiteType: 'hydration_bronze' },
+    { type: 'hydration_gold', title: 'Hydration Boost — Gold', xp: 20, stat: 'fuel', icon: 'droplet', color: '#22c55e', tier: 'Gold', thresholdValue: 1500, thresholdUnit: 'ml', followUpType: 'hydration_diamond', prerequisiteType: 'hydration_silver' },
+    { type: 'hydration_diamond', title: 'Hydration Boost — Diamond', xp: 30, stat: 'fuel', icon: 'droplet', color: '#22c55e', tier: 'Diamond', thresholdValue: 2000, thresholdUnit: 'ml', prerequisiteType: 'hydration_gold' },
     { type: 'sleep', title: 'Sleep Goal Met', xp: 35, stat: 'recovery', icon: 'moon', color: '#6366f1' },
     { type: 'mindfulness', title: 'Mindset Moment', xp: 20, stat: 'mindset', icon: 'sparkles', color: '#a855f7' },
     { type: 'recovery', title: 'Recovery Ritual', xp: 20, stat: 'recovery', icon: 'heart-pulse', color: '#14b8a6' },
@@ -382,9 +382,8 @@ export class App implements OnInit {
 
   questSubtitle(rule: ActivityRule): string {
     if (rule.thresholdValue && rule.thresholdUnit) {
-      const stack = this.isStackedQuest(rule) ? ' · stacked quest' : '';
       const followUp = rule.followUpType ? ' · unlocks next tier' : ' · top tier';
-      return `${rule.tier ?? 'Tier'} · ${rule.thresholdValue} ${rule.thresholdUnit}${stack}${followUp}`;
+      return `${rule.tier ?? 'Tier'} · ${rule.thresholdValue} ${rule.thresholdUnit}${followUp}`;
     }
     return rule.type === 'waist_to_height_ratio' ? 'Enter measurement' : 'Sync to unlock';
   }
@@ -393,12 +392,32 @@ export class App implements OnInit {
     return Boolean((rule as VisibleActivityRule).stackTotal);
   }
 
-  stackLabel(rule: ActivityRule): string {
+  stackPips(rule: ActivityRule): boolean[] {
+    const visible = rule as VisibleActivityRule;
+    if (!visible.stackPosition || !visible.stackTotal) {
+      return [];
+    }
+    return Array.from({ length: visible.stackTotal }, (_, index) => index < visible.stackPosition!);
+  }
+
+  stackPipsLabel(rule: ActivityRule): string {
     const visible = rule as VisibleActivityRule;
     if (!visible.stackPosition || !visible.stackTotal) {
       return '';
     }
-    return `${visible.stackPosition}/${visible.stackTotal}`;
+    return `Tier ${visible.stackPosition} of ${visible.stackTotal}`;
+  }
+
+  showTierMarker(rule: ActivityRule): boolean {
+    return rule.tier === 'Silver' || rule.tier === 'Gold' || rule.tier === 'Diamond';
+  }
+
+  tierMarkerLabel(rule: ActivityRule): string {
+    return rule.tier ? `${rule.tier} tier` : '';
+  }
+
+  tierMarkerClass(rule: ActivityRule): string {
+    return `tier-marker ${rule.tier?.toLowerCase() ?? ''}`;
   }
 
   closeActivityDialog(): void {

@@ -19,16 +19,16 @@ const rule = {
 
 const allRules = [
   { type: 'cardio', title: 'Cardio Session', xp: 30, stat: 'cardio', icon: 'flame', color: '#f59e0b' },
-  { type: 'daily_steps_bronze', title: 'Daily Steps — Bronze', xp: 20, stat: 'cardio', icon: 'footprints', color: '#cd7f32', tier: 'Bronze', thresholdValue: 6000, thresholdUnit: 'steps', followUpType: 'daily_steps_silver' },
-  { type: 'daily_steps_silver', title: 'Daily Steps — Silver', xp: 30, stat: 'cardio', icon: 'footprints', color: '#94a3b8', tier: 'Silver', thresholdValue: 8000, thresholdUnit: 'steps', followUpType: 'daily_steps_gold', prerequisiteType: 'daily_steps_bronze' },
+  { type: 'daily_steps_bronze', title: 'Daily Steps — Bronze', xp: 20, stat: 'cardio', icon: 'footprints', color: '#f59e0b', tier: 'Bronze', thresholdValue: 6000, thresholdUnit: 'steps', followUpType: 'daily_steps_silver' },
+  { type: 'daily_steps_silver', title: 'Daily Steps — Silver', xp: 30, stat: 'cardio', icon: 'footprints', color: '#f59e0b', tier: 'Silver', thresholdValue: 8000, thresholdUnit: 'steps', followUpType: 'daily_steps_gold', prerequisiteType: 'daily_steps_bronze' },
   { type: 'daily_steps_gold', title: 'Daily Steps — Gold', xp: 45, stat: 'cardio', icon: 'footprints', color: '#f59e0b', tier: 'Gold', thresholdValue: 10000, thresholdUnit: 'steps', followUpType: 'daily_steps_diamond', prerequisiteType: 'daily_steps_silver' },
-  { type: 'daily_steps_diamond', title: 'Daily Steps — Diamond', xp: 70, stat: 'cardio', icon: 'footprints', color: '#67e8f9', tier: 'Diamond', thresholdValue: 15000, thresholdUnit: 'steps', prerequisiteType: 'daily_steps_gold' },
+  { type: 'daily_steps_diamond', title: 'Daily Steps — Diamond', xp: 70, stat: 'cardio', icon: 'footprints', color: '#f59e0b', tier: 'Diamond', thresholdValue: 15000, thresholdUnit: 'steps', prerequisiteType: 'daily_steps_gold' },
   rule,
   { type: 'healthy_meal', title: 'Nourishing Meal', xp: 25, stat: 'fuel', icon: 'apple', color: '#22c55e' },
-  { type: 'hydration_bronze', title: 'Hydration Boost — Bronze', xp: 10, stat: 'fuel', icon: 'droplet', color: '#cd7f32', tier: 'Bronze', thresholdValue: 500, thresholdUnit: 'ml', followUpType: 'hydration_silver' },
-  { type: 'hydration_silver', title: 'Hydration Boost — Silver', xp: 15, stat: 'fuel', icon: 'droplet', color: '#94a3b8', tier: 'Silver', thresholdValue: 1000, thresholdUnit: 'ml', followUpType: 'hydration_gold', prerequisiteType: 'hydration_bronze' },
-  { type: 'hydration_gold', title: 'Hydration Boost — Gold', xp: 20, stat: 'fuel', icon: 'droplet', color: '#f59e0b', tier: 'Gold', thresholdValue: 1500, thresholdUnit: 'ml', followUpType: 'hydration_diamond', prerequisiteType: 'hydration_silver' },
-  { type: 'hydration_diamond', title: 'Hydration Boost — Diamond', xp: 30, stat: 'fuel', icon: 'droplet', color: '#67e8f9', tier: 'Diamond', thresholdValue: 2000, thresholdUnit: 'ml', prerequisiteType: 'hydration_gold' },
+  { type: 'hydration_bronze', title: 'Hydration Boost — Bronze', xp: 10, stat: 'fuel', icon: 'droplet', color: '#22c55e', tier: 'Bronze', thresholdValue: 500, thresholdUnit: 'ml', followUpType: 'hydration_silver' },
+  { type: 'hydration_silver', title: 'Hydration Boost — Silver', xp: 15, stat: 'fuel', icon: 'droplet', color: '#22c55e', tier: 'Silver', thresholdValue: 1000, thresholdUnit: 'ml', followUpType: 'hydration_gold', prerequisiteType: 'hydration_bronze' },
+  { type: 'hydration_gold', title: 'Hydration Boost — Gold', xp: 20, stat: 'fuel', icon: 'droplet', color: '#22c55e', tier: 'Gold', thresholdValue: 1500, thresholdUnit: 'ml', followUpType: 'hydration_diamond', prerequisiteType: 'hydration_silver' },
+  { type: 'hydration_diamond', title: 'Hydration Boost — Diamond', xp: 30, stat: 'fuel', icon: 'droplet', color: '#22c55e', tier: 'Diamond', thresholdValue: 2000, thresholdUnit: 'ml', prerequisiteType: 'hydration_gold' },
   { type: 'sleep', title: 'Sleep Goal Met', xp: 35, stat: 'recovery', icon: 'moon', color: '#6366f1' },
   { type: 'mindfulness', title: 'Mindset Moment', xp: 20, stat: 'mindset', icon: 'sparkles', color: '#a855f7' },
   { type: 'recovery', title: 'Recovery Ritual', xp: 20, stat: 'recovery', icon: 'heart-pulse', color: '#14b8a6' },
@@ -240,12 +240,13 @@ describe('App', () => {
       ]);
     expect(root.textContent).toContain('Scale Measurement');
     expect(root.textContent).toContain('Waist-to-Height Ratio');
-    expect(root.textContent).toContain('Bronze · 6000 steps · stacked quest · unlocks next tier');
-    expect(root.textContent).toContain('Bronze · 500 ml · stacked quest · unlocks next tier');
+    expect(root.textContent).toContain('Bronze · 6000 steps · unlocks next tier');
+    expect(root.textContent).toContain('Bronze · 500 ml · unlocks next tier');
     expect(root.textContent).not.toContain('Lab Results');
     expect(root.textContent).not.toContain('Body Composition Scan');
     expect(root.querySelectorAll('.action-tile').length).toBe(visibleRuleCount);
     expect(root.querySelectorAll('.quest-stack').length).toBe(2);
+    expect(root.querySelectorAll('.stack-pips').length).toBe(2);
     expect(Array.from(root.querySelectorAll('.action-tile')).map((tile) => tile.textContent).join('\n'))
       .not.toContain('Daily Steps — Silver');
     expect(root.querySelectorAll('.quest-column').length).toBe(6);
@@ -255,7 +256,7 @@ describe('App', () => {
     expect(app.iconFor('missing')).toBe('star');
     expect(app.colorFor('missing')).toBe('#f59e0b');
     expect(app.iconFor('daily_steps_bronze')).toBe('footprints');
-    expect(app.colorFor('hydration_bronze')).toBe('#cd7f32');
+    expect(app.colorFor('hydration_bronze')).toBe('#22c55e');
   });
 
   it('should open and close the waist measurement dialog from the waist quest', async () => {
@@ -281,7 +282,7 @@ describe('App', () => {
     expect(app.waistDialogOpen()).toBe(false);
   });
 
-  it('should show only the currently claimable tier as a stacked quest tile', () => {
+  it('should show only the currently claimable tier as a stacked tile', () => {
     const fixture = TestBed.createComponent(App);
     const app = fixture.componentInstance;
     app.dashboard.set({
@@ -298,13 +299,17 @@ describe('App', () => {
     fixture.detectChanges();
 
     const root = fixture.nativeElement as HTMLElement;
+    const dailyStepsElement = Array.from(root.querySelectorAll<HTMLElement>('.action-tile'))
+      .find((tile) => tile.textContent?.includes('Daily Steps'));
     const tileText = Array.from(root.querySelectorAll<HTMLElement>('.action-tile'))
       .map((tile) => tile.textContent?.replace(/\s+/g, ' ').trim() ?? '');
     const dailyStepsTile = tileText.find((text) => text.includes('Daily Steps'));
 
     expect(dailyStepsTile).toContain('Daily Steps — Silver');
-    expect(dailyStepsTile).toContain('2/4');
-    expect(dailyStepsTile).toContain('Silver · 8000 steps · stacked quest');
+    expect(dailyStepsTile).toContain('Silver · 8000 steps · unlocks next tier');
+    expect(dailyStepsTile).not.toContain('2/4');
+    expect(dailyStepsElement?.querySelectorAll('.stack-pip.filled').length).toBe(2);
+    expect(dailyStepsElement?.querySelector('.tier-marker.silver')).not.toBeNull();
     expect(dailyStepsTile).not.toContain('Daily Steps — Bronze');
     expect(tileText.filter((text) => text.includes('Daily Steps')).length).toBe(1);
   });

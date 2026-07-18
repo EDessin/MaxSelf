@@ -171,23 +171,38 @@
             <div class="quest-list">
               @for (rule of column.rules; track rule.type) {
                 <button type="button" class="action-tile" [class.quest-stack]="isStackedQuest(rule)" [style.--tile-color]="rule.color" (click)="openActivity(rule)">
-                  <span class="icon-pill">
-                    @switch (rule.icon) {
-                      @case ('flame') { <svg lucideFlame size="24"></svg> }
-                      @case ('footprints') { <svg lucideFootprints size="24"></svg> }
-                      @case ('dumbbell') { <svg lucideDumbbell size="24"></svg> }
-                      @case ('apple') { <svg lucideApple size="24"></svg> }
-                      @case ('droplet') { <svg lucideDroplet size="24"></svg> }
-                      @case ('moon') { <svg lucideMoon size="24"></svg> }
-                      @case ('sparkles') { <svg lucideSparkles size="24"></svg> }
-                      @case ('heart-pulse') { <svg lucideHeartPulse size="24"></svg> }
-                      @case ('scale') { <svg lucideScale size="24"></svg> }
-                      @case ('ruler') { <svg lucideRuler size="24"></svg> }
-                      @default { <svg lucideStar size="24"></svg> }
+                  <span class="icon-row">
+                    <span class="icon-pill">
+                      @switch (rule.icon) {
+                        @case ('flame') { <svg lucideFlame size="24"></svg> }
+                        @case ('footprints') { <svg lucideFootprints size="24"></svg> }
+                        @case ('dumbbell') { <svg lucideDumbbell size="24"></svg> }
+                        @case ('apple') { <svg lucideApple size="24"></svg> }
+                        @case ('droplet') { <svg lucideDroplet size="24"></svg> }
+                        @case ('moon') { <svg lucideMoon size="24"></svg> }
+                        @case ('sparkles') { <svg lucideSparkles size="24"></svg> }
+                        @case ('heart-pulse') { <svg lucideHeartPulse size="24"></svg> }
+                        @case ('scale') { <svg lucideScale size="24"></svg> }
+                        @case ('ruler') { <svg lucideRuler size="24"></svg> }
+                        @default { <svg lucideStar size="24"></svg> }
+                      }
+                    </span>
+                    @if (showTierMarker(rule)) {
+                      <span [class]="tierMarkerClass(rule)" [attr.aria-label]="tierMarkerLabel(rule)">
+                        @if (rule.tier === 'Diamond') {
+                          <span class="tier-diamond" aria-hidden="true"></span>
+                        } @else {
+                          <span class="tier-bar" aria-hidden="true"></span>
+                        }
+                      </span>
                     }
                   </span>
                   @if (isStackedQuest(rule)) {
-                    <span class="stack-badge">{{ stackLabel(rule) }}</span>
+                    <span class="stack-pips" [attr.aria-label]="stackPipsLabel(rule)">
+                      @for (filled of stackPips(rule); track $index) {
+                        <span class="stack-pip" [class.filled]="filled"></span>
+                      }
+                    </span>
                   }
                   <strong>{{ rule.title }}</strong>
                   <span>{{ questSubtitle(rule) }}</span>
