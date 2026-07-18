@@ -38,7 +38,12 @@ interface CategoryMeta {
 interface QuestColumn extends CategoryMeta {
   totalXp: number;
   consistencyXp: number;
-  rules: ActivityRule[];
+  rules: VisibleActivityRule[];
+}
+
+interface VisibleActivityRule extends ActivityRule {
+  stackPosition?: number;
+  stackTotal?: number;
 }
 
 @Component({
@@ -136,7 +141,7 @@ export class App implements OnInit {
 
   questColumns = computed<QuestColumn[]>(() => {
     const stats = this.dashboard()?.progress.stats ?? {};
-    const rules = this.rules();
+    const rules = this.visibleQuestRules();
 
     return this.categoryMeta.map((category) => ({
       ...category,
@@ -377,10 +382,23 @@ export class App implements OnInit {
 
   questSubtitle(rule: ActivityRule): string {
     if (rule.thresholdValue && rule.thresholdUnit) {
+      const stack = this.isStackedQuest(rule) ? ' · stacked quest' : '';
       const followUp = rule.followUpType ? ' · unlocks next tier' : ' · top tier';
-      return `${rule.tier ?? 'Tier'} · ${rule.thresholdValue} ${rule.thresholdUnit}${followUp}`;
+      return `${rule.tier ?? 'Tier'} · ${rule.thresholdValue} ${rule.thresholdUnit}${stack}${followUp}`;
     }
     return rule.type === 'waist_to_height_ratio' ? 'Enter measurement' : 'Sync to unlock';
+  }
+
+  isStackedQuest(rule: ActivityRule): boolean {
+    return Boolean((rule as VisibleActivityRule).stackTotal);
+  }
+
+  stackLabel(rule: ActivityRule): string {
+    const visible = rule as VisibleActivityRule;
+    if (!visible.stackPosition || !visible.stackTotal) {
+      return '';
+    }
+    return `${visible.stackPosition}/${visible.stackTotal}`;
   }
 
   closeActivityDialog(): void {
@@ -439,6 +457,61 @@ export class App implements OnInit {
     }
     this.closeActivityDialog();
     this.syncMessage.set('All available quest XP has been claimed.');
+  }
+
+  private visibleQuestRules(): VisibleActivityRule[] {
+    const rules = this.rules();
+    const byType = new Map(rules.map((rule) => [rule.type, rule]));
+    const pendingTypes = new Set(this.pendingClaims().map((claim) => claim.type));
+    const handled = new Set<string>();
+    const visible: VisibleActivityRule[] = [];
+
+    for (const rule of rules) {
+      const chain = this.questChain(rule, byType);
+      if (!chain.length) {
+        visible.push(rule);
+        continue;
+      }
+
+      const chainKey = chain[0].type;
+      if (handled.has(chainKey)) {
+        continue;
+      }
+      chain.forEach((chainRule) => handled.add(chainRule.type));
+
+      const pendingRule = chain.find((chainRule) => pendingTypes.has(chainRule.type));
+      const visibleRule = pendingRule ?? chain[0];
+      visible.push({
+        ...visibleRule,
+        stackPosition: chain.findIndex((chainRule) => chainRule.type === visibleRule.type) + 1,
+        stackTotal: chain.length
+      });
+    }
+
+    return visible;
+  }
+
+  private questChain(rule: ActivityRule, byType: Map<string, ActivityRule>): ActivityRule[] {
+    if (!rule.followUpType && !rule.prerequisiteType) {
+      return [];
+    }
+
+    let root = rule;
+    const seen = new Set<string>();
+    while (root.prerequisiteType && byType.has(root.prerequisiteType) && !seen.has(root.type)) {
+      seen.add(root.type);
+      root = byType.get(root.prerequisiteType)!;
+    }
+
+    const chain: ActivityRule[] = [];
+    let current: ActivityRule | undefined = root;
+    seen.clear();
+    while (current && !seen.has(current.type)) {
+      chain.push(current);
+      seen.add(current.type);
+      current = current.followUpType ? byType.get(current.followUpType) : undefined;
+    }
+    return chain;
   }
 
   private apiErrorMessage(error: unknown): string | undefined {

@@ -170,7 +170,7 @@
 
             <div class="quest-list">
               @for (rule of column.rules; track rule.type) {
-                <button type="button" class="action-tile" [style.--tile-color]="rule.color" (click)="openActivity(rule)">
+                <button type="button" class="action-tile" [class.quest-stack]="isStackedQuest(rule)" [style.--tile-color]="rule.color" (click)="openActivity(rule)">
                   <span class="icon-pill">
                     @switch (rule.icon) {
                       @case ('flame') { <svg lucideFlame size="24"></svg> }
@@ -186,6 +186,9 @@
                       @default { <svg lucideStar size="24"></svg> }
                     }
                   </span>
+                  @if (isStackedQuest(rule)) {
+                    <span class="stack-badge">{{ stackLabel(rule) }}</span>
+                  }
                   <strong>{{ rule.title }}</strong>
                   <span>{{ questSubtitle(rule) }}</span>
                 </button>

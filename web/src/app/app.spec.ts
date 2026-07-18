@@ -37,6 +37,8 @@ const allRules = [
   { type: 'bonus', title: 'Bonus Quest', xp: 5, stat: 'mindset', icon: 'unknown', color: '#f59e0b' }
 ];
 
+const visibleRuleCount = allRules.length - 6;
+
 const claim = {
   id: 'claim-1',
   userId: 'user-1',
@@ -238,11 +240,14 @@ describe('App', () => {
       ]);
     expect(root.textContent).toContain('Scale Measurement');
     expect(root.textContent).toContain('Waist-to-Height Ratio');
-    expect(root.textContent).toContain('Bronze · 6000 steps · unlocks next tier');
-    expect(root.textContent).toContain('Diamond · 2000 ml · top tier');
+    expect(root.textContent).toContain('Bronze · 6000 steps · stacked quest · unlocks next tier');
+    expect(root.textContent).toContain('Bronze · 500 ml · stacked quest · unlocks next tier');
     expect(root.textContent).not.toContain('Lab Results');
     expect(root.textContent).not.toContain('Body Composition Scan');
-    expect(root.querySelectorAll('.action-tile').length).toBe(allRules.length);
+    expect(root.querySelectorAll('.action-tile').length).toBe(visibleRuleCount);
+    expect(root.querySelectorAll('.quest-stack').length).toBe(2);
+    expect(Array.from(root.querySelectorAll('.action-tile')).map((tile) => tile.textContent).join('\n'))
+      .not.toContain('Daily Steps — Silver');
     expect(root.querySelectorAll('.quest-column').length).toBe(6);
     expect(root.querySelectorAll('tbody tr').length).toBe(allRules.length);
     expect(app.progressPercent()).toBe(20);
@@ -274,6 +279,34 @@ describe('App', () => {
 
     expect(root.querySelector('.activity-dialog')).toBeNull();
     expect(app.waistDialogOpen()).toBe(false);
+  });
+
+  it('should show only the currently claimable tier as a stacked quest tile', () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    app.dashboard.set({
+      ...fullDashboard(),
+      questClaims: [{
+        ...claim,
+        type: 'daily_steps_silver',
+        title: 'Daily Steps — Silver',
+        xp: 30,
+        sourceId: 'steps-silver',
+        evidence: '8400 steps'
+      }]
+    });
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const tileText = Array.from(root.querySelectorAll<HTMLElement>('.action-tile'))
+      .map((tile) => tile.textContent?.replace(/\s+/g, ' ').trim() ?? '');
+    const dailyStepsTile = tileText.find((text) => text.includes('Daily Steps'));
+
+    expect(dailyStepsTile).toContain('Daily Steps — Silver');
+    expect(dailyStepsTile).toContain('2/4');
+    expect(dailyStepsTile).toContain('Silver · 8000 steps · stacked quest');
+    expect(dailyStepsTile).not.toContain('Daily Steps — Bronze');
+    expect(tileText.filter((text) => text.includes('Daily Steps')).length).toBe(1);
   });
 
   it('should close the claim dialog after a successful XP claim', () => {
