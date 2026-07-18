@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -25,6 +26,7 @@ var (
 	ErrGoogleHealthNotConnected  = errors.New("google health is not connected")
 	ErrQuestClaimNotFound        = errors.New("quest claim not found")
 	ErrQuestClaimAlreadyClaimed  = errors.New("quest claim already claimed")
+	ErrQuestClaimLocked          = errors.New("complete the previous quest tier first")
 )
 
 type IntegrationRepository interface {
@@ -34,6 +36,7 @@ type IntegrationRepository interface {
 	GetHealthConnection(ctx context.Context, userID string) (HealthConnection, error)
 	UpdateHealthConnectionSync(ctx context.Context, userID string, syncedAt time.Time) error
 	UpsertQuestClaim(ctx context.Context, claim QuestClaim) (QuestClaim, bool, error)
+	ListQuestClaims(ctx context.Context, userID string) ([]QuestClaim, error)
 	ListPendingQuestClaims(ctx context.Context, userID string) ([]QuestClaim, error)
 	CountPendingQuestClaims(ctx context.Context, userID string) (int, error)
 	GetQuestClaim(ctx context.Context, userID string, claimID string) (QuestClaim, error)
@@ -219,9 +222,9 @@ func (s Service) GoogleHealthStatus(ctx context.Context, userID string) HealthIn
 		status.Connected = connection.RefreshToken != ""
 		status.LastSyncedAt = connection.LastSyncedAt
 	}
-	pending, err := s.integrations.CountPendingQuestClaims(ctx, userID)
+	pending, err := s.pendingQuestClaims(ctx, userID)
 	if err == nil {
-		status.PendingClaims = pending
+		status.PendingClaims = len(pending)
 	}
 	return status
 }
@@ -230,11 +233,22 @@ func (s Service) PendingQuestClaims(ctx context.Context, userID string) []QuestC
 	if s.integrations == nil {
 		return nil
 	}
-	claims, err := s.integrations.ListPendingQuestClaims(ctx, userID)
+	claims, err := s.pendingQuestClaims(ctx, userID)
 	if err != nil {
 		return nil
 	}
 	return claims
+}
+
+func (s Service) pendingQuestClaims(ctx context.Context, userID string) ([]QuestClaim, error) {
+	if s.integrations == nil {
+		return nil, nil
+	}
+	claims, err := s.integrations.ListQuestClaims(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	return claimableQuestClaims(claims), nil
 }
 
 func (s Service) StartGoogleHealthConnect(ctx context.Context, token string) (HealthConnectResult, error) {
@@ -338,7 +352,7 @@ func (s Service) SyncGoogleHealth(ctx context.Context, token string) (HealthSync
 		return HealthSyncResult{}, err
 	}
 
-	pending, err := s.integrations.ListPendingQuestClaims(ctx, claims.UserID)
+	pending, err := s.pendingQuestClaims(ctx, claims.UserID)
 	if err != nil {
 		return HealthSyncResult{}, err
 	}
@@ -378,7 +392,7 @@ func (s Service) CreateWaistToHeightClaim(ctx context.Context, token string, req
 	if err != nil {
 		return HealthSyncResult{}, err
 	}
-	pending, err := s.integrations.ListPendingQuestClaims(ctx, claims.UserID)
+	pending, err := s.pendingQuestClaims(ctx, claims.UserID)
 	if err != nil {
 		return HealthSyncResult{}, err
 	}
@@ -410,6 +424,13 @@ func (s Service) ClaimQuest(ctx context.Context, token string, claimID string) (
 	}
 	if claim.Status != QuestClaimStatusPending {
 		return Dashboard{}, ErrQuestClaimNotFound
+	}
+	allClaims, err := s.integrations.ListQuestClaims(ctx, claims.UserID)
+	if err != nil {
+		return Dashboard{}, err
+	}
+	if !questClaimIsClaimable(claim, allClaims) {
+		return Dashboard{}, ErrQuestClaimLocked
 	}
 	_, activity, err := s.createActivityAndAward(ctx, token, map[string]any{
 		"type":       claim.Type,
@@ -483,19 +504,7 @@ func healthCandidates(userID string, pointsByType map[string][]HealthDataPoint) 
 		}
 		candidates = append(candidates, newQuestClaim(userID, "sleep", QuestClaimSourceGoogleHealth, point.ID(), occurredAt, fmt.Sprintf("%d minutes asleep", minutes)))
 	}
-	for _, point := range pointsByType["hydration-log"] {
-		if point.HydrationLog == nil || point.HydrationLog.AmountConsumed.Milliliters < 250 {
-			continue
-		}
-		occurredAt := intervalEnd(point.HydrationLog.Interval)
-		if occurredAt.IsZero() {
-			occurredAt = intervalStart(point.HydrationLog.Interval)
-		}
-		if occurredAt.IsZero() {
-			continue
-		}
-		candidates = append(candidates, newQuestClaim(userID, "hydration", QuestClaimSourceGoogleHealth, point.ID(), occurredAt, fmt.Sprintf("%.0f ml hydration logged", point.HydrationLog.AmountConsumed.Milliliters)))
-	}
+	candidates = append(candidates, hydrationCandidates(userID, pointsByType["hydration-log"])...)
 	for _, point := range pointsByType["nutrition-log"] {
 		if point.NutritionLog == nil {
 			continue
@@ -549,9 +558,6 @@ func stepsCandidates(userID string, points []HealthDataPoint) []QuestClaim {
 	}
 	candidates := make([]QuestClaim, 0, len(byDate))
 	for questDate, aggregate := range byDate {
-		if aggregate.count < 6000 {
-			continue
-		}
 		occurredAt := aggregate.occurredAt
 		if dateKey(occurredAt) != questDate {
 			parsed, err := time.ParseInLocation("2006-01-02", questDate, time.UTC)
@@ -559,8 +565,85 @@ func stepsCandidates(userID string, points []HealthDataPoint) []QuestClaim {
 				occurredAt = parsed.Add(12 * time.Hour)
 			}
 		}
-		candidates = append(candidates, newQuestClaim(userID, "daily_steps", QuestClaimSourceGoogleHealth, fmt.Sprintf("google-health-steps-%s", questDate), occurredAt, fmt.Sprintf("%d steps", aggregate.count)))
+		for _, rule := range stepTierRules() {
+			if aggregate.count < rule.ThresholdValue {
+				continue
+			}
+			candidates = append(candidates, newQuestClaim(
+				userID,
+				rule.Type,
+				QuestClaimSourceGoogleHealth,
+				fmt.Sprintf("google-health-steps-%s-%s", questDate, rule.Type),
+				occurredAt,
+				fmt.Sprintf("%d steps", aggregate.count),
+			))
+		}
 	}
+	sortQuestClaims(candidates)
+	return candidates
+}
+
+type dailyHydrationAggregate struct {
+	milliliters float64
+	occurredAt  time.Time
+}
+
+func hydrationCandidates(userID string, points []HealthDataPoint) []QuestClaim {
+	byDate := map[string]dailyHydrationAggregate{}
+	for _, point := range points {
+		if point.HydrationLog == nil || point.HydrationLog.AmountConsumed.Milliliters <= 0 {
+			continue
+		}
+		questDate := intervalCivilDateKey(point.HydrationLog.Interval)
+		occurredAt := civilDateOccurredAt(point.HydrationLog.Interval.CivilStartTime)
+		if questDate == "" {
+			occurredAt = intervalEnd(point.HydrationLog.Interval)
+			if occurredAt.IsZero() {
+				occurredAt = intervalStart(point.HydrationLog.Interval)
+			}
+			questDate = dateKey(occurredAt)
+		}
+		if occurredAt.IsZero() {
+			occurredAt = intervalEnd(point.HydrationLog.Interval)
+		}
+		if occurredAt.IsZero() {
+			occurredAt = intervalStart(point.HydrationLog.Interval)
+		}
+		if occurredAt.IsZero() {
+			continue
+		}
+		aggregate := byDate[questDate]
+		aggregate.milliliters += point.HydrationLog.AmountConsumed.Milliliters
+		if aggregate.occurredAt.IsZero() || occurredAt.After(aggregate.occurredAt) {
+			aggregate.occurredAt = occurredAt
+		}
+		byDate[questDate] = aggregate
+	}
+	candidates := make([]QuestClaim, 0, len(byDate))
+	for questDate, aggregate := range byDate {
+		occurredAt := aggregate.occurredAt
+		if dateKey(occurredAt) != questDate {
+			parsed, err := time.ParseInLocation("2006-01-02", questDate, time.UTC)
+			if err == nil {
+				occurredAt = parsed.Add(12 * time.Hour)
+			}
+		}
+		total := int(aggregate.milliliters)
+		for _, rule := range hydrationTierRules() {
+			if total < rule.ThresholdValue {
+				continue
+			}
+			candidates = append(candidates, newQuestClaim(
+				userID,
+				rule.Type,
+				QuestClaimSourceGoogleHealth,
+				fmt.Sprintf("google-health-hydration-%s-%s", questDate, rule.Type),
+				occurredAt,
+				fmt.Sprintf("%d ml hydration logged", total),
+			))
+		}
+	}
+	sortQuestClaims(candidates)
 	return candidates
 }
 
@@ -630,15 +713,102 @@ func ruleForType(ruleType string) ActivityRule {
 func localActivityRules() []ActivityRule {
 	return []ActivityRule{
 		{Type: "cardio", Title: "Cardio Session", XP: 30, Stat: "cardio", Icon: "flame", Color: "#f59e0b"},
-		{Type: "daily_steps", Title: "6000 Steps", XP: 20, Stat: "cardio", Icon: "footprints", Color: "#f59e0b"},
+		{Type: "daily_steps_bronze", Title: "Daily Steps — Bronze", XP: 20, Stat: "cardio", Icon: "footprints", Color: "#cd7f32", Tier: "Bronze", ThresholdValue: 6000, ThresholdUnit: "steps", FollowUpType: "daily_steps_silver"},
+		{Type: "daily_steps_silver", Title: "Daily Steps — Silver", XP: 30, Stat: "cardio", Icon: "footprints", Color: "#94a3b8", Tier: "Silver", ThresholdValue: 8000, ThresholdUnit: "steps", FollowUpType: "daily_steps_gold", PrerequisiteType: "daily_steps_bronze"},
+		{Type: "daily_steps_gold", Title: "Daily Steps — Gold", XP: 45, Stat: "cardio", Icon: "footprints", Color: "#f59e0b", Tier: "Gold", ThresholdValue: 10000, ThresholdUnit: "steps", FollowUpType: "daily_steps_diamond", PrerequisiteType: "daily_steps_silver"},
+		{Type: "daily_steps_diamond", Title: "Daily Steps — Diamond", XP: 70, Stat: "cardio", Icon: "footprints", Color: "#67e8f9", Tier: "Diamond", ThresholdValue: 15000, ThresholdUnit: "steps", PrerequisiteType: "daily_steps_gold"},
 		{Type: "exercise", Title: "Strength Session", XP: 40, Stat: "strength", Icon: "dumbbell", Color: "#ff5a5f"},
 		{Type: "healthy_meal", Title: "Nourishing Meal", XP: 25, Stat: "fuel", Icon: "apple", Color: "#22c55e"},
-		{Type: "hydration", Title: "Hydration Boost", XP: 10, Stat: "fuel", Icon: "droplet", Color: "#38bdf8"},
+		{Type: "hydration_bronze", Title: "Hydration Boost — Bronze", XP: 10, Stat: "fuel", Icon: "droplet", Color: "#cd7f32", Tier: "Bronze", ThresholdValue: 500, ThresholdUnit: "ml", FollowUpType: "hydration_silver"},
+		{Type: "hydration_silver", Title: "Hydration Boost — Silver", XP: 15, Stat: "fuel", Icon: "droplet", Color: "#94a3b8", Tier: "Silver", ThresholdValue: 1000, ThresholdUnit: "ml", FollowUpType: "hydration_gold", PrerequisiteType: "hydration_bronze"},
+		{Type: "hydration_gold", Title: "Hydration Boost — Gold", XP: 20, Stat: "fuel", Icon: "droplet", Color: "#f59e0b", Tier: "Gold", ThresholdValue: 1500, ThresholdUnit: "ml", FollowUpType: "hydration_diamond", PrerequisiteType: "hydration_silver"},
+		{Type: "hydration_diamond", Title: "Hydration Boost — Diamond", XP: 30, Stat: "fuel", Icon: "droplet", Color: "#67e8f9", Tier: "Diamond", ThresholdValue: 2000, ThresholdUnit: "ml", PrerequisiteType: "hydration_gold"},
 		{Type: "sleep", Title: "Sleep Goal Met", XP: 35, Stat: "recovery", Icon: "moon", Color: "#6366f1"},
+		{Type: "mindfulness", Title: "Mindset Moment", XP: 20, Stat: "mindset", Icon: "sparkles", Color: "#a855f7"},
 		{Type: "recovery", Title: "Recovery Ritual", XP: 20, Stat: "recovery", Icon: "heart-pulse", Color: "#14b8a6"},
 		{Type: "scale_measurement", Title: "Scale Measurement", XP: 15, Stat: "biometrics", Icon: "scale", Color: "#0891b2"},
 		{Type: "waist_to_height_ratio", Title: "Waist-to-Height Ratio", XP: 15, Stat: "biometrics", Icon: "ruler", Color: "#0891b2"},
 	}
+}
+
+func stepTierRules() []ActivityRule {
+	return tierRules("daily_steps_")
+}
+
+func hydrationTierRules() []ActivityRule {
+	return tierRules("hydration_")
+}
+
+func tierRules(prefix string) []ActivityRule {
+	rules := []ActivityRule{}
+	for _, rule := range localActivityRules() {
+		if strings.HasPrefix(rule.Type, prefix) {
+			rules = append(rules, rule)
+		}
+	}
+	return rules
+}
+
+func claimableQuestClaims(claims []QuestClaim) []QuestClaim {
+	claimable := make([]QuestClaim, 0, len(claims))
+	for _, claim := range claims {
+		if claim.Status != QuestClaimStatusPending {
+			continue
+		}
+		if questClaimIsClaimable(claim, claims) {
+			claimable = append(claimable, claimWithRule(claim))
+		}
+	}
+	sortQuestClaims(claimable)
+	return claimable
+}
+
+func questClaimIsClaimable(claim QuestClaim, claims []QuestClaim) bool {
+	rule := ruleForType(claim.Type)
+	if rule.PrerequisiteType == "" {
+		return true
+	}
+	for _, existing := range claims {
+		if existing.UserID == claim.UserID &&
+			existing.Type == rule.PrerequisiteType &&
+			existing.QuestDate == claim.QuestDate &&
+			existing.Status == QuestClaimStatusClaimed {
+			return true
+		}
+	}
+	return false
+}
+
+func claimWithRule(claim QuestClaim) QuestClaim {
+	rule := ruleForType(claim.Type)
+	claim.Title = rule.Title
+	claim.XP = rule.XP
+	claim.Stat = rule.Stat
+	return claim
+}
+
+func sortQuestClaims(claims []QuestClaim) {
+	ranks := map[string]int{}
+	for index, rule := range localActivityRules() {
+		ranks[rule.Type] = index
+	}
+	sort.SliceStable(claims, func(i int, j int) bool {
+		if claims[i].QuestDate != claims[j].QuestDate {
+			return claims[i].QuestDate < claims[j].QuestDate
+		}
+		if !claims[i].OccurredAt.Equal(claims[j].OccurredAt) {
+			return claims[i].OccurredAt.Before(claims[j].OccurredAt)
+		}
+		leftRank, ok := ranks[claims[i].Type]
+		if !ok {
+			leftRank = len(ranks)
+		}
+		rightRank, ok := ranks[claims[j].Type]
+		if !ok {
+			rightRank = len(ranks)
+		}
+		return leftRank < rightRank
+	})
 }
 
 func questTypeForExercise(exerciseType string) string {

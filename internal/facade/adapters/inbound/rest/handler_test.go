@@ -213,6 +213,7 @@ func TestIntegrationErrorStatuses(t *testing.T) {
 		{application.ErrGoogleHealthNotConnected, http.StatusConflict},
 		{application.ErrQuestClaimNotFound, http.StatusNotFound},
 		{application.ErrQuestClaimAlreadyClaimed, http.StatusConflict},
+		{application.ErrQuestClaimLocked, http.StatusConflict},
 		{errors.New("other"), http.StatusBadRequest},
 	}
 	for _, tt := range tests {

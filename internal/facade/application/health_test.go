@@ -76,7 +76,7 @@ func TestHealthCandidatesBuildSyncedQuestClaims(t *testing.T) {
 						EndTime:        now.Add(8*time.Hour + time.Minute).Format(time.RFC3339),
 						CivilStartTime: HealthCivilDateTime{Date: HealthCivilDate{Year: 2026, Month: 7, Day: 17}},
 					},
-					Count: "3000",
+					Count: "7000",
 				},
 			},
 			{
@@ -111,14 +111,14 @@ func TestHealthCandidatesBuildSyncedQuestClaims(t *testing.T) {
 				Name: "hydration-1",
 				HydrationLog: &HealthHydration{
 					Interval:       HealthInterval{StartTime: now.Add(-time.Hour).Format(time.RFC3339), EndTime: now.Format(time.RFC3339)},
-					AmountConsumed: HealthVolume{Milliliters: 300},
+					AmountConsumed: HealthVolume{Milliliters: 700},
 				},
 			},
 			{
-				Name: "sip",
+				Name: "hydration-2",
 				HydrationLog: &HealthHydration{
 					Interval:       HealthInterval{StartTime: now.Add(-time.Hour).Format(time.RFC3339), EndTime: now.Format(time.RFC3339)},
-					AmountConsumed: HealthVolume{Milliliters: 100},
+					AmountConsumed: HealthVolume{Milliliters: 900},
 				},
 			},
 		},
@@ -149,8 +149,8 @@ func TestHealthCandidatesBuildSyncedQuestClaims(t *testing.T) {
 	}
 
 	candidates := healthCandidates("user-1", pointsByType)
-	if len(candidates) != 9 {
-		t.Fatalf("expected 9 candidates, got %d: %+v", len(candidates), candidates)
+	if len(candidates) != 13 {
+		t.Fatalf("expected 13 candidates, got %d: %+v", len(candidates), candidates)
 	}
 	counts := map[string]int{}
 	for _, candidate := range candidates {
@@ -165,14 +165,18 @@ func TestHealthCandidatesBuildSyncedQuestClaims(t *testing.T) {
 		}
 	}
 	expected := map[string]int{
-		"cardio":            1,
-		"daily_steps":       1,
-		"exercise":          1,
-		"recovery":          1,
-		"sleep":             1,
-		"hydration":         1,
-		"healthy_meal":      1,
-		"scale_measurement": 2,
+		"cardio":             1,
+		"daily_steps_bronze": 1,
+		"daily_steps_silver": 1,
+		"daily_steps_gold":   1,
+		"exercise":           1,
+		"recovery":           1,
+		"sleep":              1,
+		"hydration_bronze":   1,
+		"hydration_silver":   1,
+		"hydration_gold":     1,
+		"healthy_meal":       1,
+		"scale_measurement":  2,
 	}
 	for claimType, count := range expected {
 		if counts[claimType] != count {
@@ -180,10 +184,44 @@ func TestHealthCandidatesBuildSyncedQuestClaims(t *testing.T) {
 		}
 	}
 	if !containsEvidence(candidates, "Running · 45 min · 5.0 km") ||
-		!containsEvidence(candidates, "6500 steps") ||
+		!containsEvidence(candidates, "10500 steps") ||
+		!containsEvidence(candidates, "1600 ml hydration logged") ||
 		!containsEvidence(candidates, "Weight 70.0 kg, body fat 22.5%") ||
 		!containsEvidence(candidates, "Body fat 21.0%") {
 		t.Fatalf("expected evidence strings not found: %+v", candidates)
+	}
+}
+
+func TestQuestTierClaimsUnlockSequentially(t *testing.T) {
+	questDate := "2026-07-17"
+	occurredAt := time.Date(2026, 7, 17, 12, 0, 0, 0, time.UTC)
+	claims := []QuestClaim{
+		newQuestClaim("user-1", "daily_steps_bronze", QuestClaimSourceGoogleHealth, "steps-bronze", occurredAt, "10500 steps"),
+		newQuestClaim("user-1", "daily_steps_silver", QuestClaimSourceGoogleHealth, "steps-silver", occurredAt, "10500 steps"),
+		newQuestClaim("user-1", "daily_steps_gold", QuestClaimSourceGoogleHealth, "steps-gold", occurredAt, "10500 steps"),
+	}
+	for index := range claims {
+		claims[index].QuestDate = questDate
+	}
+
+	claimable := claimableQuestClaims(claims)
+	if len(claimable) != 1 || claimable[0].Type != "daily_steps_bronze" {
+		t.Fatalf("expected only bronze to be claimable, got %+v", claimable)
+	}
+	if questClaimIsClaimable(claims[1], claims) {
+		t.Fatal("silver should be locked until bronze is claimed")
+	}
+
+	claims[0].Status = QuestClaimStatusClaimed
+	claimable = claimableQuestClaims(claims)
+	if len(claimable) != 1 || claimable[0].Type != "daily_steps_silver" || claimable[0].XP != 30 {
+		t.Fatalf("expected silver to unlock with quest-rule XP, got %+v", claimable)
+	}
+
+	claims[1].Status = QuestClaimStatusClaimed
+	claimable = claimableQuestClaims(claims)
+	if len(claimable) != 1 || claimable[0].Type != "daily_steps_gold" || claimable[0].Title != "Daily Steps — Gold" {
+		t.Fatalf("expected gold to unlock with quest-rule title, got %+v", claimable)
 	}
 }
 

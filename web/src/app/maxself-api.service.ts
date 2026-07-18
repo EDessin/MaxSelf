@@ -18,6 +18,11 @@ export interface ActivityRule {
   stat: string;
   icon: string;
   color: string;
+  tier?: string;
+  thresholdValue?: number;
+  thresholdUnit?: string;
+  followUpType?: string;
+  prerequisiteType?: string;
 }
 
 export interface Activity {

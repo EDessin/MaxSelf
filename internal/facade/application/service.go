@@ -31,12 +31,17 @@ type User struct {
 }
 
 type ActivityRule struct {
-	Type  string `json:"type"`
-	Title string `json:"title"`
-	XP    int    `json:"xp"`
-	Stat  string `json:"stat"`
-	Icon  string `json:"icon"`
-	Color string `json:"color"`
+	Type             string `json:"type"`
+	Title            string `json:"title"`
+	XP               int    `json:"xp"`
+	Stat             string `json:"stat"`
+	Icon             string `json:"icon"`
+	Color            string `json:"color"`
+	Tier             string `json:"tier,omitempty"`
+	ThresholdValue   int    `json:"thresholdValue,omitempty"`
+	ThresholdUnit    string `json:"thresholdUnit,omitempty"`
+	FollowUpType     string `json:"followUpType,omitempty"`
+	PrerequisiteType string `json:"prerequisiteType,omitempty"`
 }
 
 type Activity struct {

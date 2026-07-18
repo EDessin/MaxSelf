@@ -153,6 +153,13 @@ func TestRepositoryAuthStatesConnectionsAndQuestClaims(t *testing.T) {
 	if len(pending) != 2 || pending[0].ID != "claim-1" || pending[1].ID != "claim-2" {
 		t.Fatalf("unexpected pending claims: %+v", pending)
 	}
+	allClaims, err := repo.ListQuestClaims(ctx, "user-1")
+	if err != nil {
+		t.Fatalf("ListQuestClaims returned error: %v", err)
+	}
+	if len(allClaims) != 2 || allClaims[0].ID != "claim-1" || allClaims[1].ID != "claim-2" {
+		t.Fatalf("unexpected all claims: %+v", allClaims)
+	}
 	count, err := repo.CountPendingQuestClaims(ctx, "user-1")
 	if err != nil || count != 2 {
 		t.Fatalf("unexpected pending count=%d err=%v", count, err)
@@ -235,6 +242,9 @@ func TestRepositoryReturnsDatabaseErrorsAfterClose(t *testing.T) {
 	}
 	if _, err := repo.ListPendingQuestClaims(ctx, "user-1"); err == nil {
 		t.Fatal("expected ListPendingQuestClaims error after close")
+	}
+	if _, err := repo.ListQuestClaims(ctx, "user-1"); err == nil {
+		t.Fatal("expected ListQuestClaims error after close")
 	}
 	if _, err := repo.CountPendingQuestClaims(ctx, "user-1"); err == nil {
 		t.Fatal("expected CountPendingQuestClaims error after close")

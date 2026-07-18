@@ -60,7 +60,7 @@ func TestCreateDefaultsOccurredAtAndRejectsUnknownType(t *testing.T) {
 	repo := &fakeActivityRepository{}
 	service := NewService(repo)
 
-	activity, err := service.Create(context.Background(), "user-1", domain.TypeHydration, "", time.Time{})
+	activity, err := service.Create(context.Background(), "user-1", domain.TypeHydrationBronze, "", time.Time{})
 	if err != nil {
 		t.Fatalf("Create returned error: %v", err)
 	}

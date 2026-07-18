@@ -7,8 +7,8 @@ import (
 
 func TestRulesAndRuleFor(t *testing.T) {
 	rules := Rules()
-	if len(rules) != 10 {
-		t.Fatalf("expected 10 rules, got %d", len(rules))
+	if len(rules) != 16 {
+		t.Fatalf("expected 16 rules, got %d", len(rules))
 	}
 	if rules[0].Title != "Cardio Session" || rules[0].XP != 30 || rules[0].Stat != StatCardio {
 		t.Fatalf("unexpected first rule: %+v", rules[0])
@@ -17,12 +17,28 @@ func TestRulesAndRuleFor(t *testing.T) {
 		t.Fatalf("expected cardio to use consistency yellow, got %s", rules[0].Color)
 	}
 
-	rule, err := RuleFor(TypeDailySteps)
+	rule, err := RuleFor(TypeDailyStepsBronze)
 	if err != nil {
-		t.Fatalf("RuleFor returned error for daily steps: %v", err)
+		t.Fatalf("RuleFor returned error for daily steps bronze: %v", err)
 	}
-	if rule.Title != "6000 Steps" || rule.XP != 20 || rule.Stat != StatCardio || rule.Icon != "footprints" {
-		t.Fatalf("unexpected daily steps rule: %+v", rule)
+	if rule.Title != "Daily Steps — Bronze" || rule.XP != 20 || rule.Stat != StatCardio || rule.Icon != "footprints" || rule.Tier != "Bronze" || rule.ThresholdValue != 6000 || rule.ThresholdUnit != "steps" || rule.FollowUpType != TypeDailyStepsSilver {
+		t.Fatalf("unexpected daily steps bronze rule: %+v", rule)
+	}
+
+	rule, err = RuleFor(TypeDailyStepsGold)
+	if err != nil {
+		t.Fatalf("RuleFor returned error for daily steps gold: %v", err)
+	}
+	if rule.XP != 45 || rule.PrerequisiteType != TypeDailyStepsSilver || rule.FollowUpType != TypeDailyStepsDiamond {
+		t.Fatalf("unexpected daily steps gold rule: %+v", rule)
+	}
+
+	rule, err = RuleFor(TypeHydrationDiamond)
+	if err != nil {
+		t.Fatalf("RuleFor returned error for hydration diamond: %v", err)
+	}
+	if rule.Title != "Hydration Boost — Diamond" || rule.XP != 30 || rule.ThresholdValue != 2000 || rule.ThresholdUnit != "ml" || rule.PrerequisiteType != TypeHydrationGold {
+		t.Fatalf("unexpected hydration diamond rule: %+v", rule)
 	}
 
 	rule, err = RuleFor(TypeExercise)

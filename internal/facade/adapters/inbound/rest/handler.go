@@ -168,6 +168,8 @@ func (h Handler) integrationError(w http.ResponseWriter, err error) {
 		httpx.Error(w, http.StatusNotFound, err.Error())
 	case errors.Is(err, application.ErrQuestClaimAlreadyClaimed):
 		httpx.Error(w, http.StatusConflict, err.Error())
+	case errors.Is(err, application.ErrQuestClaimLocked):
+		httpx.Error(w, http.StatusConflict, err.Error())
 	default:
 		httpx.Error(w, http.StatusBadRequest, err.Error())
 	}

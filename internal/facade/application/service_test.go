@@ -420,6 +420,17 @@ func (r *fakeIntegrationRepository) ListPendingQuestClaims(_ context.Context, us
 	return claims, nil
 }
 
+func (r *fakeIntegrationRepository) ListQuestClaims(_ context.Context, userID string) ([]QuestClaim, error) {
+	var claims []QuestClaim
+	for _, claim := range r.claims {
+		if claim.UserID == userID {
+			claims = append(claims, claim)
+		}
+	}
+	sortQuestClaims(claims)
+	return claims, nil
+}
+
 func (r *fakeIntegrationRepository) CountPendingQuestClaims(_ context.Context, userID string) (int, error) {
 	claims, err := r.ListPendingQuestClaims(context.Background(), userID)
 	return len(claims), err

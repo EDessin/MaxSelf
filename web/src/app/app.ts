@@ -101,10 +101,16 @@ export class App implements OnInit {
 
   fallbackRules: ActivityRule[] = [
     { type: 'cardio', title: 'Cardio Session', xp: 30, stat: 'cardio', icon: 'flame', color: '#f59e0b' },
-    { type: 'daily_steps', title: '6000 Steps', xp: 20, stat: 'cardio', icon: 'footprints', color: '#f59e0b' },
+    { type: 'daily_steps_bronze', title: 'Daily Steps — Bronze', xp: 20, stat: 'cardio', icon: 'footprints', color: '#cd7f32', tier: 'Bronze', thresholdValue: 6000, thresholdUnit: 'steps', followUpType: 'daily_steps_silver' },
+    { type: 'daily_steps_silver', title: 'Daily Steps — Silver', xp: 30, stat: 'cardio', icon: 'footprints', color: '#94a3b8', tier: 'Silver', thresholdValue: 8000, thresholdUnit: 'steps', followUpType: 'daily_steps_gold', prerequisiteType: 'daily_steps_bronze' },
+    { type: 'daily_steps_gold', title: 'Daily Steps — Gold', xp: 45, stat: 'cardio', icon: 'footprints', color: '#f59e0b', tier: 'Gold', thresholdValue: 10000, thresholdUnit: 'steps', followUpType: 'daily_steps_diamond', prerequisiteType: 'daily_steps_silver' },
+    { type: 'daily_steps_diamond', title: 'Daily Steps — Diamond', xp: 70, stat: 'cardio', icon: 'footprints', color: '#67e8f9', tier: 'Diamond', thresholdValue: 15000, thresholdUnit: 'steps', prerequisiteType: 'daily_steps_gold' },
     { type: 'exercise', title: 'Strength Session', xp: 40, stat: 'strength', icon: 'dumbbell', color: '#ff5a5f' },
     { type: 'healthy_meal', title: 'Nourishing Meal', xp: 25, stat: 'fuel', icon: 'apple', color: '#22c55e' },
-    { type: 'hydration', title: 'Hydration Boost', xp: 10, stat: 'fuel', icon: 'droplet', color: '#38bdf8' },
+    { type: 'hydration_bronze', title: 'Hydration Boost — Bronze', xp: 10, stat: 'fuel', icon: 'droplet', color: '#cd7f32', tier: 'Bronze', thresholdValue: 500, thresholdUnit: 'ml', followUpType: 'hydration_silver' },
+    { type: 'hydration_silver', title: 'Hydration Boost — Silver', xp: 15, stat: 'fuel', icon: 'droplet', color: '#94a3b8', tier: 'Silver', thresholdValue: 1000, thresholdUnit: 'ml', followUpType: 'hydration_gold', prerequisiteType: 'hydration_bronze' },
+    { type: 'hydration_gold', title: 'Hydration Boost — Gold', xp: 20, stat: 'fuel', icon: 'droplet', color: '#f59e0b', tier: 'Gold', thresholdValue: 1500, thresholdUnit: 'ml', followUpType: 'hydration_diamond', prerequisiteType: 'hydration_silver' },
+    { type: 'hydration_diamond', title: 'Hydration Boost — Diamond', xp: 30, stat: 'fuel', icon: 'droplet', color: '#67e8f9', tier: 'Diamond', thresholdValue: 2000, thresholdUnit: 'ml', prerequisiteType: 'hydration_gold' },
     { type: 'sleep', title: 'Sleep Goal Met', xp: 35, stat: 'recovery', icon: 'moon', color: '#6366f1' },
     { type: 'mindfulness', title: 'Mindset Moment', xp: 20, stat: 'mindset', icon: 'sparkles', color: '#a855f7' },
     { type: 'recovery', title: 'Recovery Ritual', xp: 20, stat: 'recovery', icon: 'heart-pulse', color: '#14b8a6' },
@@ -243,7 +249,7 @@ export class App implements OnInit {
     ).subscribe({
       next: (dashboard) => {
         this.dashboard.set(dashboard);
-        this.openNextClaim(claim.id);
+        this.openNextClaim(dashboard);
       },
       error: () => {
         this.activityError.set('Could not claim XP. Please try again in a moment.');
@@ -362,11 +368,19 @@ export class App implements OnInit {
   }
 
   iconFor(type: string): string {
-    return this.rules().find((rule) => rule.type === type)?.icon ?? 'star';
+    return this.ruleForType(type)?.icon ?? 'star';
   }
 
   colorFor(type: string): string {
-    return this.rules().find((rule) => rule.type === type)?.color ?? '#f59e0b';
+    return this.ruleForType(type)?.color ?? '#f59e0b';
+  }
+
+  questSubtitle(rule: ActivityRule): string {
+    if (rule.thresholdValue && rule.thresholdUnit) {
+      const followUp = rule.followUpType ? ' · unlocks next tier' : ' · top tier';
+      return `${rule.tier ?? 'Tier'} · ${rule.thresholdValue} ${rule.thresholdUnit}${followUp}`;
+    }
+    return rule.type === 'waist_to_height_ratio' ? 'Enter measurement' : 'Sync to unlock';
   }
 
   closeActivityDialog(): void {
@@ -403,7 +417,9 @@ export class App implements OnInit {
       this.selectedClaim.set(claims[0]);
       this.activityError.set('');
       this.activityDialogOpen.set(true);
-      this.syncMessage.set(`${result.createdClaims} new quest${result.createdClaims === 1 ? '' : 's'} ready to claim.`);
+      this.syncMessage.set(result.createdClaims > 0
+        ? `${result.createdClaims} new quest${result.createdClaims === 1 ? '' : 's'} unlocked. Claim available tiers in order.`
+        : `${claims.length} quest${claims.length === 1 ? '' : 's'} ready to claim.`);
       return;
     }
     this.claimQueue.set([]);
@@ -412,11 +428,11 @@ export class App implements OnInit {
     this.syncMessage.set('No new quests were unlocked from the latest sync.');
   }
 
-  private openNextClaim(claimedId: string): void {
-    const remaining = this.claimQueue().filter((claim) => claim.id !== claimedId);
-    this.claimQueue.set(remaining);
-    if (remaining.length) {
-      this.selectedClaim.set(remaining[0]);
+  private openNextClaim(dashboard: Dashboard): void {
+    const claimable = dashboard.questClaims ?? [];
+    this.claimQueue.set(claimable);
+    if (claimable.length) {
+      this.selectedClaim.set(claimable[0]);
       this.activityError.set('');
       this.activityDialogOpen.set(true);
       return;
@@ -437,5 +453,9 @@ export class App implements OnInit {
       return payload.error;
     }
     return undefined;
+  }
+
+  private ruleForType(type: string): ActivityRule | undefined {
+    return this.rules().find((rule) => rule.type === type);
   }
 }

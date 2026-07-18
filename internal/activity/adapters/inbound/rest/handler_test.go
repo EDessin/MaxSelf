@@ -63,11 +63,14 @@ func TestRoutesHealthAndRules(t *testing.T) {
 	if err := json.NewDecoder(recorder.Body).Decode(&rules); err != nil {
 		t.Fatalf("decode rules: %v", err)
 	}
-	if len(rules) != 10 {
-		t.Fatalf("expected 10 rules, got %d", len(rules))
+	if len(rules) != 16 {
+		t.Fatalf("expected 16 rules, got %d", len(rules))
 	}
-	if rules[8].Type != domain.TypeScaleMeasurement || rules[9].Type != domain.TypeWaistToHeightRatio {
-		t.Fatalf("unexpected biometrics rules: %+v", rules[8:])
+	if rules[1].Type != domain.TypeDailyStepsBronze || rules[1].FollowUpType != domain.TypeDailyStepsSilver {
+		t.Fatalf("unexpected daily steps tier rule: %+v", rules[1])
+	}
+	if rules[14].Type != domain.TypeScaleMeasurement || rules[15].Type != domain.TypeWaistToHeightRatio {
+		t.Fatalf("unexpected biometrics rules: %+v", rules[14:])
 	}
 }
 

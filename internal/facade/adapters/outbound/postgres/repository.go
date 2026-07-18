@@ -149,6 +149,18 @@ func (r Repository) UpsertQuestClaim(ctx context.Context, claim application.Ques
 	return toQuestClaim(existing), false, nil
 }
 
+func (r Repository) ListQuestClaims(ctx context.Context, userID string) ([]application.QuestClaim, error) {
+	var models []QuestClaimModel
+	if err := r.db.WithContext(ctx).Where("user_id = ?", userID).Order("quest_date ASC, occurred_at ASC, created_at ASC").Find(&models).Error; err != nil {
+		return nil, err
+	}
+	claims := make([]application.QuestClaim, 0, len(models))
+	for _, model := range models {
+		claims = append(claims, toQuestClaim(model))
+	}
+	return claims, nil
+}
+
 func (r Repository) ListPendingQuestClaims(ctx context.Context, userID string) ([]application.QuestClaim, error) {
 	var models []QuestClaimModel
 	if err := r.db.WithContext(ctx).Where("user_id = ? AND status = ?", userID, application.QuestClaimStatusPending).Order("occurred_at ASC").Find(&models).Error; err != nil {
