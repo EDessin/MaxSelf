@@ -9,16 +9,15 @@ type ActivityType string
 type Stat string
 
 const (
-	TypeExercise    ActivityType = "exercise"
-	TypeCardio      ActivityType = "cardio"
-	TypeHealthyMeal ActivityType = "healthy_meal"
-	TypeHydration   ActivityType = "hydration"
-	TypeSleep       ActivityType = "sleep"
-	TypeMindfulness ActivityType = "mindfulness"
-	TypeRecovery    ActivityType = "recovery"
-	TypeBodyCheckIn ActivityType = "body_check_in"
-	TypeLabResults  ActivityType = "lab_results"
-	TypeBodyScan    ActivityType = "body_scan"
+	TypeExercise           ActivityType = "exercise"
+	TypeCardio             ActivityType = "cardio"
+	TypeHealthyMeal        ActivityType = "healthy_meal"
+	TypeHydration          ActivityType = "hydration"
+	TypeSleep              ActivityType = "sleep"
+	TypeMindfulness        ActivityType = "mindfulness"
+	TypeRecovery           ActivityType = "recovery"
+	TypeScaleMeasurement   ActivityType = "scale_measurement"
+	TypeWaistToHeightRatio ActivityType = "waist_to_height_ratio"
 
 	StatCardio      Stat = "cardio"
 	StatStrength    Stat = "strength"
@@ -61,9 +60,8 @@ func Rules() []ActivityRule {
 		{Type: TypeSleep, Title: "Sleep Goal Met", XP: 35, Stat: StatRecovery, Icon: "moon", Color: "#6366f1"},
 		{Type: TypeMindfulness, Title: "Mindset Moment", XP: 20, Stat: StatMindset, Icon: "sparkles", Color: "#a855f7"},
 		{Type: TypeRecovery, Title: "Recovery Ritual", XP: 20, Stat: StatRecovery, Icon: "heart-pulse", Color: "#14b8a6"},
-		{Type: TypeBodyCheckIn, Title: "Body Check-In", XP: 15, Stat: StatBiometrics, Icon: "ruler", Color: "#0891b2"},
-		{Type: TypeLabResults, Title: "Lab Results", XP: 25, Stat: StatBiometrics, Icon: "test-tube", Color: "#0891b2"},
-		{Type: TypeBodyScan, Title: "Body Composition Scan", XP: 35, Stat: StatBiometrics, Icon: "scan-line", Color: "#0891b2"},
+		{Type: TypeScaleMeasurement, Title: "Scale Measurement", XP: 15, Stat: StatBiometrics, Icon: "scale", Color: "#0891b2"},
+		{Type: TypeWaistToHeightRatio, Title: "Waist-to-Height Ratio", XP: 15, Stat: StatBiometrics, Icon: "ruler", Color: "#0891b2"},
 	}
 }
 

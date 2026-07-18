@@ -24,11 +24,26 @@ const allRules = [
   { type: 'sleep', title: 'Sleep Goal Met', xp: 35, stat: 'recovery', icon: 'moon', color: '#6366f1' },
   { type: 'mindfulness', title: 'Mindset Moment', xp: 20, stat: 'mindset', icon: 'sparkles', color: '#a855f7' },
   { type: 'recovery', title: 'Recovery Ritual', xp: 20, stat: 'recovery', icon: 'heart-pulse', color: '#14b8a6' },
-  { type: 'body_check_in', title: 'Body Check-In', xp: 15, stat: 'biometrics', icon: 'ruler', color: '#0891b2' },
-  { type: 'lab_results', title: 'Lab Results', xp: 25, stat: 'biometrics', icon: 'test-tube', color: '#0891b2' },
-  { type: 'body_scan', title: 'Body Composition Scan', xp: 35, stat: 'biometrics', icon: 'scan-line', color: '#0891b2' },
+  { type: 'scale_measurement', title: 'Scale Measurement', xp: 15, stat: 'biometrics', icon: 'scale', color: '#0891b2' },
+  { type: 'waist_to_height_ratio', title: 'Waist-to-Height Ratio', xp: 15, stat: 'biometrics', icon: 'ruler', color: '#0891b2' },
   { type: 'bonus', title: 'Bonus Quest', xp: 5, stat: 'mindset', icon: 'unknown', color: '#f59e0b' }
 ];
+
+const claim = {
+  id: 'claim-1',
+  userId: 'user-1',
+  type: 'cardio',
+  title: 'Cardio Session',
+  xp: 30,
+  stat: 'cardio',
+  source: 'google_health',
+  sourceId: 'run-1',
+  evidence: 'Running · 35 min',
+  occurredAt: new Date().toISOString(),
+  questDate: '2026-07-17',
+  status: 'pending',
+  createdAt: new Date().toISOString()
+};
 
 function dashboard(totalXp = 0) {
   return {
@@ -59,7 +74,12 @@ function dashboard(totalXp = 0) {
       }
     },
     activities: [],
-    rules: [rule]
+    rules: [rule],
+    googleHealth: {
+      connected: false,
+      pendingClaims: 0
+    },
+    questClaims: []
   };
 }
 
@@ -79,7 +99,7 @@ function fullDashboard() {
         fuel: 35,
         recovery: 55,
         mindset: 25,
-        biometrics: 75,
+        biometrics: 30,
         cardio_consistency: 5,
         strength_consistency: 10,
         fuel_consistency: 15,
@@ -180,6 +200,8 @@ describe('App', () => {
     expect(root.textContent).toContain('Biometrics');
     expect(root.textContent).not.toContain('99 XP');
     expect(root.textContent).toContain('Recent Wins');
+    expect(root.textContent).toContain('Google Health Sync');
+    expect(root.textContent).toContain('Connect Google Health');
     expect(Array.from(root.querySelectorAll('.quest-column-header span')).map((header) => header.textContent?.trim()))
       .toEqual(['Cardio', 'Strength', 'Fuel', 'Recovery', 'Mindset', 'Biometrics']);
     expect(Array.from(root.querySelectorAll('.quest-column-header')).map((header) => [
@@ -193,8 +215,12 @@ describe('App', () => {
         'Fuel 35 total XP 15 consistency XP',
         'Recovery 55 total XP 20 consistency XP',
         'Mindset 25 total XP 25 consistency XP',
-        'Biometrics 75 total XP 30 consistency XP'
+        'Biometrics 30 total XP 30 consistency XP'
       ]);
+    expect(root.textContent).toContain('Scale Measurement');
+    expect(root.textContent).toContain('Waist-to-Height Ratio');
+    expect(root.textContent).not.toContain('Lab Results');
+    expect(root.textContent).not.toContain('Body Composition Scan');
     expect(root.querySelectorAll('.action-tile').length).toBe(allRules.length);
     expect(root.querySelectorAll('.quest-column').length).toBe(6);
     expect(root.querySelectorAll('tbody tr').length).toBe(allRules.length);
@@ -204,7 +230,7 @@ describe('App', () => {
     expect(app.colorFor('missing')).toBe('#f59e0b');
   });
 
-  it('should open and close the activity dialog from a dashboard action', async () => {
+  it('should open and close the waist measurement dialog from the waist quest', async () => {
     const fixture = TestBed.createComponent(App);
     const app = fixture.componentInstance;
     app.dashboard.set(fullDashboard());
@@ -212,47 +238,51 @@ describe('App', () => {
 
     const root = fixture.nativeElement as HTMLElement;
     const action = Array.from(root.querySelectorAll<HTMLButtonElement>('.action-tile'))
-      .find((button) => button.textContent?.includes('Hydration Boost'));
+      .find((button) => button.textContent?.includes('Waist-to-Height Ratio'));
     action?.click();
     await fixture.whenStable();
 
     expect(root.querySelector('.activity-dialog')).not.toBeNull();
-    expect(root.textContent).toContain('+10 Health XP');
+    expect(root.textContent).toContain('Waist (cm)');
 
-    const closeButton = root.querySelector('button[aria-label="Close activity dialog"]') as HTMLButtonElement;
+    const closeButton = root.querySelector('button[aria-label="Close waist measurement dialog"]') as HTMLButtonElement;
     closeButton.click();
     await fixture.whenStable();
 
     expect(root.querySelector('.activity-dialog')).toBeNull();
-    expect(app.selectedRule()).toBeUndefined();
+    expect(app.waistDialogOpen()).toBe(false);
   });
 
-  it('should close the activity dialog after a successful XP claim', () => {
+  it('should close the claim dialog after a successful XP claim', () => {
     const fixture = TestBed.createComponent(App);
     const app = fixture.componentInstance;
     app.token = 'token';
-    app.dashboard.set(dashboard());
-    app.openActivity(rule);
+    app.dashboard.set({ ...dashboard(), questClaims: [claim] });
+    app.claimQueue.set([claim]);
+    app.selectedClaim.set(claim);
+    app.activityDialogOpen.set(true);
 
     app.saveActivity();
 
-    const request = http!.expectOne('http://localhost:8080/api/activities');
+    const request = http!.expectOne('http://localhost:8080/api/quest-claims/claim-1/claim');
     expect(request.request.method).toBe('POST');
     expect(app.activitySaving()).toBe(true);
 
-    request.flush(dashboard(40));
+    request.flush(dashboard(30));
 
     expect(app.activitySaving()).toBe(false);
     expect(app.activityDialogOpen()).toBe(false);
-    expect(app.selectedRule()).toBeUndefined();
-    expect(app.dashboard()?.progress.totalXp).toBe(40);
+    expect(app.selectedClaim()).toBeUndefined();
+    expect(app.dashboard()?.progress.totalXp).toBe(30);
   });
 
   it('should remove the rendered activity modal after clicking Claim XP successfully', async () => {
     const fixture = TestBed.createComponent(App);
     const app = fixture.componentInstance;
-    app.dashboard.set(dashboard());
-    app.openActivity(rule);
+    app.dashboard.set({ ...dashboard(), questClaims: [claim] });
+    app.claimQueue.set([claim]);
+    app.selectedClaim.set(claim);
+    app.activityDialogOpen.set(true);
     fixture.detectChanges();
     app.token = 'token';
 
@@ -263,12 +293,45 @@ describe('App', () => {
       .find((button) => button.textContent?.includes('Claim XP'));
     claimButton?.click();
 
-    const request = http!.expectOne('http://localhost:8080/api/activities');
-    request.flush(dashboard(40));
+    const request = http!.expectOne('http://localhost:8080/api/quest-claims/claim-1/claim');
+    request.flush(dashboard(30));
     await fixture.whenStable();
 
     expect(root.querySelector('.modal-backdrop')).toBeNull();
     expect(root.querySelector('.activity-dialog')).toBeNull();
+  });
+
+  it('should sync Google Health and open the first claimable quest', async () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    app.dashboard.set({
+      ...dashboard(),
+      googleHealth: { connected: true, pendingClaims: 0 }
+    });
+    fixture.detectChanges();
+    app.token = 'token';
+
+    const root = fixture.nativeElement as HTMLElement;
+    const syncButton = Array.from(root.querySelectorAll('button'))
+      .find((button) => button.textContent?.includes('Sync Health Data'));
+    syncButton?.click();
+
+    const request = http!.expectOne('http://localhost:8080/api/integrations/google-health/sync');
+    expect(request.request.method).toBe('POST');
+    request.flush({
+      createdClaims: 1,
+      pendingClaims: [claim],
+      dashboard: {
+        ...dashboard(),
+        googleHealth: { connected: true, pendingClaims: 1 },
+        questClaims: [claim]
+      }
+    });
+    await fixture.whenStable();
+
+    expect(root.querySelector('.activity-dialog')).not.toBeNull();
+    expect(root.textContent).toContain('Running · 35 min');
+    expect(root.textContent).toContain('1 new quest ready to claim.');
   });
 
   it('should leave the login button loading state after authentication completes', async () => {
@@ -374,8 +437,10 @@ describe('App', () => {
     const app = fixture.componentInstance;
     fixture.detectChanges();
     app.token = 'token';
-    app.dashboard.set(dashboard());
-    app.openActivity(rule);
+    app.dashboard.set({ ...dashboard(), questClaims: [claim] });
+    app.claimQueue.set([claim]);
+    app.selectedClaim.set(claim);
+    app.activityDialogOpen.set(true);
     fixture.detectChanges();
 
     const root = fixture.nativeElement as HTMLElement;
@@ -383,7 +448,7 @@ describe('App', () => {
       .find((button) => button.textContent?.includes('Claim XP'));
     claimButton?.click();
 
-    http!.expectOne('http://localhost:8080/api/activities')
+    http!.expectOne('http://localhost:8080/api/quest-claims/claim-1/claim')
       .flush({ error: 'nope' }, { status: 500, statusText: 'Server Error' });
     await fixture.whenStable();
 
@@ -399,13 +464,14 @@ describe('App', () => {
     app.authPending.set(true);
     app.submitAuth();
     app.activitySaving.set(true);
-    app.openActivity(rule);
+    app.selectedClaim.set(claim);
+    app.activityDialogOpen.set(true);
     app.saveActivity();
     app.token = '';
     app.loadDashboard();
 
     http!.expectNone('http://localhost:8080/api/auth/login');
-    http!.expectNone('http://localhost:8080/api/activities');
+    http!.expectNone('http://localhost:8080/api/quest-claims/claim-1/claim');
     http!.expectNone('http://localhost:8080/api/dashboard');
   });
 });

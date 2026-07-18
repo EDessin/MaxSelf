@@ -1,6 +1,8 @@
 package rest
 
 import (
+	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/EDessin/MaxSelf/internal/facade/application"
@@ -29,6 +31,11 @@ func (h Handler) Routes() http.Handler {
 	mux.HandleFunc("GET /api/dashboard", h.dashboard)
 	mux.HandleFunc("GET /api/activity-types", h.activityTypes)
 	mux.HandleFunc("POST /api/activities", h.createActivity)
+	mux.HandleFunc("POST /api/integrations/google-health/connect", h.googleHealthConnect)
+	mux.HandleFunc("GET /api/integrations/google-health/callback", h.googleHealthCallback)
+	mux.HandleFunc("POST /api/integrations/google-health/sync", h.googleHealthSync)
+	mux.HandleFunc("POST /api/biometrics/waist-to-height", h.waistToHeight)
+	mux.HandleFunc("POST /api/quest-claims/{claimID}/claim", h.claimQuest)
 	return mux
 }
 
@@ -92,15 +99,69 @@ func (h Handler) activityTypes(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h Handler) createActivity(w http.ResponseWriter, r *http.Request) {
-	var req map[string]any
+	httpx.Error(w, http.StatusGone, "manual XP claims are disabled; sync health data and claim a quest instead")
+}
+
+func (h Handler) googleHealthConnect(w http.ResponseWriter, r *http.Request) {
+	result, err := h.service.StartGoogleHealthConnect(r.Context(), httpx.BearerToken(r))
+	if err != nil {
+		h.integrationError(w, err)
+		return
+	}
+	httpx.JSON(w, http.StatusOK, result)
+}
+
+func (h Handler) googleHealthCallback(w http.ResponseWriter, r *http.Request) {
+	if err := h.service.CompleteGoogleHealthConnect(r.Context(), r.URL.Query().Get("state"), r.URL.Query().Get("code")); err != nil {
+		http.Redirect(w, r, fmt.Sprintf("%s/?googleHealth=error", h.config.FrontendURL), http.StatusFound)
+		return
+	}
+	http.Redirect(w, r, fmt.Sprintf("%s/?googleHealth=connected", h.config.FrontendURL), http.StatusFound)
+}
+
+func (h Handler) googleHealthSync(w http.ResponseWriter, r *http.Request) {
+	result, err := h.service.SyncGoogleHealth(r.Context(), httpx.BearerToken(r))
+	if err != nil {
+		h.integrationError(w, err)
+		return
+	}
+	httpx.JSON(w, http.StatusOK, result)
+}
+
+func (h Handler) waistToHeight(w http.ResponseWriter, r *http.Request) {
+	var req application.WaistToHeightRequest
 	if err := httpx.Decode(r, &req); err != nil {
 		httpx.Error(w, http.StatusBadRequest, "invalid request")
 		return
 	}
-	dashboard, err := h.service.CreateActivity(r.Context(), httpx.BearerToken(r), req)
+	result, err := h.service.CreateWaistToHeightClaim(r.Context(), httpx.BearerToken(r), req)
 	if err != nil {
-		httpx.Error(w, http.StatusBadRequest, err.Error())
+		h.integrationError(w, err)
 		return
 	}
-	httpx.JSON(w, http.StatusCreated, dashboard)
+	httpx.JSON(w, http.StatusCreated, result)
+}
+
+func (h Handler) claimQuest(w http.ResponseWriter, r *http.Request) {
+	dashboard, err := h.service.ClaimQuest(r.Context(), httpx.BearerToken(r), r.PathValue("claimID"))
+	if err != nil {
+		h.integrationError(w, err)
+		return
+	}
+	httpx.JSON(w, http.StatusOK, dashboard)
+}
+
+func (h Handler) integrationError(w http.ResponseWriter, err error) {
+	switch {
+	case errors.Is(err, application.ErrGoogleHealthNotConfigured):
+		httpx.Error(w, http.StatusNotImplemented, err.Error())
+	case errors.Is(err, application.ErrGoogleHealthNotConnected):
+		httpx.Error(w, http.StatusConflict, err.Error())
+	case errors.Is(err, application.ErrQuestClaimNotFound):
+		httpx.Error(w, http.StatusNotFound, err.Error())
+	case errors.Is(err, application.ErrQuestClaimAlreadyClaimed):
+		httpx.Error(w, http.StatusConflict, err.Error())
+	default:
+		httpx.Error(w, http.StatusBadRequest, err.Error())
+	}
 }

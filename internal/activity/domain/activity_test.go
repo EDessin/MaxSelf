@@ -7,8 +7,8 @@ import (
 
 func TestRulesAndRuleFor(t *testing.T) {
 	rules := Rules()
-	if len(rules) != 10 {
-		t.Fatalf("expected 10 rules, got %d", len(rules))
+	if len(rules) != 9 {
+		t.Fatalf("expected 9 rules, got %d", len(rules))
 	}
 	if rules[0].Title != "Cardio Session" || rules[0].XP != 30 || rules[0].Stat != StatCardio {
 		t.Fatalf("unexpected first rule: %+v", rules[0])
@@ -25,12 +25,20 @@ func TestRulesAndRuleFor(t *testing.T) {
 		t.Fatalf("unexpected exercise rule: %+v", rule)
 	}
 
-	rule, err = RuleFor(TypeBodyScan)
+	rule, err = RuleFor(TypeScaleMeasurement)
 	if err != nil {
-		t.Fatalf("RuleFor returned error for body scan: %v", err)
+		t.Fatalf("RuleFor returned error for scale measurement: %v", err)
 	}
-	if rule.Title != "Body Composition Scan" || rule.XP != 35 || rule.Stat != StatBiometrics || rule.Icon != "scan-line" || rule.Color != "#0891b2" {
-		t.Fatalf("unexpected body scan rule: %+v", rule)
+	if rule.Title != "Scale Measurement" || rule.XP != 15 || rule.Stat != StatBiometrics || rule.Icon != "scale" || rule.Color != "#0891b2" {
+		t.Fatalf("unexpected scale measurement rule: %+v", rule)
+	}
+
+	rule, err = RuleFor(TypeWaistToHeightRatio)
+	if err != nil {
+		t.Fatalf("RuleFor returned error for waist-to-height ratio: %v", err)
+	}
+	if rule.Title != "Waist-to-Height Ratio" || rule.XP != 15 || rule.Stat != StatBiometrics || rule.Icon != "ruler" || rule.Color != "#0891b2" {
+		t.Fatalf("unexpected waist-to-height ratio rule: %+v", rule)
 	}
 
 	_, err = RuleFor(ActivityType("unknown"))

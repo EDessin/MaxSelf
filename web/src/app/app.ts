@@ -10,11 +10,10 @@ import {
   LucideHeartPulse,
   LucideMoon,
   LucideRuler,
-  LucideScanLine,
+  LucideScale,
   LucideShield,
   LucideSparkles,
   LucideStar,
-  LucideTestTube,
   LucideTrophy,
   LucideX,
   LucideZap
@@ -25,7 +24,7 @@ import { ProgressBarModule } from 'primeng/progressbar';
 import { TableModule } from 'primeng/table';
 import { TextareaModule } from 'primeng/textarea';
 import { finalize, switchMap, tap } from 'rxjs';
-import { ActivityRule, AuthMode, Dashboard, MaxSelfApi } from './maxself-api.service';
+import { ActivityRule, AuthMode, Dashboard, HealthSyncResult, MaxSelfApi, QuestClaim } from './maxself-api.service';
 
 interface CategoryMeta {
   key: string;
@@ -58,11 +57,10 @@ interface QuestColumn extends CategoryMeta {
     LucideHeartPulse,
     LucideMoon,
     LucideRuler,
-    LucideScanLine,
+    LucideScale,
     LucideShield,
     LucideSparkles,
     LucideStar,
-    LucideTestTube,
     LucideTrophy,
     LucideX,
     LucideZap
@@ -85,10 +83,18 @@ export class App implements OnInit {
   dashboard = signal<Dashboard | undefined>(undefined);
 
   activityDialogOpen = signal(false);
-  selectedRule = signal<ActivityRule | undefined>(undefined);
-  activityNotes = '';
+  selectedClaim = signal<QuestClaim | undefined>(undefined);
+  claimQueue = signal<QuestClaim[]>([]);
   activityError = signal('');
   activitySaving = signal(false);
+  syncError = signal('');
+  syncMessage = signal('');
+  syncPending = signal(false);
+  connectPending = signal(false);
+  waistDialogOpen = signal(false);
+  waistCentimeters: number | undefined;
+  heightCentimeters: number | undefined;
+  waistSaving = signal(false);
 
   fallbackRules: ActivityRule[] = [
     { type: 'cardio', title: 'Cardio Session', xp: 30, stat: 'cardio', icon: 'flame', color: '#f59e0b' },
@@ -98,9 +104,8 @@ export class App implements OnInit {
     { type: 'sleep', title: 'Sleep Goal Met', xp: 35, stat: 'recovery', icon: 'moon', color: '#6366f1' },
     { type: 'mindfulness', title: 'Mindset Moment', xp: 20, stat: 'mindset', icon: 'sparkles', color: '#a855f7' },
     { type: 'recovery', title: 'Recovery Ritual', xp: 20, stat: 'recovery', icon: 'heart-pulse', color: '#14b8a6' },
-    { type: 'body_check_in', title: 'Body Check-In', xp: 15, stat: 'biometrics', icon: 'ruler', color: '#0891b2' },
-    { type: 'lab_results', title: 'Lab Results', xp: 25, stat: 'biometrics', icon: 'test-tube', color: '#0891b2' },
-    { type: 'body_scan', title: 'Body Composition Scan', xp: 35, stat: 'biometrics', icon: 'scan-line', color: '#0891b2' }
+    { type: 'scale_measurement', title: 'Scale Measurement', xp: 15, stat: 'biometrics', icon: 'scale', color: '#0891b2' },
+    { type: 'waist_to_height_ratio', title: 'Waist-to-Height Ratio', xp: 15, stat: 'biometrics', icon: 'ruler', color: '#0891b2' }
   ];
 
   categoryMeta: CategoryMeta[] = [
@@ -146,11 +151,23 @@ export class App implements OnInit {
       .reduce((sum, activity) => sum + activity.xp, 0) ?? 0;
   });
 
+  googleHealth = computed(() => this.dashboard()?.googleHealth ?? { connected: false, pendingClaims: 0 });
+
+  pendingClaims = computed(() => this.dashboard()?.questClaims ?? []);
+
   ngOnInit(): void {
     const url = new URL(window.location.href);
     const callbackToken = url.searchParams.get('token');
     if (callbackToken) {
       this.setToken(callbackToken);
+      window.history.replaceState({}, document.title, '/');
+    }
+    const googleHealth = url.searchParams.get('googleHealth');
+    if (googleHealth === 'connected') {
+      this.syncMessage.set('Google Health connected. Sync when you are ready to unlock quests.');
+      window.history.replaceState({}, document.title, '/');
+    } else if (googleHealth === 'error') {
+      this.syncError.set('Google Health could not be connected. Please try again.');
       window.history.replaceState({}, document.title, '/');
     }
     if (this.token) {
@@ -198,34 +215,120 @@ export class App implements OnInit {
   }
 
   openActivity(rule: ActivityRule): void {
-    this.selectedRule.set(rule);
-    this.activityNotes = '';
-    this.activityError.set('');
-    this.activityDialogOpen.set(true);
+    if (rule.type === 'waist_to_height_ratio') {
+      this.openWaistDialog();
+      return;
+    }
+    this.syncMessage.set('');
+    this.syncError.set('Use Sync Health Data to unlock this quest from Google Health data.');
   }
 
   saveActivity(): void {
-    const selectedRule = this.selectedRule();
-    if (!selectedRule || this.activitySaving()) {
+    const claim = this.selectedClaim();
+    if (!claim || this.activitySaving()) {
       return;
     }
 
     this.activitySaving.set(true);
     this.activityError.set('');
 
-    this.api.claimActivity(this.token, selectedRule.type, this.activityNotes).pipe(
+    this.api.claimQuest(this.token, claim.id).pipe(
       finalize(() => {
         this.activitySaving.set(false);
       })
     ).subscribe({
       next: (dashboard) => {
         this.dashboard.set(dashboard);
-        this.closeActivityDialog();
+        this.openNextClaim(claim.id);
       },
       error: () => {
         this.activityError.set('Could not claim XP. Please try again in a moment.');
       }
     });
+  }
+
+  connectGoogleHealth(): void {
+    if (!this.token || this.connectPending()) {
+      return;
+    }
+
+    this.connectPending.set(true);
+    this.syncError.set('');
+    this.api.connectGoogleHealth(this.token).pipe(
+      finalize(() => {
+        this.connectPending.set(false);
+      })
+    ).subscribe({
+      next: (result) => {
+        window.location.href = result.url;
+      },
+      error: () => {
+        this.syncError.set('Google Health is not configured yet.');
+      }
+    });
+  }
+
+  syncGoogleHealth(): void {
+    if (!this.token || this.syncPending()) {
+      return;
+    }
+
+    this.syncPending.set(true);
+    this.syncError.set('');
+    this.syncMessage.set('');
+
+    this.api.syncGoogleHealth(this.token).pipe(
+      finalize(() => {
+        this.syncPending.set(false);
+      })
+    ).subscribe({
+      next: (result) => {
+        this.handleSyncResult(result);
+      },
+      error: () => {
+        this.syncError.set(this.googleHealth().connected
+          ? 'Could not sync Google Health data. Please try again.'
+          : 'Connect Google Health before syncing.');
+      }
+    });
+  }
+
+  openWaistDialog(): void {
+    this.waistCentimeters = undefined;
+    this.heightCentimeters = undefined;
+    this.activityError.set('');
+    this.waistDialogOpen.set(true);
+  }
+
+  submitWaistMeasurement(): void {
+    if (!this.token || this.waistSaving() || !this.waistCentimeters || !this.heightCentimeters) {
+      this.activityError.set('Enter both waist and height measurements.');
+      return;
+    }
+
+    this.waistSaving.set(true);
+    this.activityError.set('');
+    this.api.submitWaistToHeight(this.token, this.waistCentimeters, this.heightCentimeters).pipe(
+      finalize(() => {
+        this.waistSaving.set(false);
+      })
+    ).subscribe({
+      next: (result) => {
+        this.waistDialogOpen.set(false);
+        this.handleSyncResult(result);
+      },
+      error: () => {
+        this.activityError.set('Could not save the measurement. Please try again.');
+      }
+    });
+  }
+
+  openPendingClaims(): void {
+    const dashboard = this.dashboard();
+    if (!dashboard || !this.pendingClaims().length) {
+      return;
+    }
+    this.handleSyncResult({ createdClaims: 0, pendingClaims: this.pendingClaims(), dashboard });
   }
 
   loadDashboard(): void {
@@ -259,8 +362,15 @@ export class App implements OnInit {
   closeActivityDialog(): void {
     this.activitySaving.set(false);
     this.activityDialogOpen.set(false);
-    this.selectedRule.set(undefined);
-    this.activityNotes = '';
+    this.selectedClaim.set(undefined);
+    this.activityError.set('');
+  }
+
+  closeWaistDialog(): void {
+    this.waistSaving.set(false);
+    this.waistDialogOpen.set(false);
+    this.waistCentimeters = undefined;
+    this.heightCentimeters = undefined;
     this.activityError.set('');
   }
 
@@ -273,5 +383,35 @@ export class App implements OnInit {
     this.token = '';
     this.dashboard.set(undefined);
     localStorage.removeItem('maxself.token');
+  }
+
+  private handleSyncResult(result: HealthSyncResult): void {
+    this.dashboard.set(result.dashboard);
+    const claims = result.pendingClaims?.length ? result.pendingClaims : result.dashboard.questClaims ?? [];
+    if (claims.length) {
+      this.claimQueue.set(claims);
+      this.selectedClaim.set(claims[0]);
+      this.activityError.set('');
+      this.activityDialogOpen.set(true);
+      this.syncMessage.set(`${result.createdClaims} new quest${result.createdClaims === 1 ? '' : 's'} ready to claim.`);
+      return;
+    }
+    this.claimQueue.set([]);
+    this.selectedClaim.set(undefined);
+    this.activityDialogOpen.set(false);
+    this.syncMessage.set('No new quests were unlocked from the latest sync.');
+  }
+
+  private openNextClaim(claimedId: string): void {
+    const remaining = this.claimQueue().filter((claim) => claim.id !== claimedId);
+    this.claimQueue.set(remaining);
+    if (remaining.length) {
+      this.selectedClaim.set(remaining[0]);
+      this.activityError.set('');
+      this.activityDialogOpen.set(true);
+      return;
+    }
+    this.closeActivityDialog();
+    this.syncMessage.set('All available quest XP has been claimed.');
   }
 }

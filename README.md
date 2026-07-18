@@ -181,6 +181,34 @@ editing `.env`; running services do not reload environment variables.
 MaxSelf uses Google only to prove identity. The app still issues its own JWT
 for MaxSelf API access.
 
+## Google Health Sync
+
+Google Health sync is separate from Google Login. To enable it, add the Google
+Health API to the same OAuth client and allow these restricted read scopes:
+
+```text
+https://www.googleapis.com/auth/googlehealth.activity_and_fitness.readonly
+https://www.googleapis.com/auth/googlehealth.health_metrics_and_measurements.readonly
+https://www.googleapis.com/auth/googlehealth.nutrition.readonly
+https://www.googleapis.com/auth/googlehealth.sleep.readonly
+```
+
+Add this local redirect URL:
+
+```text
+http://localhost:8080/api/integrations/google-health/callback
+```
+
+Then set:
+
+```bash
+GOOGLE_HEALTH_REDIRECT_URL=http://localhost:8080/api/integrations/google-health/callback
+```
+
+Users connect Google Health from inside MaxSelf, manually press Sync Health
+Data, then claim each unlocked quest one by one. Direct manual XP claims are
+blocked at the facade API.
+
 ## Verification
 
 Backend:

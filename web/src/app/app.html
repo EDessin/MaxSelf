@@ -107,6 +107,58 @@
         </div>
       </section>
 
+      <section class="sync-panel">
+        <div class="sync-copy">
+          <strong>Google Health Sync</strong>
+          <span>
+            @if (googleHealth().connected) {
+              Connected
+              @if (googleHealth().lastSyncedAt) {
+                · Last sync {{ googleHealth().lastSyncedAt | date:'short' }}
+              }
+            } @else {
+              Connect Google Health to unlock quests from synced data.
+            }
+          </span>
+        </div>
+
+        <div class="sync-actions">
+          @if (!googleHealth().connected) {
+            <button type="button" class="app-button secondary-action" [class.is-loading]="connectPending()" [disabled]="connectPending()" (click)="connectGoogleHealth()">
+              @if (connectPending()) {
+                <span class="button-spinner" aria-hidden="true"></span>
+              } @else {
+                <span class="google-dot">G</span>
+              }
+              <span>Connect Google Health</span>
+            </button>
+          } @else {
+            <button type="button" class="app-button primary-action" [class.is-loading]="syncPending()" [disabled]="syncPending()" (click)="syncGoogleHealth()">
+              @if (syncPending()) {
+                <span class="button-spinner" aria-hidden="true"></span>
+              } @else {
+                <svg lucideZap size="18"></svg>
+              }
+              <span>Sync Health Data</span>
+            </button>
+          }
+
+          @if (pendingClaims().length) {
+            <button type="button" class="app-button secondary-action" (click)="openPendingClaims()">
+              <svg lucideTrophy size="18"></svg>
+              <span>Claim {{ pendingClaims().length }} ready</span>
+            </button>
+          }
+        </div>
+
+        @if (syncError()) {
+          <p class="error sync-alert">{{ syncError() }}</p>
+        }
+        @if (syncMessage()) {
+          <p class="sync-message">{{ syncMessage() }}</p>
+        }
+      </section>
+
       <section class="quick-actions">
         @for (column of questColumns(); track column.key) {
           <div class="quest-column" [style.--column-color]="column.color">
@@ -128,14 +180,13 @@
                       @case ('moon') { <svg lucideMoon size="24"></svg> }
                       @case ('sparkles') { <svg lucideSparkles size="24"></svg> }
                       @case ('heart-pulse') { <svg lucideHeartPulse size="24"></svg> }
+                      @case ('scale') { <svg lucideScale size="24"></svg> }
                       @case ('ruler') { <svg lucideRuler size="24"></svg> }
-                      @case ('test-tube') { <svg lucideTestTube size="24"></svg> }
-                      @case ('scan-line') { <svg lucideScanLine size="24"></svg> }
                       @default { <svg lucideStar size="24"></svg> }
                     }
                   </span>
                   <strong>{{ rule.title }}</strong>
-                  <span>+{{ rule.xp }} XP</span>
+                  <span>{{ rule.type === 'waist_to_height_ratio' ? 'Enter measurement' : 'Sync to unlock' }}</span>
                 </button>
               }
             </div>
@@ -195,9 +246,8 @@
                         @case ('moon') { <svg lucideMoon size="16"></svg> }
                         @case ('sparkles') { <svg lucideSparkles size="16"></svg> }
                         @case ('heart-pulse') { <svg lucideHeartPulse size="16"></svg> }
+                        @case ('scale') { <svg lucideScale size="16"></svg> }
                         @case ('ruler') { <svg lucideRuler size="16"></svg> }
-                        @case ('test-tube') { <svg lucideTestTube size="16"></svg> }
-                        @case ('scan-line') { <svg lucideScanLine size="16"></svg> }
                         @default { <svg lucideStar size="16"></svg> }
                       }
                     </span>
@@ -220,13 +270,13 @@
     </section>
   }
 
-  @if (activityDialogOpen() && selectedRule(); as selectedRule) {
+  @if (activityDialogOpen() && selectedClaim(); as selectedClaim) {
     <div class="modal-backdrop" (click)="closeActivityDialog()">
       <section class="activity-dialog" role="dialog" aria-modal="true" aria-labelledby="activity-dialog-title" (click)="$event.stopPropagation()">
         <header class="dialog-header">
           <div class="dialog-heading">
             <svg lucideZap size="22"></svg>
-            <strong id="activity-dialog-title">{{ selectedRule.title }}</strong>
+            <strong id="activity-dialog-title">{{ selectedClaim.title }}</strong>
           </div>
           <button type="button" class="icon-button" aria-label="Close activity dialog" (click)="closeActivityDialog()">
             <svg lucideX size="18"></svg>
@@ -234,15 +284,16 @@
         </header>
 
         <div class="activity-form">
-          <div class="xp-preview" [style.--tile-color]="selectedRule.color">
+          <div class="xp-preview" [style.--tile-color]="colorFor(selectedClaim.type)">
             <span>Reward</span>
-            <strong>+{{ selectedRule.xp }} Health XP</strong>
+            <strong>+{{ selectedClaim.xp }} Health XP</strong>
           </div>
 
-          <label>
-            <span>Notes</span>
-            <textarea pTextarea rows="4" [(ngModel)]="activityNotes" placeholder="What did you do?"></textarea>
-          </label>
+          <div class="claim-evidence">
+            <span>Evidence</span>
+            <strong>{{ selectedClaim.evidence }}</strong>
+            <small>{{ selectedClaim.occurredAt | date:'medium' }}</small>
+          </div>
 
           @if (activityError()) {
             <p class="error">{{ activityError() }}</p>
@@ -255,6 +306,47 @@
               <svg lucideZap size="18"></svg>
             }
             <span>Claim XP</span>
+          </button>
+        </div>
+      </section>
+    </div>
+  }
+
+  @if (waistDialogOpen()) {
+    <div class="modal-backdrop" (click)="closeWaistDialog()">
+      <section class="activity-dialog" role="dialog" aria-modal="true" aria-labelledby="waist-dialog-title" (click)="$event.stopPropagation()">
+        <header class="dialog-header">
+          <div class="dialog-heading">
+            <svg lucideRuler size="22"></svg>
+            <strong id="waist-dialog-title">Waist-to-Height Ratio</strong>
+          </div>
+          <button type="button" class="icon-button" aria-label="Close waist measurement dialog" (click)="closeWaistDialog()">
+            <svg lucideX size="18"></svg>
+          </button>
+        </header>
+
+        <div class="activity-form">
+          <label>
+            <span>Waist (cm)</span>
+            <input pInputText type="number" min="1" step="0.1" [(ngModel)]="waistCentimeters" />
+          </label>
+
+          <label>
+            <span>Height (cm)</span>
+            <input pInputText type="number" min="1" step="0.1" [(ngModel)]="heightCentimeters" />
+          </label>
+
+          @if (activityError()) {
+            <p class="error">{{ activityError() }}</p>
+          }
+
+          <button type="button" class="app-button primary-action" [class.is-loading]="waistSaving()" [disabled]="waistSaving()" (click)="submitWaistMeasurement()">
+            @if (waistSaving()) {
+              <span class="button-spinner" aria-hidden="true"></span>
+            } @else {
+              <svg lucideZap size="18"></svg>
+            }
+            <span>Create Claim</span>
           </button>
         </div>
       </section>

@@ -30,6 +30,29 @@ export interface Activity {
   occurredAt: string;
 }
 
+export interface GoogleHealthStatus {
+  connected: boolean;
+  lastSyncedAt?: string;
+  pendingClaims: number;
+}
+
+export interface QuestClaim {
+  id: string;
+  type: string;
+  title: string;
+  xp: number;
+  stat: string;
+  source: string;
+  sourceId: string;
+  evidence: string;
+  occurredAt: string;
+  questDate: string;
+  status: string;
+  activityId?: string;
+  createdAt: string;
+  claimedAt?: string;
+}
+
 export interface ProgressProfile {
   level: number;
   totalXp: number;
@@ -44,12 +67,20 @@ export interface Dashboard {
   progress: ProgressProfile;
   activities: Activity[];
   rules: ActivityRule[];
+  googleHealth?: GoogleHealthStatus;
+  questClaims?: QuestClaim[];
 }
 
 export interface AuthPayload {
   email: string;
   password: string;
   displayName: string;
+}
+
+export interface HealthSyncResult {
+  createdClaims: number;
+  pendingClaims: QuestClaim[];
+  dashboard: Dashboard;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -71,11 +102,41 @@ export class MaxSelfApi {
       .pipe(timeout(this.requestTimeoutMs));
   }
 
-  claimActivity(token: string, type: string, notes: string): Observable<Dashboard> {
+  connectGoogleHealth(token: string): Observable<{ url: string }> {
+    return this.http
+      .post<{ url: string }>(
+        `${this.apiBase}/integrations/google-health/connect`,
+        {},
+        { headers: this.authHeaders(token) }
+      )
+      .pipe(timeout(this.requestTimeoutMs));
+  }
+
+  syncGoogleHealth(token: string): Observable<HealthSyncResult> {
+    return this.http
+      .post<HealthSyncResult>(
+        `${this.apiBase}/integrations/google-health/sync`,
+        {},
+        { headers: this.authHeaders(token) }
+      )
+      .pipe(timeout(this.requestTimeoutMs));
+  }
+
+  submitWaistToHeight(token: string, waistCentimeters: number, heightCentimeters: number): Observable<HealthSyncResult> {
+    return this.http
+      .post<HealthSyncResult>(
+        `${this.apiBase}/biometrics/waist-to-height`,
+        { waistCentimeters, heightCentimeters },
+        { headers: this.authHeaders(token) }
+      )
+      .pipe(timeout(this.requestTimeoutMs));
+  }
+
+  claimQuest(token: string, claimId: string): Observable<Dashboard> {
     return this.http
       .post<Dashboard>(
-        `${this.apiBase}/activities`,
-        { type, notes },
+        `${this.apiBase}/quest-claims/${claimId}/claim`,
+        {},
         { headers: this.authHeaders(token) }
       )
       .pipe(timeout(this.requestTimeoutMs));

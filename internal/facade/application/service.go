@@ -2,6 +2,7 @@ package application
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -9,10 +10,12 @@ import (
 )
 
 type Service struct {
-	identity  Client
-	activity  Client
-	progress  Client
-	jwtSecret string
+	identity     Client
+	activity     Client
+	progress     Client
+	jwtSecret    string
+	integrations IntegrationRepository
+	googleHealth GoogleHealthClient
 }
 
 type AuthResult struct {
@@ -61,14 +64,20 @@ type Progress struct {
 }
 
 type Dashboard struct {
-	User       User           `json:"user"`
-	Progress   Progress       `json:"progress"`
-	Activities []Activity     `json:"activities"`
-	Rules      []ActivityRule `json:"rules"`
+	User         User                    `json:"user"`
+	Progress     Progress                `json:"progress"`
+	Activities   []Activity              `json:"activities"`
+	Rules        []ActivityRule          `json:"rules"`
+	GoogleHealth HealthIntegrationStatus `json:"googleHealth"`
+	QuestClaims  []QuestClaim            `json:"questClaims"`
 }
 
 func NewService(identity, activity, progress Client, jwtSecret string) Service {
 	return Service{identity: identity, activity: activity, progress: progress, jwtSecret: jwtSecret}
+}
+
+func NewServiceWithIntegrations(identity, activity, progress Client, jwtSecret string, integrations IntegrationRepository, googleHealth GoogleHealthClient) Service {
+	return Service{identity: identity, activity: activity, progress: progress, jwtSecret: jwtSecret, integrations: integrations, googleHealth: googleHealth}
 }
 
 func (s Service) Register(ctx context.Context, req any) (AuthResult, error) {
@@ -90,7 +99,7 @@ func (s Service) Me(ctx context.Context, token string) (User, error) {
 }
 
 func (s Service) Dashboard(ctx context.Context, token string) (Dashboard, error) {
-	claims, err := httpx.ParseToken(s.jwtSecret, token)
+	claims, err := parseClaims(s.jwtSecret, token)
 	if err != nil {
 		return Dashboard{}, err
 	}
@@ -110,21 +119,32 @@ func (s Service) Dashboard(ctx context.Context, token string) (Dashboard, error)
 	if err != nil {
 		return Dashboard{}, err
 	}
-	return Dashboard{User: user, Progress: progress, Activities: activities, Rules: rules}, nil
+	return Dashboard{
+		User:         user,
+		Progress:     progress,
+		Activities:   activities,
+		Rules:        rules,
+		GoogleHealth: s.GoogleHealthStatus(ctx, claims.UserID),
+		QuestClaims:  s.PendingQuestClaims(ctx, claims.UserID),
+	}, nil
 }
 
 func (s Service) CreateActivity(ctx context.Context, token string, req any) (Dashboard, error) {
-	claims, err := httpx.ParseToken(s.jwtSecret, token)
+	return Dashboard{}, errors.New("manual XP claims are disabled; sync health data and claim a quest instead")
+}
+
+func (s Service) createActivityAndAward(ctx context.Context, token string, req any) (Dashboard, Activity, error) {
+	claims, err := parseClaims(s.jwtSecret, token)
 	if err != nil {
-		return Dashboard{}, err
+		return Dashboard{}, Activity{}, err
 	}
 	user, err := s.Me(ctx, token)
 	if err != nil {
-		return Dashboard{}, err
+		return Dashboard{}, Activity{}, err
 	}
 	var activity Activity
 	if err := s.activity.Post(ctx, "/activities", map[string]string{"X-User-ID": claims.UserID}, req, &activity); err != nil {
-		return Dashboard{}, err
+		return Dashboard{}, Activity{}, err
 	}
 	award := map[string]any{
 		"userId":     claims.UserID,
@@ -135,17 +155,24 @@ func (s Service) CreateActivity(ctx context.Context, token string, req any) (Das
 	}
 	var progress Progress
 	if err := s.progress.Post(ctx, "/progress/award", nil, award, &progress); err != nil {
-		return Dashboard{}, err
+		return Dashboard{}, Activity{}, err
 	}
 	activities, err := s.Activities(ctx, claims.UserID)
 	if err != nil {
-		return Dashboard{}, err
+		return Dashboard{}, Activity{}, err
 	}
 	rules, err := s.ActivityRules(ctx)
 	if err != nil {
-		return Dashboard{}, err
+		return Dashboard{}, Activity{}, err
 	}
-	return Dashboard{User: user, Progress: progress, Activities: activities, Rules: rules}, nil
+	return Dashboard{
+		User:         user,
+		Progress:     progress,
+		Activities:   activities,
+		Rules:        rules,
+		GoogleHealth: s.GoogleHealthStatus(ctx, claims.UserID),
+		QuestClaims:  s.PendingQuestClaims(ctx, claims.UserID),
+	}, activity, nil
 }
 
 func (s Service) Activities(ctx context.Context, userID string) ([]Activity, error) {
@@ -164,4 +191,8 @@ func (s Service) Progress(ctx context.Context, userID string) (Progress, error) 
 	var progress Progress
 	err := s.progress.Get(ctx, fmt.Sprintf("/progress/%s", userID), nil, &progress)
 	return progress, err
+}
+
+func parseClaims(jwtSecret string, token string) (httpx.Claims, error) {
+	return httpx.ParseToken(jwtSecret, token)
 }

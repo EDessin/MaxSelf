@@ -115,7 +115,7 @@ func TestFacadeRoutes(t *testing.T) {
 	request.Header.Set("Authorization", "Bearer "+token)
 	recorder = httptest.NewRecorder()
 	handler.ServeHTTP(recorder, request)
-	if recorder.Code != http.StatusCreated || !strings.Contains(recorder.Body.String(), `"progress"`) {
+	if recorder.Code != http.StatusGone || !strings.Contains(recorder.Body.String(), "manual XP claims are disabled") {
 		t.Fatalf("unexpected create activity response: %d %s", recorder.Code, recorder.Body.String())
 	}
 
@@ -129,7 +129,7 @@ func TestFacadeRoutes(t *testing.T) {
 func TestFacadeRoutesReturnErrors(t *testing.T) {
 	handler, _ := newFacadeHandler(t)
 
-	for _, route := range []string{"/api/auth/register", "/api/auth/login", "/api/activities"} {
+	for _, route := range []string{"/api/auth/register", "/api/auth/login"} {
 		recorder := httptest.NewRecorder()
 		handler.ServeHTTP(recorder, httptest.NewRequest(http.MethodPost, route, strings.NewReader(`{`)))
 		if recorder.Code != http.StatusBadRequest {
@@ -153,7 +153,7 @@ func TestFacadeRoutesReturnErrors(t *testing.T) {
 	request.Header.Set("Authorization", "Bearer bad-token")
 	recorder = httptest.NewRecorder()
 	handler.ServeHTTP(recorder, request)
-	if recorder.Code != http.StatusBadRequest {
+	if recorder.Code != http.StatusGone {
 		t.Fatalf("expected bad create activity request, got %d", recorder.Code)
 	}
 }
