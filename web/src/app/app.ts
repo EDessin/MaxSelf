@@ -118,7 +118,7 @@ export class App implements OnInit {
     { type: 'hydration_diamond', title: 'Hydration Boost — Diamond', xp: 30, stat: 'fuel', icon: 'droplet', color: '#22c55e', tier: 'Diamond', thresholdValue: 2000, thresholdUnit: 'ml', prerequisiteType: 'hydration_gold' },
     { type: 'sleep', title: 'Sleep Goal Met', xp: 35, stat: 'recovery', icon: 'moon', color: '#6366f1' },
     { type: 'mindfulness', title: 'Mindset Moment', xp: 20, stat: 'mindset', icon: 'sparkles', color: '#a855f7' },
-    { type: 'recovery', title: 'Recovery Ritual', xp: 20, stat: 'recovery', icon: 'heart-pulse', color: '#14b8a6' },
+    { type: 'recovery', title: 'Recovery Ritual', xp: 20, stat: 'recovery', icon: 'heart-pulse', color: '#6366f1' },
     { type: 'scale_measurement', title: 'Scale Measurement', xp: 15, stat: 'biometrics', icon: 'scale', color: '#0891b2' },
     { type: 'waist_to_height_ratio', title: 'Waist-to-Height Ratio', xp: 15, stat: 'biometrics', icon: 'ruler', color: '#0891b2' }
   ];
@@ -136,7 +136,8 @@ export class App implements OnInit {
 
   rules = computed(() => {
     const dashboard = this.dashboard();
-    return dashboard?.rules?.length ? dashboard.rules : this.fallbackRules;
+    const rules = dashboard?.rules?.length ? dashboard.rules : this.fallbackRules;
+    return rules.map((rule) => this.withCategoryColor(rule));
   });
 
   questColumns = computed<QuestColumn[]>(() => {
@@ -549,5 +550,16 @@ export class App implements OnInit {
 
   private ruleForType(type: string): ActivityRule | undefined {
     return this.rules().find((rule) => rule.type === type);
+  }
+
+  private withCategoryColor(rule: ActivityRule): ActivityRule {
+    return {
+      ...rule,
+      color: this.categoryColorFor(rule.stat)
+    };
+  }
+
+  private categoryColorFor(stat: string): string {
+    return this.categoryMeta.find((category) => category.key === stat)?.color ?? '#f59e0b';
   }
 }

@@ -37,6 +37,15 @@ const (
 
 var ErrUnknownActivityType = errors.New("unknown activity type")
 
+const (
+	ColorCardio     = "#f59e0b"
+	ColorStrength   = "#ff5a5f"
+	ColorFuel       = "#22c55e"
+	ColorRecovery   = "#6366f1"
+	ColorMindset    = "#a855f7"
+	ColorBiometrics = "#0891b2"
+)
+
 type Activity struct {
 	ID         string
 	UserID     string
@@ -64,24 +73,50 @@ type ActivityRule struct {
 }
 
 func Rules() []ActivityRule {
-	return []ActivityRule{
-		{Type: TypeCardio, Title: "Cardio Session", XP: 30, Stat: StatCardio, Icon: "flame", Color: "#f59e0b"},
-		{Type: TypeDailyStepsBronze, Title: "Daily Steps — Bronze", XP: 20, Stat: StatCardio, Icon: "footprints", Color: "#f59e0b", Tier: "Bronze", ThresholdValue: 6000, ThresholdUnit: "steps", FollowUpType: TypeDailyStepsSilver},
-		{Type: TypeDailyStepsSilver, Title: "Daily Steps — Silver", XP: 30, Stat: StatCardio, Icon: "footprints", Color: "#f59e0b", Tier: "Silver", ThresholdValue: 8000, ThresholdUnit: "steps", FollowUpType: TypeDailyStepsGold, PrerequisiteType: TypeDailyStepsBronze},
-		{Type: TypeDailyStepsGold, Title: "Daily Steps — Gold", XP: 45, Stat: StatCardio, Icon: "footprints", Color: "#f59e0b", Tier: "Gold", ThresholdValue: 10000, ThresholdUnit: "steps", FollowUpType: TypeDailyStepsDiamond, PrerequisiteType: TypeDailyStepsSilver},
-		{Type: TypeDailyStepsDiamond, Title: "Daily Steps — Diamond", XP: 70, Stat: StatCardio, Icon: "footprints", Color: "#f59e0b", Tier: "Diamond", ThresholdValue: 15000, ThresholdUnit: "steps", PrerequisiteType: TypeDailyStepsGold},
-		{Type: TypeExercise, Title: "Strength Session", XP: 40, Stat: StatStrength, Icon: "dumbbell", Color: "#ff5a5f"},
-		{Type: TypeHealthyMeal, Title: "Nourishing Meal", XP: 25, Stat: StatFuel, Icon: "apple", Color: "#22c55e"},
-		{Type: TypeHydrationBronze, Title: "Hydration Boost — Bronze", XP: 10, Stat: StatFuel, Icon: "droplet", Color: "#22c55e", Tier: "Bronze", ThresholdValue: 500, ThresholdUnit: "ml", FollowUpType: TypeHydrationSilver},
-		{Type: TypeHydrationSilver, Title: "Hydration Boost — Silver", XP: 15, Stat: StatFuel, Icon: "droplet", Color: "#22c55e", Tier: "Silver", ThresholdValue: 1000, ThresholdUnit: "ml", FollowUpType: TypeHydrationGold, PrerequisiteType: TypeHydrationBronze},
-		{Type: TypeHydrationGold, Title: "Hydration Boost — Gold", XP: 20, Stat: StatFuel, Icon: "droplet", Color: "#22c55e", Tier: "Gold", ThresholdValue: 1500, ThresholdUnit: "ml", FollowUpType: TypeHydrationDiamond, PrerequisiteType: TypeHydrationSilver},
-		{Type: TypeHydrationDiamond, Title: "Hydration Boost — Diamond", XP: 30, Stat: StatFuel, Icon: "droplet", Color: "#22c55e", Tier: "Diamond", ThresholdValue: 2000, ThresholdUnit: "ml", PrerequisiteType: TypeHydrationGold},
-		{Type: TypeSleep, Title: "Sleep Goal Met", XP: 35, Stat: StatRecovery, Icon: "moon", Color: "#6366f1"},
-		{Type: TypeMindfulness, Title: "Mindset Moment", XP: 20, Stat: StatMindset, Icon: "sparkles", Color: "#a855f7"},
-		{Type: TypeRecovery, Title: "Recovery Ritual", XP: 20, Stat: StatRecovery, Icon: "heart-pulse", Color: "#14b8a6"},
-		{Type: TypeScaleMeasurement, Title: "Scale Measurement", XP: 15, Stat: StatBiometrics, Icon: "scale", Color: "#0891b2"},
-		{Type: TypeWaistToHeightRatio, Title: "Waist-to-Height Ratio", XP: 15, Stat: StatBiometrics, Icon: "ruler", Color: "#0891b2"},
+	return applyCategoryColors([]ActivityRule{
+		{Type: TypeCardio, Title: "Cardio Session", XP: 30, Stat: StatCardio, Icon: "flame"},
+		{Type: TypeDailyStepsBronze, Title: "Daily Steps — Bronze", XP: 20, Stat: StatCardio, Icon: "footprints", Tier: "Bronze", ThresholdValue: 6000, ThresholdUnit: "steps", FollowUpType: TypeDailyStepsSilver},
+		{Type: TypeDailyStepsSilver, Title: "Daily Steps — Silver", XP: 30, Stat: StatCardio, Icon: "footprints", Tier: "Silver", ThresholdValue: 8000, ThresholdUnit: "steps", FollowUpType: TypeDailyStepsGold, PrerequisiteType: TypeDailyStepsBronze},
+		{Type: TypeDailyStepsGold, Title: "Daily Steps — Gold", XP: 45, Stat: StatCardio, Icon: "footprints", Tier: "Gold", ThresholdValue: 10000, ThresholdUnit: "steps", FollowUpType: TypeDailyStepsDiamond, PrerequisiteType: TypeDailyStepsSilver},
+		{Type: TypeDailyStepsDiamond, Title: "Daily Steps — Diamond", XP: 70, Stat: StatCardio, Icon: "footprints", Tier: "Diamond", ThresholdValue: 15000, ThresholdUnit: "steps", PrerequisiteType: TypeDailyStepsGold},
+		{Type: TypeExercise, Title: "Strength Session", XP: 40, Stat: StatStrength, Icon: "dumbbell"},
+		{Type: TypeHealthyMeal, Title: "Nourishing Meal", XP: 25, Stat: StatFuel, Icon: "apple"},
+		{Type: TypeHydrationBronze, Title: "Hydration Boost — Bronze", XP: 10, Stat: StatFuel, Icon: "droplet", Tier: "Bronze", ThresholdValue: 500, ThresholdUnit: "ml", FollowUpType: TypeHydrationSilver},
+		{Type: TypeHydrationSilver, Title: "Hydration Boost — Silver", XP: 15, Stat: StatFuel, Icon: "droplet", Tier: "Silver", ThresholdValue: 1000, ThresholdUnit: "ml", FollowUpType: TypeHydrationGold, PrerequisiteType: TypeHydrationBronze},
+		{Type: TypeHydrationGold, Title: "Hydration Boost — Gold", XP: 20, Stat: StatFuel, Icon: "droplet", Tier: "Gold", ThresholdValue: 1500, ThresholdUnit: "ml", FollowUpType: TypeHydrationDiamond, PrerequisiteType: TypeHydrationSilver},
+		{Type: TypeHydrationDiamond, Title: "Hydration Boost — Diamond", XP: 30, Stat: StatFuel, Icon: "droplet", Tier: "Diamond", ThresholdValue: 2000, ThresholdUnit: "ml", PrerequisiteType: TypeHydrationGold},
+		{Type: TypeSleep, Title: "Sleep Goal Met", XP: 35, Stat: StatRecovery, Icon: "moon"},
+		{Type: TypeMindfulness, Title: "Mindset Moment", XP: 20, Stat: StatMindset, Icon: "sparkles"},
+		{Type: TypeRecovery, Title: "Recovery Ritual", XP: 20, Stat: StatRecovery, Icon: "heart-pulse"},
+		{Type: TypeScaleMeasurement, Title: "Scale Measurement", XP: 15, Stat: StatBiometrics, Icon: "scale"},
+		{Type: TypeWaistToHeightRatio, Title: "Waist-to-Height Ratio", XP: 15, Stat: StatBiometrics, Icon: "ruler"},
+	})
+}
+
+func CategoryColor(stat Stat) string {
+	switch stat {
+	case StatCardio:
+		return ColorCardio
+	case StatStrength:
+		return ColorStrength
+	case StatFuel:
+		return ColorFuel
+	case StatRecovery:
+		return ColorRecovery
+	case StatMindset:
+		return ColorMindset
+	case StatBiometrics:
+		return ColorBiometrics
+	default:
+		return ColorCardio
 	}
+}
+
+func applyCategoryColors(rules []ActivityRule) []ActivityRule {
+	for index := range rules {
+		rules[index].Color = CategoryColor(rules[index].Stat)
+	}
+	return rules
 }
 
 func RuleFor(activityType ActivityType) (ActivityRule, error) {

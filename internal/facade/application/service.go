@@ -189,7 +189,36 @@ func (s Service) Activities(ctx context.Context, userID string) ([]Activity, err
 func (s Service) ActivityRules(ctx context.Context) ([]ActivityRule, error) {
 	var rules []ActivityRule
 	err := s.activity.Get(ctx, "/activity-types", nil, &rules)
-	return rules, err
+	if err != nil {
+		return nil, err
+	}
+	return applyActivityRuleCategoryColors(rules), nil
+}
+
+func activityRuleCategoryColor(stat string) string {
+	switch stat {
+	case "cardio":
+		return "#f59e0b"
+	case "strength":
+		return "#ff5a5f"
+	case "fuel":
+		return "#22c55e"
+	case "recovery":
+		return "#6366f1"
+	case "mindset":
+		return "#a855f7"
+	case "biometrics":
+		return "#0891b2"
+	default:
+		return "#f59e0b"
+	}
+}
+
+func applyActivityRuleCategoryColors(rules []ActivityRule) []ActivityRule {
+	for index := range rules {
+		rules[index].Color = activityRuleCategoryColor(rules[index].Stat)
+	}
+	return rules
 }
 
 func (s Service) Progress(ctx context.Context, userID string) (Progress, error) {

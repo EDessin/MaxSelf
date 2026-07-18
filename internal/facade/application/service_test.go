@@ -36,7 +36,7 @@ func TestServiceDashboardAndCreateActivity(t *testing.T) {
 	activityServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch {
 		case r.URL.Path == "/activity-types":
-			httpx.JSON(w, http.StatusOK, []ActivityRule{{Type: "exercise", Title: "Strength Session", XP: 40, Stat: "strength"}})
+			httpx.JSON(w, http.StatusOK, []ActivityRule{{Type: "exercise", Title: "Strength Session", XP: 40, Stat: "strength", Color: "#000000"}})
 		case r.URL.Path == "/activities" && r.Method == http.MethodGet:
 			if r.Header.Get("X-User-ID") != "user-1" {
 				t.Fatalf("missing user header")
@@ -94,6 +94,9 @@ func TestServiceDashboardAndCreateActivity(t *testing.T) {
 	}
 	if dashboard.User.ID != "user-1" || len(dashboard.Activities) != 1 || len(dashboard.Rules) != 1 {
 		t.Fatalf("unexpected dashboard: %+v", dashboard)
+	}
+	if dashboard.Rules[0].Color != "#ff5a5f" {
+		t.Fatalf("expected dashboard rule to use strength category color, got %+v", dashboard.Rules[0])
 	}
 
 	if _, err := service.Me(t.Context(), token); err != nil {

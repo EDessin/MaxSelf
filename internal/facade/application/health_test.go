@@ -277,6 +277,15 @@ func TestHealthHelpers(t *testing.T) {
 	if fallback.Type != "custom" || fallback.XP != 0 || fallback.Stat != "" {
 		t.Fatalf("unexpected fallback rule: %+v", fallback)
 	}
+	for _, rule := range localActivityRules() {
+		if rule.Color != activityRuleCategoryColor(rule.Stat) {
+			t.Fatalf("expected local rule %s to use %s category color %s, got %s", rule.Type, rule.Stat, activityRuleCategoryColor(rule.Stat), rule.Color)
+		}
+	}
+	recoveryRule := ruleForType("recovery")
+	if recoveryRule.Title != "Recovery Ritual" || recoveryRule.Color != "#6366f1" {
+		t.Fatalf("expected Recovery Ritual to use recovery category color, got %+v", recoveryRule)
+	}
 }
 
 func TestHealthCandidatesIgnoreIncompleteData(t *testing.T) {

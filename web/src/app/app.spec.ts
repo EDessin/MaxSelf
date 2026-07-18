@@ -31,7 +31,7 @@ const allRules = [
   { type: 'hydration_diamond', title: 'Hydration Boost — Diamond', xp: 30, stat: 'fuel', icon: 'droplet', color: '#22c55e', tier: 'Diamond', thresholdValue: 2000, thresholdUnit: 'ml', prerequisiteType: 'hydration_gold' },
   { type: 'sleep', title: 'Sleep Goal Met', xp: 35, stat: 'recovery', icon: 'moon', color: '#6366f1' },
   { type: 'mindfulness', title: 'Mindset Moment', xp: 20, stat: 'mindset', icon: 'sparkles', color: '#a855f7' },
-  { type: 'recovery', title: 'Recovery Ritual', xp: 20, stat: 'recovery', icon: 'heart-pulse', color: '#14b8a6' },
+  { type: 'recovery', title: 'Recovery Ritual', xp: 20, stat: 'recovery', icon: 'heart-pulse', color: '#6366f1' },
   { type: 'scale_measurement', title: 'Scale Measurement', xp: 15, stat: 'biometrics', icon: 'scale', color: '#0891b2' },
   { type: 'waist_to_height_ratio', title: 'Waist-to-Height Ratio', xp: 15, stat: 'biometrics', icon: 'ruler', color: '#0891b2' },
   { type: 'bonus', title: 'Bonus Quest', xp: 5, stat: 'mindset', icon: 'unknown', color: '#f59e0b' }
@@ -257,6 +257,8 @@ describe('App', () => {
     expect(app.colorFor('missing')).toBe('#f59e0b');
     expect(app.iconFor('daily_steps_bronze')).toBe('footprints');
     expect(app.colorFor('hydration_bronze')).toBe('#22c55e');
+    expect(app.colorFor('recovery')).toBe('#6366f1');
+    expect(app.rules().find((dashboardRule) => dashboardRule.type === 'bonus')?.color).toBe('#a855f7');
   });
 
   it('should open and close the waist measurement dialog from the waist quest', async () => {

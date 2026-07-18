@@ -16,6 +16,11 @@ func TestRulesAndRuleFor(t *testing.T) {
 	if rules[0].Color != "#f59e0b" {
 		t.Fatalf("expected cardio to use consistency yellow, got %s", rules[0].Color)
 	}
+	for _, rule := range rules {
+		if rule.Color != CategoryColor(rule.Stat) {
+			t.Fatalf("expected %s to use %s category color %s, got %s", rule.Type, rule.Stat, CategoryColor(rule.Stat), rule.Color)
+		}
+	}
 
 	rule, err := RuleFor(TypeDailyStepsBronze)
 	if err != nil {
