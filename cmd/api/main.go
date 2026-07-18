@@ -22,7 +22,7 @@ func main() {
 	if err := repo.AutoMigrate(); err != nil {
 		log.Fatalf("migrate facade: %v", err)
 	}
-	healthClient := application.NewGoogleHealthHTTPClient(cfg.GoogleClientID, cfg.GoogleClientSecret, cfg.GoogleHealthRedirectURL, cfg.GoogleHealthAPIBaseURL, cfg.HTTPClientTimeout)
+	healthClient := application.NewGoogleHealthHTTPClient(cfg.GoogleClientID, cfg.GoogleClientSecret, cfg.GoogleHealthRedirectURL, cfg.GoogleHealthAPIBaseURL, cfg.GoogleHealthTimeout)
 	service := application.NewServiceWithIntegrations(
 		application.NewClient(cfg.IdentityServiceURL, cfg.HTTPClientTimeout),
 		application.NewClient(cfg.ActivityServiceURL, cfg.HTTPClientTimeout),

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 	"time"
@@ -110,6 +111,7 @@ type HealthDataPoint struct {
 	DataPointName string           `json:"dataPointName"`
 	DataSource    HealthDataSource `json:"dataSource"`
 	Exercise      *HealthExercise  `json:"exercise"`
+	Steps         *HealthSteps     `json:"steps"`
 	Sleep         *HealthSleep     `json:"sleep"`
 	Weight        *HealthWeight    `json:"weight"`
 	BodyFat       *HealthBodyFat   `json:"bodyFat"`
@@ -129,8 +131,28 @@ type HealthSourceDevice struct {
 }
 
 type HealthInterval struct {
-	StartTime string `json:"startTime"`
-	EndTime   string `json:"endTime"`
+	StartTime      string              `json:"startTime"`
+	EndTime        string              `json:"endTime"`
+	CivilStartTime HealthCivilDateTime `json:"civilStartTime"`
+	CivilEndTime   HealthCivilDateTime `json:"civilEndTime"`
+}
+
+type HealthCivilDateTime struct {
+	Date HealthCivilDate `json:"date"`
+	Time HealthCivilTime `json:"time"`
+}
+
+type HealthCivilDate struct {
+	Year  int `json:"year"`
+	Month int `json:"month"`
+	Day   int `json:"day"`
+}
+
+type HealthCivilTime struct {
+	Hours   int `json:"hours"`
+	Minutes int `json:"minutes"`
+	Seconds int `json:"seconds"`
+	Nanos   int `json:"nanos"`
 }
 
 type HealthSampleTime struct {
@@ -142,6 +164,11 @@ type HealthExercise struct {
 	ExerciseType   string               `json:"exerciseType"`
 	ActiveDuration string               `json:"activeDuration"`
 	MetricsSummary HealthMetricsSummary `json:"metricsSummary"`
+}
+
+type HealthSteps struct {
+	Interval HealthInterval `json:"interval"`
+	Count    string         `json:"count"`
 }
 
 type HealthMetricsSummary struct {
@@ -235,14 +262,21 @@ func (s Service) CompleteGoogleHealthConnect(ctx context.Context, state string, 
 	}
 	authState, err := s.integrations.ConsumeHealthAuthState(ctx, state, time.Now())
 	if err != nil {
+		log.Printf("google health connect callback state consume failed state=%s err=%v", state, err)
 		return err
 	}
 	connection, err := s.googleHealth.ExchangeCode(ctx, code)
 	if err != nil {
+		log.Printf("google health connect callback exchange failed user_id=%s err=%v", authState.UserID, err)
 		return err
 	}
 	connection.UserID = authState.UserID
-	return s.integrations.SaveHealthConnection(ctx, connection)
+	if err := s.integrations.SaveHealthConnection(ctx, connection); err != nil {
+		log.Printf("google health connect save connection failed user_id=%s err=%v", authState.UserID, err)
+		return err
+	}
+	log.Printf("google health connected user_id=%s scope=%q expiry=%s", authState.UserID, connection.Scope, connection.Expiry.Format(time.RFC3339))
+	return nil
 }
 
 func (s Service) SyncGoogleHealth(ctx context.Context, token string) (HealthSyncResult, error) {
@@ -255,6 +289,7 @@ func (s Service) SyncGoogleHealth(ctx context.Context, token string) (HealthSync
 	}
 	connection, err := s.integrations.GetHealthConnection(ctx, claims.UserID)
 	if err != nil || connection.RefreshToken == "" {
+		log.Printf("google health sync blocked user_id=%s connected=false err=%v", claims.UserID, err)
 		return HealthSyncResult{}, ErrGoogleHealthNotConnected
 	}
 
@@ -268,24 +303,30 @@ func (s Service) SyncGoogleHealth(ctx context.Context, token string) (HealthSync
 		start = oldest
 	}
 
+	log.Printf("google health sync started user_id=%s start=%s last_synced_at=%v", claims.UserID, start.UTC().Format(time.RFC3339), connection.LastSyncedAt)
 	pointsByType := map[string][]HealthDataPoint{}
-	for _, query := range healthQueries(start) {
+	for _, query := range healthQueries(start, now) {
 		var points []HealthDataPoint
 		connection, points, err = s.googleHealth.Reconcile(ctx, connection, query.dataType, query.filter)
 		if err != nil {
+			log.Printf("google health sync query failed user_id=%s data_type=%s filter=%q err=%v", claims.UserID, query.dataType, query.filter, err)
 			return HealthSyncResult{}, err
 		}
+		log.Printf("google health sync query completed user_id=%s data_type=%s points=%d", claims.UserID, query.dataType, len(points))
 		pointsByType[query.dataType] = points
 	}
 	if err := s.integrations.SaveHealthConnection(ctx, connection); err != nil {
+		log.Printf("google health sync save connection failed user_id=%s err=%v", claims.UserID, err)
 		return HealthSyncResult{}, err
 	}
 
 	candidates := healthCandidates(claims.UserID, pointsByType)
+	log.Printf("google health sync candidates built user_id=%s candidates=%d", claims.UserID, len(candidates))
 	created := 0
 	for _, candidate := range candidates {
 		_, inserted, err := s.integrations.UpsertQuestClaim(ctx, candidate)
 		if err != nil {
+			log.Printf("google health sync upsert claim failed user_id=%s type=%s quest_date=%s source_id=%s err=%v", claims.UserID, candidate.Type, candidate.QuestDate, candidate.SourceID, err)
 			return HealthSyncResult{}, err
 		}
 		if inserted {
@@ -293,6 +334,7 @@ func (s Service) SyncGoogleHealth(ctx context.Context, token string) (HealthSync
 		}
 	}
 	if err := s.integrations.UpdateHealthConnectionSync(ctx, claims.UserID, now); err != nil {
+		log.Printf("google health sync timestamp update failed user_id=%s err=%v", claims.UserID, err)
 		return HealthSyncResult{}, err
 	}
 
@@ -304,6 +346,7 @@ func (s Service) SyncGoogleHealth(ctx context.Context, token string) (HealthSync
 	if err != nil {
 		return HealthSyncResult{}, err
 	}
+	log.Printf("google health sync completed user_id=%s created_claims=%d pending_claims=%d", claims.UserID, created, len(pending))
 	return HealthSyncResult{CreatedClaims: created, PendingClaims: pending, Dashboard: dashboard}, nil
 }
 
@@ -387,13 +430,20 @@ type healthQuery struct {
 	filter   string
 }
 
-func healthQueries(start time.Time) []healthQuery {
+func healthQueries(start time.Time, now time.Time) []healthQuery {
 	after := start.UTC().Format(time.RFC3339)
+	civilAfter := start.Format("2006-01-02T15:04:05")
+	stepsStart := startOfToday(start)
+	if stepsStart.Before(now.AddDate(0, 0, -90)) {
+		stepsStart = start
+	}
+	stepsCivilAfter := stepsStart.Format("2006-01-02T15:04:05")
 	return []healthQuery{
-		{dataType: "exercise", filter: fmt.Sprintf(`exercise.interval.end_time >= "%s"`, after)},
+		{dataType: "exercise", filter: fmt.Sprintf(`exercise.interval.civil_start_time >= "%s"`, civilAfter)},
+		{dataType: "steps", filter: fmt.Sprintf(`steps.interval.civil_start_time >= "%s"`, stepsCivilAfter)},
 		{dataType: "sleep", filter: fmt.Sprintf(`sleep.interval.end_time >= "%s"`, after)},
-		{dataType: "hydration-log", filter: fmt.Sprintf(`hydration_log.interval.end_time >= "%s"`, after)},
-		{dataType: "nutrition-log", filter: fmt.Sprintf(`nutrition_log.interval.end_time >= "%s"`, after)},
+		{dataType: "hydration-log", filter: fmt.Sprintf(`hydration_log.interval.civil_start_time >= "%s"`, civilAfter)},
+		{dataType: "nutrition-log", filter: fmt.Sprintf(`nutrition_log.interval.civil_start_time >= "%s"`, civilAfter)},
 		{dataType: "weight", filter: fmt.Sprintf(`weight.sample_time.physical_time >= "%s"`, after)},
 		{dataType: "body-fat", filter: fmt.Sprintf(`body_fat.sample_time.physical_time >= "%s"`, after)},
 	}
@@ -418,6 +468,7 @@ func healthCandidates(userID string, pointsByType map[string][]HealthDataPoint) 
 		}
 		candidates = append(candidates, newQuestClaim(userID, activityType, QuestClaimSourceGoogleHealth, point.ID(), occurredAt, exerciseEvidence(*point.Exercise)))
 	}
+	candidates = append(candidates, stepsCandidates(userID, pointsByType["steps"])...)
 	for _, point := range pointsByType["sleep"] {
 		if point.Sleep == nil {
 			continue
@@ -459,6 +510,57 @@ func healthCandidates(userID string, pointsByType map[string][]HealthDataPoint) 
 		candidates = append(candidates, newQuestClaim(userID, "healthy_meal", QuestClaimSourceGoogleHealth, point.ID(), occurredAt, "Nutrition logged"))
 	}
 	candidates = append(candidates, scaleCandidates(userID, pointsByType["weight"], pointsByType["body-fat"])...)
+	return candidates
+}
+
+type dailyStepsAggregate struct {
+	count      int
+	occurredAt time.Time
+}
+
+func stepsCandidates(userID string, points []HealthDataPoint) []QuestClaim {
+	byDate := map[string]dailyStepsAggregate{}
+	for _, point := range points {
+		if point.Steps == nil {
+			continue
+		}
+		count, err := strconv.Atoi(point.Steps.Count)
+		if err != nil || count <= 0 {
+			continue
+		}
+		questDate := intervalCivilDateKey(point.Steps.Interval)
+		occurredAt := civilDateOccurredAt(point.Steps.Interval.CivilStartTime)
+		if questDate == "" {
+			occurredAt = intervalStart(point.Steps.Interval)
+			questDate = dateKey(occurredAt)
+		}
+		if occurredAt.IsZero() {
+			occurredAt = intervalStart(point.Steps.Interval)
+		}
+		if occurredAt.IsZero() {
+			continue
+		}
+		aggregate := byDate[questDate]
+		aggregate.count += count
+		if aggregate.occurredAt.IsZero() || occurredAt.After(aggregate.occurredAt) {
+			aggregate.occurredAt = occurredAt
+		}
+		byDate[questDate] = aggregate
+	}
+	candidates := make([]QuestClaim, 0, len(byDate))
+	for questDate, aggregate := range byDate {
+		if aggregate.count < 6000 {
+			continue
+		}
+		occurredAt := aggregate.occurredAt
+		if dateKey(occurredAt) != questDate {
+			parsed, err := time.ParseInLocation("2006-01-02", questDate, time.UTC)
+			if err == nil {
+				occurredAt = parsed.Add(12 * time.Hour)
+			}
+		}
+		candidates = append(candidates, newQuestClaim(userID, "daily_steps", QuestClaimSourceGoogleHealth, fmt.Sprintf("google-health-steps-%s", questDate), occurredAt, fmt.Sprintf("%d steps", aggregate.count)))
+	}
 	return candidates
 }
 
@@ -528,6 +630,7 @@ func ruleForType(ruleType string) ActivityRule {
 func localActivityRules() []ActivityRule {
 	return []ActivityRule{
 		{Type: "cardio", Title: "Cardio Session", XP: 30, Stat: "cardio", Icon: "flame", Color: "#f59e0b"},
+		{Type: "daily_steps", Title: "6000 Steps", XP: 20, Stat: "cardio", Icon: "footprints", Color: "#f59e0b"},
 		{Type: "exercise", Title: "Strength Session", XP: 40, Stat: "strength", Icon: "dumbbell", Color: "#ff5a5f"},
 		{Type: "healthy_meal", Title: "Nourishing Meal", XP: 25, Stat: "fuel", Icon: "apple", Color: "#22c55e"},
 		{Type: "hydration", Title: "Hydration Boost", XP: 10, Stat: "fuel", Icon: "droplet", Color: "#38bdf8"},
@@ -606,6 +709,24 @@ func intervalEnd(interval HealthInterval) time.Time {
 
 func sampleTime(sample HealthSampleTime) time.Time {
 	return parseHealthTime(sample.PhysicalTime)
+}
+
+func intervalCivilDateKey(interval HealthInterval) string {
+	return civilDateKey(interval.CivilStartTime)
+}
+
+func civilDateKey(value HealthCivilDateTime) string {
+	if value.Date.Year == 0 || value.Date.Month == 0 || value.Date.Day == 0 {
+		return ""
+	}
+	return fmt.Sprintf("%04d-%02d-%02d", value.Date.Year, value.Date.Month, value.Date.Day)
+}
+
+func civilDateOccurredAt(value HealthCivilDateTime) time.Time {
+	if value.Date.Year == 0 || value.Date.Month == 0 || value.Date.Day == 0 {
+		return time.Time{}
+	}
+	return time.Date(value.Date.Year, time.Month(value.Date.Month), value.Date.Day, 12, 0, 0, 0, time.UTC)
 }
 
 func parseHealthTime(value string) time.Time {

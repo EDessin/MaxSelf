@@ -3,6 +3,7 @@ package application
 import (
 	"context"
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -44,7 +45,7 @@ func TestGoogleHealthHTTPClientOAuthAndReconcile(t *testing.T) {
 			if r.Header.Get("Authorization") != "Bearer access-2" {
 				t.Fatalf("unexpected authorization header: %s", r.Header.Get("Authorization"))
 			}
-			if r.URL.Query().Get("pageSize") != "25" || r.URL.Query().Get("filter") != `exercise.interval.end_time >= "2026-07-17T00:00:00Z"` {
+			if r.URL.Query().Get("pageSize") != "25" || r.URL.Query().Get("filter") != `exercise.interval.civil_start_time >= "2026-07-17T00:00:00"` {
 				t.Fatalf("unexpected reconcile query: %s", r.URL.RawQuery)
 			}
 			w.Header().Set("Content-Type", "application/json")
@@ -106,7 +107,7 @@ func TestGoogleHealthHTTPClientOAuthAndReconcile(t *testing.T) {
 	}
 
 	connection.Expiry = time.Now().Add(-time.Minute)
-	connection, points, err := client.Reconcile(ctx, connection, "exercise", `exercise.interval.end_time >= "2026-07-17T00:00:00Z"`)
+	connection, points, err := client.Reconcile(ctx, connection, "exercise", `exercise.interval.civil_start_time >= "2026-07-17T00:00:00"`)
 	if err != nil {
 		t.Fatalf("Reconcile returned error: %v", err)
 	}
@@ -118,6 +119,41 @@ func TestGoogleHealthHTTPClientOAuthAndReconcile(t *testing.T) {
 	}
 	if tokenCalls != 2 || apiCalls != 2 {
 		t.Fatalf("unexpected call counts token=%d api=%d", tokenCalls, apiCalls)
+	}
+}
+
+func TestGoogleHealthHTTPClientRetriesRequestTimeout(t *testing.T) {
+	calls := 0
+	client := NewGoogleHealthHTTPClient("client", "secret", "callback", "https://health.example", time.Second)
+	client.http = &http.Client{
+		Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+			calls++
+			if calls == 1 {
+				return nil, context.DeadlineExceeded
+			}
+			if req.Header.Get("Authorization") != "Bearer access" {
+				t.Fatalf("unexpected authorization header: %s", req.Header.Get("Authorization"))
+			}
+			return &http.Response{
+				StatusCode: http.StatusOK,
+				Status:     "200 OK",
+				Header:     make(http.Header),
+				Body:       io.NopCloser(strings.NewReader(`{"dataPoints":[{"dataPointName":"steps-1","steps":{"count":"40"}}]}`)),
+			}, nil
+		}),
+	}
+
+	_, points, err := client.Reconcile(context.Background(), HealthConnection{
+		AccessToken:  "access",
+		RefreshToken: "refresh",
+		TokenType:    "Bearer",
+		Expiry:       time.Now().Add(time.Hour),
+	}, "steps", "")
+	if err != nil {
+		t.Fatalf("Reconcile returned error: %v", err)
+	}
+	if calls != 2 || len(points) != 1 || points[0].Steps.Count != "40" {
+		t.Fatalf("unexpected retry result calls=%d points=%+v", calls, points)
 	}
 }
 
@@ -190,4 +226,10 @@ func TestGoogleHealthHTTPClientExchangeAndDecodeErrors(t *testing.T) {
 	if _, _, err := client.Reconcile(ctx, HealthConnection{AccessToken: "access", RefreshToken: "refresh", TokenType: "Bearer", Expiry: time.Now().Add(time.Hour)}, "sleep", ""); err == nil {
 		t.Fatal("expected reconcile JSON decode error")
 	}
+}
+
+type roundTripFunc func(*http.Request) (*http.Response, error)
+
+func (f roundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) {
+	return f(req)
 }

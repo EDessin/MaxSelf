@@ -203,6 +203,7 @@ Then set:
 
 ```bash
 GOOGLE_HEALTH_REDIRECT_URL=http://localhost:8080/api/integrations/google-health/callback
+GOOGLE_HEALTH_HTTP_CLIENT_TIMEOUT_SECONDS=30
 ```
 
 Users connect Google Health from inside MaxSelf, manually press Sync Health

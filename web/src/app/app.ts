@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
@@ -7,6 +8,7 @@ import {
   LucideDroplet,
   LucideDumbbell,
   LucideFlame,
+  LucideFootprints,
   LucideHeartPulse,
   LucideMoon,
   LucideRuler,
@@ -54,6 +56,7 @@ interface QuestColumn extends CategoryMeta {
     LucideDroplet,
     LucideDumbbell,
     LucideFlame,
+    LucideFootprints,
     LucideHeartPulse,
     LucideMoon,
     LucideRuler,
@@ -98,6 +101,7 @@ export class App implements OnInit {
 
   fallbackRules: ActivityRule[] = [
     { type: 'cardio', title: 'Cardio Session', xp: 30, stat: 'cardio', icon: 'flame', color: '#f59e0b' },
+    { type: 'daily_steps', title: '6000 Steps', xp: 20, stat: 'cardio', icon: 'footprints', color: '#f59e0b' },
     { type: 'exercise', title: 'Strength Session', xp: 40, stat: 'strength', icon: 'dumbbell', color: '#ff5a5f' },
     { type: 'healthy_meal', title: 'Nourishing Meal', xp: 25, stat: 'fuel', icon: 'apple', color: '#22c55e' },
     { type: 'hydration', title: 'Hydration Boost', xp: 10, stat: 'fuel', icon: 'droplet', color: '#38bdf8' },
@@ -262,8 +266,9 @@ export class App implements OnInit {
       next: (result) => {
         window.location.href = result.url;
       },
-      error: () => {
-        this.syncError.set('Google Health is not configured yet.');
+      error: (error) => {
+        const detail = this.apiErrorMessage(error);
+        this.syncError.set(detail ? `Could not connect Google Health: ${detail}` : 'Google Health is not configured yet.');
       }
     });
   }
@@ -285,7 +290,12 @@ export class App implements OnInit {
       next: (result) => {
         this.handleSyncResult(result);
       },
-      error: () => {
+      error: (error) => {
+        const detail = this.apiErrorMessage(error);
+        if (detail) {
+          this.syncError.set(`Could not sync Google Health data: ${detail}`);
+          return;
+        }
         this.syncError.set(this.googleHealth().connected
           ? 'Could not sync Google Health data. Please try again.'
           : 'Connect Google Health before syncing.');
@@ -413,5 +423,19 @@ export class App implements OnInit {
     }
     this.closeActivityDialog();
     this.syncMessage.set('All available quest XP has been claimed.');
+  }
+
+  private apiErrorMessage(error: unknown): string | undefined {
+    if (!(error instanceof HttpErrorResponse)) {
+      return undefined;
+    }
+    const payload = error.error;
+    if (typeof payload === 'string') {
+      return payload;
+    }
+    if (payload && typeof payload.error === 'string') {
+      return payload.error;
+    }
+    return undefined;
   }
 }

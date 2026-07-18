@@ -3,9 +3,13 @@ package application
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"io"
+	"log"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 	"time"
 
@@ -19,6 +23,9 @@ var googleHealthScopes = []string{
 	"https://www.googleapis.com/auth/googlehealth.nutrition.readonly",
 	"https://www.googleapis.com/auth/googlehealth.sleep.readonly",
 }
+
+const maxGoogleHealthErrorBodyBytes = 4096
+const maxGoogleHealthRequestAttempts = 2
 
 type GoogleHealthHTTPClient struct {
 	oauth  *oauth2.Config
@@ -58,6 +65,7 @@ func (c *GoogleHealthHTTPClient) AuthCodeURL(state string) string {
 func (c *GoogleHealthHTTPClient) ExchangeCode(ctx context.Context, code string) (HealthConnection, error) {
 	token, err := c.oauth.Exchange(ctx, code)
 	if err != nil {
+		log.Printf("google health oauth code exchange failed: %v", err)
 		return HealthConnection{}, err
 	}
 	return connectionFromOAuthToken(token), nil
@@ -66,7 +74,8 @@ func (c *GoogleHealthHTTPClient) ExchangeCode(ctx context.Context, code string) 
 func (c *GoogleHealthHTTPClient) Reconcile(ctx context.Context, connection HealthConnection, dataType string, filter string) (HealthConnection, []HealthDataPoint, error) {
 	token, err := c.oauth.TokenSource(ctx, oauthTokenFromConnection(connection)).Token()
 	if err != nil {
-		return connection, nil, err
+		log.Printf("google health token refresh failed user_id=%s data_type=%s err=%v", connection.UserID, dataType, err)
+		return connection, nil, fmt.Errorf("google health token refresh failed: %w", err)
 	}
 	connection = mergeOAuthToken(connection, token)
 
@@ -87,34 +96,74 @@ func (c *GoogleHealthHTTPClient) Reconcile(ctx context.Context, connection Healt
 		}
 		endpoint.RawQuery = query.Encode()
 
-		req, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint.String(), nil)
+		resp, err := c.doReconcileRequest(ctx, endpoint.String(), token.AccessToken, connection.UserID, dataType, filter)
 		if err != nil {
-			return connection, nil, err
+			return connection, nil, fmt.Errorf("google health %s reconcile request failed: %w", dataType, err)
 		}
-		req.Header.Set("Accept", "application/json")
-		req.Header.Set("Authorization", "Bearer "+token.AccessToken)
-
-		resp, err := c.http.Do(req)
-		if err != nil {
-			return connection, nil, err
-		}
-		defer resp.Body.Close()
 		if resp.StatusCode >= 400 {
-			return connection, nil, fmt.Errorf("google health returned %s", resp.Status)
+			body := readGoogleHealthErrorBody(resp.Body)
+			_ = resp.Body.Close()
+			log.Printf("google health reconcile returned error user_id=%s data_type=%s filter=%q status=%s body=%q", connection.UserID, dataType, filter, resp.Status, body)
+			if body != "" {
+				return connection, nil, fmt.Errorf("google health %s reconcile failed: %s: %s", dataType, resp.Status, body)
+			}
+			return connection, nil, fmt.Errorf("google health %s reconcile failed: %s", dataType, resp.Status)
 		}
 		var payload struct {
 			DataPoints    []HealthDataPoint `json:"dataPoints"`
 			NextPageToken string            `json:"nextPageToken"`
 		}
 		if err := json.NewDecoder(resp.Body).Decode(&payload); err != nil {
-			return connection, nil, err
+			_ = resp.Body.Close()
+			log.Printf("google health reconcile decode failed user_id=%s data_type=%s status=%s err=%v", connection.UserID, dataType, resp.Status, err)
+			return connection, nil, fmt.Errorf("google health %s reconcile decode failed: %w", dataType, err)
 		}
+		_ = resp.Body.Close()
 		all = append(all, payload.DataPoints...)
 		if payload.NextPageToken == "" {
 			return connection, all, nil
 		}
 		pageToken = payload.NextPageToken
 	}
+}
+
+func (c *GoogleHealthHTTPClient) doReconcileRequest(ctx context.Context, endpoint string, accessToken string, userID string, dataType string, filter string) (*http.Response, error) {
+	var lastErr error
+	for attempt := 1; attempt <= maxGoogleHealthRequestAttempts; attempt++ {
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)
+		if err != nil {
+			return nil, err
+		}
+		req.Header.Set("Accept", "application/json")
+		req.Header.Set("Authorization", "Bearer "+accessToken)
+
+		resp, err := c.http.Do(req)
+		if err == nil {
+			if attempt > 1 {
+				log.Printf("google health reconcile retry succeeded user_id=%s data_type=%s attempt=%d", userID, dataType, attempt)
+			}
+			return resp, nil
+		}
+		lastErr = err
+		log.Printf("google health reconcile request failed user_id=%s data_type=%s filter=%q attempt=%d err=%v", userID, dataType, filter, attempt, err)
+		if !isRetryableGoogleHealthRequestError(err) || attempt == maxGoogleHealthRequestAttempts {
+			break
+		}
+		log.Printf("google health reconcile request retrying user_id=%s data_type=%s next_attempt=%d", userID, dataType, attempt+1)
+	}
+	return nil, lastErr
+}
+
+func isRetryableGoogleHealthRequestError(err error) bool {
+	return os.IsTimeout(err) || errors.Is(err, context.DeadlineExceeded)
+}
+
+func readGoogleHealthErrorBody(body io.Reader) string {
+	payload, err := io.ReadAll(io.LimitReader(body, maxGoogleHealthErrorBodyBytes))
+	if err != nil {
+		return ""
+	}
+	return strings.TrimSpace(string(payload))
 }
 
 func oauthTokenFromConnection(connection HealthConnection) *oauth2.Token {

@@ -88,6 +88,7 @@ export class MaxSelfApi {
   private readonly http = inject(HttpClient);
   private readonly apiBase = 'http://localhost:8080/api';
   private readonly requestTimeoutMs = 10000;
+  private readonly healthSyncTimeoutMs = 180000;
 
   authenticate(mode: AuthMode, payload: AuthPayload): Observable<{ token: string }> {
     const path = mode === 'login' ? '/auth/login' : '/auth/register';
@@ -119,7 +120,7 @@ export class MaxSelfApi {
         {},
         { headers: this.authHeaders(token) }
       )
-      .pipe(timeout(this.requestTimeoutMs));
+      .pipe(timeout(this.healthSyncTimeoutMs));
   }
 
   submitWaistToHeight(token: string, waistCentimeters: number, heightCentimeters: number): Observable<HealthSyncResult> {

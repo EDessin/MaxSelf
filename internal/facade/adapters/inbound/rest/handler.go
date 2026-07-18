@@ -3,6 +3,7 @@ package rest
 import (
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/EDessin/MaxSelf/internal/facade/application"
@@ -105,6 +106,7 @@ func (h Handler) createActivity(w http.ResponseWriter, r *http.Request) {
 func (h Handler) googleHealthConnect(w http.ResponseWriter, r *http.Request) {
 	result, err := h.service.StartGoogleHealthConnect(r.Context(), httpx.BearerToken(r))
 	if err != nil {
+		log.Printf("google health connect route failed remote_addr=%s err=%v", r.RemoteAddr, err)
 		h.integrationError(w, err)
 		return
 	}
@@ -113,15 +115,18 @@ func (h Handler) googleHealthConnect(w http.ResponseWriter, r *http.Request) {
 
 func (h Handler) googleHealthCallback(w http.ResponseWriter, r *http.Request) {
 	if err := h.service.CompleteGoogleHealthConnect(r.Context(), r.URL.Query().Get("state"), r.URL.Query().Get("code")); err != nil {
+		log.Printf("google health callback route failed remote_addr=%s state=%s err=%v", r.RemoteAddr, r.URL.Query().Get("state"), err)
 		http.Redirect(w, r, fmt.Sprintf("%s/?googleHealth=error", h.config.FrontendURL), http.StatusFound)
 		return
 	}
+	log.Printf("google health callback route completed remote_addr=%s state=%s", r.RemoteAddr, r.URL.Query().Get("state"))
 	http.Redirect(w, r, fmt.Sprintf("%s/?googleHealth=connected", h.config.FrontendURL), http.StatusFound)
 }
 
 func (h Handler) googleHealthSync(w http.ResponseWriter, r *http.Request) {
 	result, err := h.service.SyncGoogleHealth(r.Context(), httpx.BearerToken(r))
 	if err != nil {
+		log.Printf("google health sync route failed remote_addr=%s err=%v", r.RemoteAddr, err)
 		h.integrationError(w, err)
 		return
 	}
@@ -136,6 +141,7 @@ func (h Handler) waistToHeight(w http.ResponseWriter, r *http.Request) {
 	}
 	result, err := h.service.CreateWaistToHeightClaim(r.Context(), httpx.BearerToken(r), req)
 	if err != nil {
+		log.Printf("waist-to-height route failed remote_addr=%s err=%v", r.RemoteAddr, err)
 		h.integrationError(w, err)
 		return
 	}
@@ -145,6 +151,7 @@ func (h Handler) waistToHeight(w http.ResponseWriter, r *http.Request) {
 func (h Handler) claimQuest(w http.ResponseWriter, r *http.Request) {
 	dashboard, err := h.service.ClaimQuest(r.Context(), httpx.BearerToken(r), r.PathValue("claimID"))
 	if err != nil {
+		log.Printf("quest claim route failed remote_addr=%s claim_id=%s err=%v", r.RemoteAddr, r.PathValue("claimID"), err)
 		h.integrationError(w, err)
 		return
 	}

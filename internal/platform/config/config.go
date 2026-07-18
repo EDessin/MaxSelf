@@ -20,6 +20,7 @@ type Config struct {
 	GoogleRedirectURL       string
 	GoogleHealthRedirectURL string
 	GoogleHealthAPIBaseURL  string
+	GoogleHealthTimeout     time.Duration
 	HTTPClientTimeout       time.Duration
 	AccessTokenExpiresIn    time.Duration
 }
@@ -39,6 +40,7 @@ func Load(serviceName, defaultPort string) Config {
 		GoogleRedirectURL:       env("GOOGLE_REDIRECT_URL", "http://localhost:8081/auth/google/callback"),
 		GoogleHealthRedirectURL: env("GOOGLE_HEALTH_REDIRECT_URL", "http://localhost:8080/api/integrations/google-health/callback"),
 		GoogleHealthAPIBaseURL:  env("GOOGLE_HEALTH_API_BASE_URL", "https://health.googleapis.com"),
+		GoogleHealthTimeout:     secondsEnv("GOOGLE_HEALTH_HTTP_CLIENT_TIMEOUT_SECONDS", 30),
 		HTTPClientTimeout:       secondsEnv("HTTP_CLIENT_TIMEOUT_SECONDS", 5),
 		AccessTokenExpiresIn:    time.Duration(secondsEnv("ACCESS_TOKEN_EXPIRES_SECONDS", 86400).Seconds()) * time.Second,
 	}

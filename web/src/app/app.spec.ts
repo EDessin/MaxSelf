@@ -19,6 +19,7 @@ const rule = {
 
 const allRules = [
   { type: 'cardio', title: 'Cardio Session', xp: 30, stat: 'cardio', icon: 'flame', color: '#f59e0b' },
+  { type: 'daily_steps', title: '6000 Steps', xp: 20, stat: 'cardio', icon: 'footprints', color: '#f59e0b' },
   rule,
   { type: 'healthy_meal', title: 'Nourishing Meal', xp: 25, stat: 'fuel', icon: 'apple', color: '#22c55e' },
   { type: 'hydration', title: 'Hydration Boost', xp: 10, stat: 'fuel', icon: 'droplet', color: '#38bdf8' },
@@ -365,7 +366,7 @@ describe('App', () => {
     request.flush({ error: 'missing config' }, { status: 501, statusText: 'Not Implemented' });
 
     expect(app.connectPending()).toBe(false);
-    expect(app.syncError()).toBe('Google Health is not configured yet.');
+    expect(app.syncError()).toBe('Could not connect Google Health: missing config');
   });
 
   it('should report sync failures and empty sync results', async () => {
@@ -385,7 +386,7 @@ describe('App', () => {
     await fixture.whenStable();
 
     expect(app.syncPending()).toBe(false);
-    expect(app.syncError()).toBe('Connect Google Health before syncing.');
+    expect(app.syncError()).toBe('Could not sync Google Health data: not connected');
 
     app.dashboard.set({
       ...dashboard(),

@@ -56,6 +56,40 @@ func TestHealthCandidatesBuildSyncedQuestClaims(t *testing.T) {
 				},
 			},
 		},
+		"steps": {
+			{
+				Name: "steps-morning",
+				Steps: &HealthSteps{
+					Interval: HealthInterval{
+						StartTime:      now.Add(-2 * time.Hour).Format(time.RFC3339),
+						EndTime:        now.Add(-2*time.Hour + time.Minute).Format(time.RFC3339),
+						CivilStartTime: HealthCivilDateTime{Date: HealthCivilDate{Year: 2026, Month: 7, Day: 17}},
+					},
+					Count: "3500",
+				},
+			},
+			{
+				Name: "steps-evening",
+				Steps: &HealthSteps{
+					Interval: HealthInterval{
+						StartTime:      now.Add(8 * time.Hour).Format(time.RFC3339),
+						EndTime:        now.Add(8*time.Hour + time.Minute).Format(time.RFC3339),
+						CivilStartTime: HealthCivilDateTime{Date: HealthCivilDate{Year: 2026, Month: 7, Day: 17}},
+					},
+					Count: "3000",
+				},
+			},
+			{
+				Name: "steps-short-day",
+				Steps: &HealthSteps{
+					Interval: HealthInterval{
+						StartTime:      now.Add(24 * time.Hour).Format(time.RFC3339),
+						CivilStartTime: HealthCivilDateTime{Date: HealthCivilDate{Year: 2026, Month: 7, Day: 18}},
+					},
+					Count: "5999",
+				},
+			},
+		},
 		"sleep": {
 			{
 				Name: "sleep-1",
@@ -115,8 +149,8 @@ func TestHealthCandidatesBuildSyncedQuestClaims(t *testing.T) {
 	}
 
 	candidates := healthCandidates("user-1", pointsByType)
-	if len(candidates) != 8 {
-		t.Fatalf("expected 8 candidates, got %d: %+v", len(candidates), candidates)
+	if len(candidates) != 9 {
+		t.Fatalf("expected 9 candidates, got %d: %+v", len(candidates), candidates)
 	}
 	counts := map[string]int{}
 	for _, candidate := range candidates {
@@ -132,6 +166,7 @@ func TestHealthCandidatesBuildSyncedQuestClaims(t *testing.T) {
 	}
 	expected := map[string]int{
 		"cardio":            1,
+		"daily_steps":       1,
 		"exercise":          1,
 		"recovery":          1,
 		"sleep":             1,
@@ -145,6 +180,7 @@ func TestHealthCandidatesBuildSyncedQuestClaims(t *testing.T) {
 		}
 	}
 	if !containsEvidence(candidates, "Running · 45 min · 5.0 km") ||
+		!containsEvidence(candidates, "6500 steps") ||
 		!containsEvidence(candidates, "Weight 70.0 kg, body fat 22.5%") ||
 		!containsEvidence(candidates, "Body fat 21.0%") {
 		t.Fatalf("expected evidence strings not found: %+v", candidates)
@@ -153,9 +189,27 @@ func TestHealthCandidatesBuildSyncedQuestClaims(t *testing.T) {
 
 func TestHealthHelpers(t *testing.T) {
 	start := time.Date(2026, 7, 17, 0, 0, 0, 0, time.FixedZone("CEST", 2*60*60))
-	queries := healthQueries(start)
-	if len(queries) != 6 || queries[0].dataType != "exercise" || !strings.Contains(queries[0].filter, "2026-07-16T22:00:00Z") {
+	queries := healthQueries(start, start.Add(2*time.Hour))
+	if len(queries) != 7 || queries[0].dataType != "exercise" || queries[0].filter != `exercise.interval.civil_start_time >= "2026-07-17T00:00:00"` {
 		t.Fatalf("unexpected queries: %+v", queries)
+	}
+	expectedFilters := map[string]string{
+		"steps":         `steps.interval.civil_start_time >= "2026-07-17T00:00:00"`,
+		"sleep":         `sleep.interval.end_time >= "2026-07-16T22:00:00Z"`,
+		"hydration-log": `hydration_log.interval.civil_start_time >= "2026-07-17T00:00:00"`,
+		"nutrition-log": `nutrition_log.interval.civil_start_time >= "2026-07-17T00:00:00"`,
+		"weight":        `weight.sample_time.physical_time >= "2026-07-16T22:00:00Z"`,
+		"body-fat":      `body_fat.sample_time.physical_time >= "2026-07-16T22:00:00Z"`,
+	}
+	for _, query := range queries[1:] {
+		if expectedFilters[query.dataType] != query.filter {
+			t.Fatalf("unexpected filter for %s: %s", query.dataType, query.filter)
+		}
+	}
+	start = start.Add(14 * time.Hour)
+	queries = healthQueries(start, start.Add(2*time.Hour))
+	if queries[1].filter != `steps.interval.civil_start_time >= "2026-07-17T00:00:00"` {
+		t.Fatalf("steps filter should start at the civil day boundary, got %s", queries[1].filter)
 	}
 	if questTypeForExercise("indoor_cycling") != "cardio" ||
 		questTypeForExercise("resistance") != "exercise" ||
@@ -199,6 +253,13 @@ func TestHealthCandidatesIgnoreIncompleteData(t *testing.T) {
 			{},
 			{Sleep: &HealthSleep{Summary: HealthSleepSummary{MinutesAsleep: "not-a-number"}}},
 			{Sleep: &HealthSleep{Summary: HealthSleepSummary{MinutesAsleep: "450"}}},
+		},
+		"steps": {
+			{},
+			{Steps: &HealthSteps{Count: "not-a-number"}},
+			{Steps: &HealthSteps{Count: "0", Interval: HealthInterval{StartTime: now.Format(time.RFC3339)}}},
+			{Steps: &HealthSteps{Count: "6000"}},
+			{Steps: &HealthSteps{Count: "5999", Interval: HealthInterval{StartTime: now.Format(time.RFC3339)}}},
 		},
 		"hydration-log": {
 			{},

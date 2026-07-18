@@ -11,6 +11,7 @@ type Stat string
 const (
 	TypeExercise           ActivityType = "exercise"
 	TypeCardio             ActivityType = "cardio"
+	TypeDailySteps         ActivityType = "daily_steps"
 	TypeHealthyMeal        ActivityType = "healthy_meal"
 	TypeHydration          ActivityType = "hydration"
 	TypeSleep              ActivityType = "sleep"
@@ -54,6 +55,7 @@ type ActivityRule struct {
 func Rules() []ActivityRule {
 	return []ActivityRule{
 		{Type: TypeCardio, Title: "Cardio Session", XP: 30, Stat: StatCardio, Icon: "flame", Color: "#f59e0b"},
+		{Type: TypeDailySteps, Title: "6000 Steps", XP: 20, Stat: StatCardio, Icon: "footprints", Color: "#f59e0b"},
 		{Type: TypeExercise, Title: "Strength Session", XP: 40, Stat: StatStrength, Icon: "dumbbell", Color: "#ff5a5f"},
 		{Type: TypeHealthyMeal, Title: "Nourishing Meal", XP: 25, Stat: StatFuel, Icon: "apple", Color: "#22c55e"},
 		{Type: TypeHydration, Title: "Hydration Boost", XP: 10, Stat: StatFuel, Icon: "droplet", Color: "#38bdf8"},
