@@ -171,6 +171,8 @@ export class App implements OnInit {
 
   pendingClaims = computed(() => this.dashboard()?.questClaims ?? []);
 
+  questClaimHistory = computed(() => this.dashboard()?.questClaimHistory ?? []);
+
   ngOnInit(): void {
     const url = new URL(window.location.href);
     const callbackToken = url.searchParams.get('token');
@@ -483,6 +485,9 @@ export class App implements OnInit {
     const rules = this.rules();
     const byType = new Map(rules.map((rule) => [rule.type, rule]));
     const pendingTypes = new Set(this.pendingClaims().map((claim) => claim.type));
+    const claimedTodayTypes = new Set(this.questClaimHistory()
+      .filter((claim) => claim.status === 'claimed' && claim.questDate === this.todayQuestDate())
+      .map((claim) => claim.type));
     const handled = new Set<string>();
     const visible: VisibleActivityRule[] = [];
 
@@ -500,7 +505,10 @@ export class App implements OnInit {
       chain.forEach((chainRule) => handled.add(chainRule.type));
 
       const pendingRule = chain.find((chainRule) => pendingTypes.has(chainRule.type));
-      const visibleRule = pendingRule ?? chain[0];
+      const visibleRule = pendingRule ?? this.nextUnclaimedTier(chain, claimedTodayTypes);
+      if (!visibleRule) {
+        continue;
+      }
       visible.push({
         ...visibleRule,
         stackPosition: chain.findIndex((chainRule) => chainRule.type === visibleRule.type) + 1,
@@ -534,6 +542,17 @@ export class App implements OnInit {
     return chain;
   }
 
+  private nextUnclaimedTier(chain: ActivityRule[], claimedTodayTypes: Set<string>): ActivityRule | undefined {
+    let lastClaimedIndex = -1;
+    for (let index = chain.length - 1; index >= 0; index -= 1) {
+      if (claimedTodayTypes.has(chain[index].type)) {
+        lastClaimedIndex = index;
+        break;
+      }
+    }
+    return chain[lastClaimedIndex + 1] ?? (lastClaimedIndex === -1 ? chain[0] : undefined);
+  }
+
   private apiErrorMessage(error: unknown): string | undefined {
     if (!(error instanceof HttpErrorResponse)) {
       return undefined;
@@ -561,5 +580,13 @@ export class App implements OnInit {
 
   private categoryColorFor(stat: string): string {
     return this.categoryMeta.find((category) => category.key === stat)?.color ?? '#f59e0b';
+  }
+
+  private todayQuestDate(): string {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 }

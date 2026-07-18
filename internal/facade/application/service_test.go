@@ -250,7 +250,7 @@ func TestServiceGoogleHealthSyncAndClaim(t *testing.T) {
 	activityServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch {
 		case r.URL.Path == "/activity-types":
-			httpx.JSON(w, http.StatusOK, []ActivityRule{{Type: "cardio", Title: "Cardio Session", XP: 30, Stat: "cardio"}})
+			httpx.JSON(w, http.StatusOK, localActivityRules())
 		case r.URL.Path == "/activities" && r.Method == http.MethodGet:
 			httpx.JSON(w, http.StatusOK, []Activity{})
 		case r.URL.Path == "/activities" && r.Method == http.MethodPost:
@@ -259,7 +259,8 @@ func TestServiceGoogleHealthSyncAndClaim(t *testing.T) {
 				t.Fatalf("decode activity: %v", err)
 			}
 			createdType, _ = req["type"].(string)
-			httpx.JSON(w, http.StatusCreated, Activity{ID: "activity-claim", UserID: "user-1", Type: "cardio", Title: "Cardio Session", XP: 30, Stat: "cardio", OccurredAt: time.Now()})
+			rule := ruleForType(createdType)
+			httpx.JSON(w, http.StatusCreated, Activity{ID: "activity-claim", UserID: "user-1", Type: createdType, Title: rule.Title, XP: rule.XP, Stat: rule.Stat, OccurredAt: time.Now()})
 		default:
 			http.NotFound(w, r)
 		}
@@ -279,7 +280,7 @@ func TestServiceGoogleHealthSyncAndClaim(t *testing.T) {
 			if award["activityId"] != "activity-claim" || award["stat"] != "cardio" {
 				t.Fatalf("unexpected award: %+v", award)
 			}
-			progressTotal = 30
+			progressTotal = 20
 			httpx.JSON(w, http.StatusOK, Progress{UserID: "user-1", Level: 1, TotalXP: progressTotal, CurrentLevelXP: progressTotal, NextLevelXP: 100, Stats: map[string]int{"cardio": progressTotal}})
 		default:
 			http.NotFound(w, r)
@@ -291,11 +292,19 @@ func TestServiceGoogleHealthSyncAndClaim(t *testing.T) {
 	repo := newFakeIntegrationRepository()
 	health := &fakeGoogleHealthClient{
 		points: map[string][]HealthDataPoint{
-			"exercise": {{
-				Name: "users/me/dataTypes/exercise/dataPoints/run-1",
-				Exercise: &HealthExercise{
-					Interval:     HealthInterval{StartTime: now.Add(-35 * time.Minute).Format(time.RFC3339), EndTime: now.Format(time.RFC3339)},
-					ExerciseType: "RUNNING",
+			"steps": {{
+				Name: "users/me/dataTypes/steps/dataPoints/steps-1",
+				Steps: &HealthSteps{
+					Interval: HealthInterval{
+						StartTime: now.Add(-time.Hour).Format(time.RFC3339),
+						EndTime:   now.Format(time.RFC3339),
+						CivilStartTime: HealthCivilDateTime{Date: HealthCivilDate{
+							Year:  now.Year(),
+							Month: int(now.Month()),
+							Day:   now.Day(),
+						}},
+					},
+					Count: "10500",
 				},
 			}},
 		},
@@ -325,7 +334,7 @@ func TestServiceGoogleHealthSyncAndClaim(t *testing.T) {
 	if err != nil {
 		t.Fatalf("SyncGoogleHealth returned error: %v", err)
 	}
-	if syncResult.CreatedClaims != 1 || len(syncResult.PendingClaims) != 1 || syncResult.PendingClaims[0].Type != "cardio" {
+	if syncResult.CreatedClaims != 3 || len(syncResult.PendingClaims) != 1 || syncResult.PendingClaims[0].Type != "daily_steps_bronze" || len(syncResult.Dashboard.QuestClaimHistory) != 3 {
 		t.Fatalf("unexpected sync result: %+v", syncResult)
 	}
 
@@ -333,8 +342,11 @@ func TestServiceGoogleHealthSyncAndClaim(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ClaimQuest returned error: %v", err)
 	}
-	if createdType != "cardio" || dashboard.Progress.TotalXP != 30 || len(dashboard.QuestClaims) != 0 {
+	if createdType != "daily_steps_bronze" || dashboard.Progress.TotalXP != 20 || len(dashboard.QuestClaims) != 1 || dashboard.QuestClaims[0].Type != "daily_steps_silver" {
 		t.Fatalf("unexpected claim result createdType=%s dashboard=%+v", createdType, dashboard)
+	}
+	if len(dashboard.QuestClaimHistory) != 3 || dashboard.QuestClaimHistory[0].Type != "daily_steps_bronze" || dashboard.QuestClaimHistory[0].Status != QuestClaimStatusClaimed {
+		t.Fatalf("expected claimed bronze to stay in claim history, got %+v", dashboard.QuestClaimHistory)
 	}
 }
 

@@ -74,6 +74,7 @@ export interface Dashboard {
   rules: ActivityRule[];
   googleHealth?: GoogleHealthStatus;
   questClaims?: QuestClaim[];
+  questClaimHistory?: QuestClaim[];
 }
 
 export interface AuthPayload {

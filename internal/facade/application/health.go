@@ -240,6 +240,21 @@ func (s Service) PendingQuestClaims(ctx context.Context, userID string) []QuestC
 	return claims
 }
 
+func (s Service) QuestClaimHistory(ctx context.Context, userID string) []QuestClaim {
+	if s.integrations == nil {
+		return nil
+	}
+	claims, err := s.integrations.ListQuestClaims(ctx, userID)
+	if err != nil {
+		return nil
+	}
+	for index := range claims {
+		claims[index] = claimWithRule(claims[index])
+	}
+	sortQuestClaims(claims)
+	return claims
+}
+
 func (s Service) pendingQuestClaims(ctx context.Context, userID string) ([]QuestClaim, error) {
 	if s.integrations == nil {
 		return nil, nil

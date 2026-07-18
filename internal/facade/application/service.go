@@ -69,12 +69,13 @@ type Progress struct {
 }
 
 type Dashboard struct {
-	User         User                    `json:"user"`
-	Progress     Progress                `json:"progress"`
-	Activities   []Activity              `json:"activities"`
-	Rules        []ActivityRule          `json:"rules"`
-	GoogleHealth HealthIntegrationStatus `json:"googleHealth"`
-	QuestClaims  []QuestClaim            `json:"questClaims"`
+	User              User                    `json:"user"`
+	Progress          Progress                `json:"progress"`
+	Activities        []Activity              `json:"activities"`
+	Rules             []ActivityRule          `json:"rules"`
+	GoogleHealth      HealthIntegrationStatus `json:"googleHealth"`
+	QuestClaims       []QuestClaim            `json:"questClaims"`
+	QuestClaimHistory []QuestClaim            `json:"questClaimHistory"`
 }
 
 func NewService(identity, activity, progress Client, jwtSecret string) Service {
@@ -125,12 +126,13 @@ func (s Service) Dashboard(ctx context.Context, token string) (Dashboard, error)
 		return Dashboard{}, err
 	}
 	return Dashboard{
-		User:         user,
-		Progress:     progress,
-		Activities:   activities,
-		Rules:        rules,
-		GoogleHealth: s.GoogleHealthStatus(ctx, claims.UserID),
-		QuestClaims:  s.PendingQuestClaims(ctx, claims.UserID),
+		User:              user,
+		Progress:          progress,
+		Activities:        activities,
+		Rules:             rules,
+		GoogleHealth:      s.GoogleHealthStatus(ctx, claims.UserID),
+		QuestClaims:       s.PendingQuestClaims(ctx, claims.UserID),
+		QuestClaimHistory: s.QuestClaimHistory(ctx, claims.UserID),
 	}, nil
 }
 
@@ -171,12 +173,13 @@ func (s Service) createActivityAndAward(ctx context.Context, token string, req a
 		return Dashboard{}, Activity{}, err
 	}
 	return Dashboard{
-		User:         user,
-		Progress:     progress,
-		Activities:   activities,
-		Rules:        rules,
-		GoogleHealth: s.GoogleHealthStatus(ctx, claims.UserID),
-		QuestClaims:  s.PendingQuestClaims(ctx, claims.UserID),
+		User:              user,
+		Progress:          progress,
+		Activities:        activities,
+		Rules:             rules,
+		GoogleHealth:      s.GoogleHealthStatus(ctx, claims.UserID),
+		QuestClaims:       s.PendingQuestClaims(ctx, claims.UserID),
+		QuestClaimHistory: s.QuestClaimHistory(ctx, claims.UserID),
 	}, activity, nil
 }
 

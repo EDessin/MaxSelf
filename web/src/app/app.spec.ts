@@ -66,6 +66,13 @@ const secondClaim = {
   evidence: '450 minutes asleep'
 };
 
+function questDateKey(date = new Date()) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 function dashboard(totalXp = 0) {
   return {
     user: {
@@ -100,7 +107,8 @@ function dashboard(totalXp = 0) {
       connected: false,
       pendingClaims: 0
     },
-    questClaims: []
+    questClaims: [],
+    questClaimHistory: []
   };
 }
 
@@ -314,6 +322,62 @@ describe('App', () => {
     expect(dailyStepsElement?.querySelector('.tier-marker.silver')).not.toBeNull();
     expect(dailyStepsTile).not.toContain('Daily Steps — Bronze');
     expect(tileText.filter((text) => text.includes('Daily Steps')).length).toBe(1);
+  });
+
+  it('should advance the stacked tile after a lower tier was claimed today', () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    app.dashboard.set({
+      ...fullDashboard(),
+      questClaims: [],
+      questClaimHistory: [{
+        ...claim,
+        type: 'daily_steps_bronze',
+        title: 'Daily Steps — Bronze',
+        xp: 20,
+        sourceId: 'steps-bronze',
+        evidence: '6500 steps',
+        questDate: questDateKey(),
+        status: 'claimed',
+        claimedAt: new Date().toISOString()
+      }]
+    });
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const dailyStepsElement = Array.from(root.querySelectorAll<HTMLElement>('.action-tile'))
+      .find((tile) => tile.textContent?.includes('Daily Steps'));
+    const dailyStepsTile = dailyStepsElement?.textContent?.replace(/\s+/g, ' ').trim() ?? '';
+
+    expect(dailyStepsTile).toContain('Daily Steps — Silver');
+    expect(dailyStepsTile).toContain('Silver · 8000 steps');
+    expect(dailyStepsTile).not.toContain('Daily Steps — Bronze');
+    expect(dailyStepsElement?.querySelectorAll('.stack-pip.filled').length).toBe(2);
+
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    app.dashboard.set({
+      ...fullDashboard(),
+      questClaims: [],
+      questClaimHistory: [{
+        ...claim,
+        type: 'daily_steps_bronze',
+        title: 'Daily Steps — Bronze',
+        xp: 20,
+        sourceId: 'steps-bronze-yesterday',
+        evidence: '6500 steps',
+        questDate: questDateKey(yesterday),
+        status: 'claimed',
+        claimedAt: yesterday.toISOString()
+      }]
+    });
+    fixture.detectChanges();
+
+    const resetDailyStepsTile = Array.from(root.querySelectorAll<HTMLElement>('.action-tile'))
+      .find((tile) => tile.textContent?.includes('Daily Steps'))
+      ?.textContent?.replace(/\s+/g, ' ').trim() ?? '';
+    expect(resetDailyStepsTile).toContain('Daily Steps — Bronze');
+    expect(resetDailyStepsTile).not.toContain('Daily Steps — Silver');
   });
 
   it('should close the claim dialog after a successful XP claim', () => {
