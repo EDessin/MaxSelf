@@ -382,8 +382,8 @@ export class App implements OnInit {
 
   questSubtitle(rule: ActivityRule): string {
     if (rule.thresholdValue && rule.thresholdUnit) {
-      const followUp = rule.followUpType ? ' · unlocks next tier' : ' · top tier';
-      return `${rule.tier ?? 'Tier'} · ${rule.thresholdValue} ${rule.thresholdUnit}${followUp}`;
+      const topTier = rule.followUpType ? '' : ' · top tier';
+      return `${rule.tier ?? 'Tier'} · ${rule.thresholdValue} ${rule.thresholdUnit}${topTier}`;
     }
     return rule.type === 'waist_to_height_ratio' ? 'Enter measurement' : 'Sync to unlock';
   }

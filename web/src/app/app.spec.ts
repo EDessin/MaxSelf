@@ -240,8 +240,8 @@ describe('App', () => {
       ]);
     expect(root.textContent).toContain('Scale Measurement');
     expect(root.textContent).toContain('Waist-to-Height Ratio');
-    expect(root.textContent).toContain('Bronze · 6000 steps · unlocks next tier');
-    expect(root.textContent).toContain('Bronze · 500 ml · unlocks next tier');
+    expect(root.textContent).toContain('Bronze · 6000 steps');
+    expect(root.textContent).toContain('Bronze · 500 ml');
     expect(root.textContent).not.toContain('Lab Results');
     expect(root.textContent).not.toContain('Body Composition Scan');
     expect(root.querySelectorAll('.action-tile').length).toBe(visibleRuleCount);
@@ -306,7 +306,7 @@ describe('App', () => {
     const dailyStepsTile = tileText.find((text) => text.includes('Daily Steps'));
 
     expect(dailyStepsTile).toContain('Daily Steps — Silver');
-    expect(dailyStepsTile).toContain('Silver · 8000 steps · unlocks next tier');
+    expect(dailyStepsTile).toContain('Silver · 8000 steps');
     expect(dailyStepsTile).not.toContain('2/4');
     expect(dailyStepsElement?.querySelectorAll('.stack-pip.filled').length).toBe(2);
     expect(dailyStepsElement?.querySelector('.tier-marker.silver')).not.toBeNull();
