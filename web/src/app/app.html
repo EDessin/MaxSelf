@@ -84,7 +84,14 @@
       </header>
 
       <section class="hero-band">
+        <div class="hero-sparkles" aria-hidden="true">
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
         <div class="level-badge">
+          <span class="level-ring" aria-hidden="true"></span>
           <svg lucideTrophy size="42"></svg>
           <span>Level</span>
           <strong>{{ dashboard.progress.level }}</strong>
@@ -101,6 +108,7 @@
         </div>
 
         <div class="streak-tile">
+          <span class="ember-field" aria-hidden="true"></span>
           <svg lucideFlame size="34"></svg>
           <span>{{ dashboard.progress.streakDays }}</span>
           <strong>day streak</strong>
@@ -171,6 +179,11 @@
             <div class="quest-list">
               @for (rule of column.rules; track rule.type) {
                 <button type="button" class="action-tile" [class.quest-stack]="isStackedQuest(rule)" [style.--tile-color]="rule.color" (click)="openActivity(rule)">
+                  <span class="quest-card-art" aria-hidden="true">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </span>
                   <span class="icon-row">
                     <span class="icon-pill">
                       @switch (rule.icon) {
@@ -309,6 +322,11 @@
 
         <div class="activity-form">
           <div class="xp-preview" [style.--tile-color]="colorFor(selectedClaim.type)">
+            <span class="reward-burst" aria-hidden="true">
+              <span></span>
+              <span></span>
+              <span></span>
+            </span>
             <span>Reward</span>
             <strong>+{{ selectedClaim.xp }} Health XP</strong>
           </div>
