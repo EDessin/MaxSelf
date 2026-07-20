@@ -41,6 +41,14 @@ func TestHealthCandidatesBuildSyncedQuestClaims(t *testing.T) {
 				},
 			},
 			{
+				Name: "stretch-1",
+				Exercise: &HealthExercise{
+					Interval:       HealthInterval{StartTime: now.Add(-6 * time.Hour).Format(time.RFC3339), EndTime: now.Add(-5*time.Hour - 45*time.Minute).Format(time.RFC3339)},
+					ExerciseType:   "STRETCHING",
+					ActiveDuration: "12m",
+				},
+			},
+			{
 				Name: "short-run",
 				Exercise: &HealthExercise{
 					Interval:     HealthInterval{StartTime: now.Add(-5 * time.Minute).Format(time.RFC3339), EndTime: now.Format(time.RFC3339)},
@@ -149,8 +157,8 @@ func TestHealthCandidatesBuildSyncedQuestClaims(t *testing.T) {
 	}
 
 	candidates := healthCandidates("user-1", pointsByType)
-	if len(candidates) != 13 {
-		t.Fatalf("expected 13 candidates, got %d: %+v", len(candidates), candidates)
+	if len(candidates) != 14 {
+		t.Fatalf("expected 14 candidates, got %d: %+v", len(candidates), candidates)
 	}
 	counts := map[string]int{}
 	for _, candidate := range candidates {
@@ -170,6 +178,7 @@ func TestHealthCandidatesBuildSyncedQuestClaims(t *testing.T) {
 		"daily_steps_silver": 1,
 		"daily_steps_gold":   1,
 		"exercise":           1,
+		"mobility":           1,
 		"recovery":           1,
 		"sleep":              1,
 		"hydration_bronze":   1,
@@ -184,6 +193,8 @@ func TestHealthCandidatesBuildSyncedQuestClaims(t *testing.T) {
 		}
 	}
 	if !containsEvidence(candidates, "Running · 45 min · 5.0 km") ||
+		!containsEvidence(candidates, "Yoga · 15 min") ||
+		!containsEvidence(candidates, "Stretching · 12 min") ||
 		!containsEvidence(candidates, "7 hours 30 minutes asleep") ||
 		!containsEvidence(candidates, "10500 steps") ||
 		!containsEvidence(candidates, "1600 ml hydration logged") ||
@@ -252,7 +263,10 @@ func TestHealthHelpers(t *testing.T) {
 	}
 	if questTypeForExercise("indoor_cycling") != "cardio" ||
 		questTypeForExercise("resistance") != "exercise" ||
-		questTypeForExercise("mobility") != "recovery" ||
+		questTypeForExercise("mobility") != "mobility" ||
+		questTypeForExercise("pilates") != "mobility" ||
+		questTypeForExercise("tai chi") != "mobility" ||
+		questTypeForExercise("stretching") != "recovery" ||
 		questTypeForExercise("fishing") != "" {
 		t.Fatal("exercise quest type mapping regressed")
 	}
@@ -294,8 +308,12 @@ func TestHealthHelpers(t *testing.T) {
 		}
 	}
 	recoveryRule := ruleForType("recovery")
-	if recoveryRule.Title != "Recovery Ritual" || recoveryRule.Color != "#6366f1" || recoveryRule.Goal != "10+ min mobility" {
+	if recoveryRule.Title != "Recovery Ritual" || recoveryRule.Color != "#6366f1" || recoveryRule.Goal != "10+ min stretching" {
 		t.Fatalf("expected Recovery Ritual to use recovery category color, got %+v", recoveryRule)
+	}
+	mobilityRule := ruleForType("mobility")
+	if mobilityRule.Title != "Mobility Session" || mobilityRule.Color != "#ff5a5f" || mobilityRule.Goal != "10+ min mobility" {
+		t.Fatalf("expected Mobility Session to use strength category color, got %+v", mobilityRule)
 	}
 }
 

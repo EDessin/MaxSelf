@@ -36,17 +36,17 @@ func TestServiceDashboardAndCreateActivity(t *testing.T) {
 	activityServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch {
 		case r.URL.Path == "/activity-types":
-			httpx.JSON(w, http.StatusOK, []ActivityRule{{Type: "exercise", Title: "Strength Session", XP: 40, Stat: "strength", Color: "#000000"}})
+			httpx.JSON(w, http.StatusOK, []ActivityRule{{Type: "exercise", Title: "Resistance Training", XP: 40, Stat: "strength", Color: "#000000"}})
 		case r.URL.Path == "/activities" && r.Method == http.MethodGet:
 			if r.Header.Get("X-User-ID") != "user-1" {
 				t.Fatalf("missing user header")
 			}
-			httpx.JSON(w, http.StatusOK, []Activity{{ID: "activity-1", UserID: "user-1", Type: "exercise", Title: "Strength Session", XP: 40, Stat: "strength", OccurredAt: time.Now()}})
+			httpx.JSON(w, http.StatusOK, []Activity{{ID: "activity-1", UserID: "user-1", Type: "exercise", Title: "Resistance Training", XP: 40, Stat: "strength", OccurredAt: time.Now()}})
 		case r.URL.Path == "/activities" && r.Method == http.MethodPost:
 			if r.Header.Get("X-User-ID") != "user-1" {
 				t.Fatalf("missing create user header")
 			}
-			httpx.JSON(w, http.StatusCreated, Activity{ID: "activity-2", UserID: "user-1", Type: "exercise", Title: "Strength Session", XP: 40, Stat: "strength", OccurredAt: time.Now()})
+			httpx.JSON(w, http.StatusCreated, Activity{ID: "activity-2", UserID: "user-1", Type: "exercise", Title: "Resistance Training", XP: 40, Stat: "strength", OccurredAt: time.Now()})
 		default:
 			http.NotFound(w, r)
 		}

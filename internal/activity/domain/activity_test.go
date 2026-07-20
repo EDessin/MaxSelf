@@ -7,8 +7,8 @@ import (
 
 func TestRulesAndRuleFor(t *testing.T) {
 	rules := Rules()
-	if len(rules) != 16 {
-		t.Fatalf("expected 16 rules, got %d", len(rules))
+	if len(rules) != 17 {
+		t.Fatalf("expected 17 rules, got %d", len(rules))
 	}
 	if rules[0].Title != "Cardio Session" || rules[0].XP != 30 || rules[0].Stat != StatCardio {
 		t.Fatalf("unexpected first rule: %+v", rules[0])
@@ -69,8 +69,16 @@ func TestRulesAndRuleFor(t *testing.T) {
 	if err != nil {
 		t.Fatalf("RuleFor returned error: %v", err)
 	}
-	if rule.Title != "Strength Session" || rule.XP != 40 || rule.Stat != StatStrength {
+	if rule.Title != "Resistance Training" || rule.XP != 40 || rule.Stat != StatStrength || rule.Goal != "10+ min resistance training" {
 		t.Fatalf("unexpected exercise rule: %+v", rule)
+	}
+
+	rule, err = RuleFor(TypeMobility)
+	if err != nil {
+		t.Fatalf("RuleFor returned error for mobility: %v", err)
+	}
+	if rule.Title != "Mobility Session" || rule.XP != 20 || rule.Stat != StatStrength || rule.Icon != "person-standing" || rule.Goal != "10+ min mobility" {
+		t.Fatalf("unexpected mobility rule: %+v", rule)
 	}
 
 	rule, err = RuleFor(TypeScaleMeasurement)

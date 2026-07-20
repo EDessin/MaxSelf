@@ -38,7 +38,7 @@ func (r *fakeActivityRepository) ListByUser(_ context.Context, _ string, limit i
 		ID:         "activity-1",
 		UserID:     "user-1",
 		Type:       domain.TypeExercise,
-		Title:      "Strength Session",
+		Title:      "Resistance Training",
 		XP:         40,
 		Stat:       domain.StatStrength,
 		OccurredAt: time.Now(),
@@ -63,14 +63,14 @@ func TestRoutesHealthAndRules(t *testing.T) {
 	if err := json.NewDecoder(recorder.Body).Decode(&rules); err != nil {
 		t.Fatalf("decode rules: %v", err)
 	}
-	if len(rules) != 16 {
-		t.Fatalf("expected 16 rules, got %d", len(rules))
+	if len(rules) != 17 {
+		t.Fatalf("expected 17 rules, got %d", len(rules))
 	}
 	if rules[1].Type != domain.TypeDailyStepsBronze || rules[1].FollowUpType != domain.TypeDailyStepsSilver {
 		t.Fatalf("unexpected daily steps tier rule: %+v", rules[1])
 	}
-	if rules[14].Type != domain.TypeScaleMeasurement || rules[15].Type != domain.TypeWaistToHeightRatio {
-		t.Fatalf("unexpected biometrics rules: %+v", rules[14:])
+	if rules[15].Type != domain.TypeScaleMeasurement || rules[16].Type != domain.TypeWaistToHeightRatio {
+		t.Fatalf("unexpected biometrics rules: %+v", rules[15:])
 	}
 }
 

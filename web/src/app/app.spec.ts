@@ -10,12 +10,12 @@ import { MaxSelfApi } from './maxself-api.service';
 
 const rule = {
   type: 'exercise',
-  title: 'Strength Session',
+  title: 'Resistance Training',
   xp: 40,
   stat: 'strength',
   icon: 'dumbbell',
   color: '#ff5a5f',
-  goal: '10+ min strength'
+  goal: '10+ min resistance training'
 };
 
 const allRules = [
@@ -25,6 +25,7 @@ const allRules = [
   { type: 'daily_steps_gold', title: 'Daily Steps — Gold', xp: 45, stat: 'cardio', icon: 'footprints', color: '#f59e0b', goal: '10000 steps', tier: 'Gold', thresholdValue: 10000, thresholdUnit: 'steps', followUpType: 'daily_steps_diamond', prerequisiteType: 'daily_steps_silver' },
   { type: 'daily_steps_diamond', title: 'Daily Steps — Diamond', xp: 70, stat: 'cardio', icon: 'footprints', color: '#f59e0b', goal: '15000 steps', tier: 'Diamond', thresholdValue: 15000, thresholdUnit: 'steps', prerequisiteType: 'daily_steps_gold' },
   rule,
+  { type: 'mobility', title: 'Mobility Session', xp: 20, stat: 'strength', icon: 'person-standing', color: '#ff5a5f', goal: '10+ min mobility' },
   { type: 'healthy_meal', title: 'Nourishing Meal', xp: 25, stat: 'fuel', icon: 'apple', color: '#22c55e', goal: 'Log nutrition' },
   { type: 'hydration_bronze', title: 'Hydration Boost — Bronze', xp: 10, stat: 'fuel', icon: 'droplet', color: '#22c55e', goal: '500 ml', tier: 'Bronze', thresholdValue: 500, thresholdUnit: 'ml', followUpType: 'hydration_silver' },
   { type: 'hydration_silver', title: 'Hydration Boost — Silver', xp: 15, stat: 'fuel', icon: 'droplet', color: '#22c55e', goal: '1000 ml', tier: 'Silver', thresholdValue: 1000, thresholdUnit: 'ml', followUpType: 'hydration_gold', prerequisiteType: 'hydration_bronze' },
@@ -32,7 +33,7 @@ const allRules = [
   { type: 'hydration_diamond', title: 'Hydration Boost — Diamond', xp: 30, stat: 'fuel', icon: 'droplet', color: '#22c55e', goal: '2000 ml', tier: 'Diamond', thresholdValue: 2000, thresholdUnit: 'ml', prerequisiteType: 'hydration_gold' },
   { type: 'sleep', title: 'Sleep Goal Met', xp: 35, stat: 'recovery', icon: 'moon', color: '#6366f1', goal: '7 hours', thresholdValue: 7, thresholdUnit: 'hours' },
   { type: 'mindfulness', title: 'Mindset Moment', xp: 20, stat: 'mindset', icon: 'sparkles', color: '#a855f7', goal: 'not ready yet' },
-  { type: 'recovery', title: 'Recovery Ritual', xp: 20, stat: 'recovery', icon: 'heart-pulse', color: '#6366f1', goal: '10+ min mobility' },
+  { type: 'recovery', title: 'Recovery Ritual', xp: 20, stat: 'recovery', icon: 'stretch-horizontal', color: '#6366f1', goal: '10+ min stretching' },
   { type: 'scale_measurement', title: 'Scale Measurement', xp: 15, stat: 'biometrics', icon: 'scale', color: '#0891b2', goal: 'Weight or body fat' },
   { type: 'waist_to_height_ratio', title: 'Waist-to-Height Ratio', xp: 15, stat: 'biometrics', icon: 'ruler', color: '#0891b2', goal: 'Waist + height' },
   { type: 'bonus', title: 'Bonus Quest', xp: 5, stat: 'mindset', icon: 'unknown', color: '#f59e0b' }
@@ -225,7 +226,7 @@ describe('App', () => {
     expect(root.textContent).toContain('140 total XP');
     expect(root.textContent).toContain('Core Stats');
     expect(root.textContent).toContain('Cardio');
-    expect(root.textContent).toContain('Strength');
+    expect(root.textContent).toContain('Strength & mobility');
     expect(root.textContent).toContain('Fuel');
     expect(root.textContent).toContain('Biometrics');
     expect(root.textContent).not.toContain('99 XP');
@@ -233,7 +234,7 @@ describe('App', () => {
     expect(root.textContent).toContain('Google Health Sync');
     expect(root.textContent).toContain('Connect Google Health');
     expect(Array.from(root.querySelectorAll('.quest-column-header span')).map((header) => header.textContent?.trim()))
-      .toEqual(['Cardio', 'Strength', 'Fuel', 'Recovery', 'Mindset', 'Biometrics']);
+      .toEqual(['Cardio', 'Strength & mobility', 'Fuel', 'Recovery', 'Mindset', 'Biometrics']);
     expect(Array.from(root.querySelectorAll('.quest-column-header')).map((header) => [
       header.querySelector('span')?.textContent?.trim(),
       header.querySelector('strong')?.textContent?.trim(),
@@ -241,7 +242,7 @@ describe('App', () => {
     ].join(' ')))
       .toEqual([
         'Cardio 30 total XP 5 consistency XP',
-        'Strength 40 total XP 10 consistency XP',
+        'Strength & mobility 40 total XP 10 consistency XP',
         'Fuel 35 total XP 15 consistency XP',
         'Recovery 55 total XP 20 consistency XP',
         'Mindset 25 total XP 25 consistency XP',
@@ -250,13 +251,16 @@ describe('App', () => {
     expect(root.textContent).toContain('Scale Measurement');
     expect(root.textContent).toContain('Waist-to-Height Ratio');
     expect(root.textContent).toContain('10+ min cardio');
-    expect(root.textContent).toContain('10+ min strength');
+    expect(root.textContent).toContain('Resistance Training');
+    expect(root.textContent).toContain('10+ min resistance training');
+    expect(root.textContent).toContain('Mobility Session');
+    expect(root.textContent).toContain('10+ min mobility');
     expect(root.textContent).toContain('Log nutrition');
     expect(root.textContent).toContain('7 hours');
     expect(root.textContent).toContain('6000 steps');
     expect(root.textContent).toContain('500 ml');
     expect(root.textContent).toContain('not ready yet');
-    expect(root.textContent).toContain('10+ min mobility');
+    expect(root.textContent).toContain('10+ min stretching');
     expect(root.textContent).toContain('Weight or body fat');
     expect(root.textContent).toContain('Waist + height');
     expect(root.textContent).not.toContain('Bronze · 6000 steps');

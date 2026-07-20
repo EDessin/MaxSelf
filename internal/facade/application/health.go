@@ -734,7 +734,8 @@ func localActivityRules() []ActivityRule {
 		{Type: "daily_steps_silver", Title: "Daily Steps — Silver", XP: 30, Stat: "cardio", Icon: "footprints", Goal: "8000 steps", Tier: "Silver", ThresholdValue: 8000, ThresholdUnit: "steps", FollowUpType: "daily_steps_gold", PrerequisiteType: "daily_steps_bronze"},
 		{Type: "daily_steps_gold", Title: "Daily Steps — Gold", XP: 45, Stat: "cardio", Icon: "footprints", Goal: "10000 steps", Tier: "Gold", ThresholdValue: 10000, ThresholdUnit: "steps", FollowUpType: "daily_steps_diamond", PrerequisiteType: "daily_steps_silver"},
 		{Type: "daily_steps_diamond", Title: "Daily Steps — Diamond", XP: 70, Stat: "cardio", Icon: "footprints", Goal: "15000 steps", Tier: "Diamond", ThresholdValue: 15000, ThresholdUnit: "steps", PrerequisiteType: "daily_steps_gold"},
-		{Type: "exercise", Title: "Strength Session", XP: 40, Stat: "strength", Icon: "dumbbell", Goal: "10+ min strength"},
+		{Type: "exercise", Title: "Resistance Training", XP: 40, Stat: "strength", Icon: "dumbbell", Goal: "10+ min resistance training"},
+		{Type: "mobility", Title: "Mobility Session", XP: 20, Stat: "strength", Icon: "person-standing", Goal: "10+ min mobility"},
 		{Type: "healthy_meal", Title: "Nourishing Meal", XP: 25, Stat: "fuel", Icon: "apple", Goal: "Log nutrition"},
 		{Type: "hydration_bronze", Title: "Hydration Boost — Bronze", XP: 10, Stat: "fuel", Icon: "droplet", Goal: "500 ml", Tier: "Bronze", ThresholdValue: 500, ThresholdUnit: "ml", FollowUpType: "hydration_silver"},
 		{Type: "hydration_silver", Title: "Hydration Boost — Silver", XP: 15, Stat: "fuel", Icon: "droplet", Goal: "1000 ml", Tier: "Silver", ThresholdValue: 1000, ThresholdUnit: "ml", FollowUpType: "hydration_gold", PrerequisiteType: "hydration_bronze"},
@@ -742,7 +743,7 @@ func localActivityRules() []ActivityRule {
 		{Type: "hydration_diamond", Title: "Hydration Boost — Diamond", XP: 30, Stat: "fuel", Icon: "droplet", Goal: "2000 ml", Tier: "Diamond", ThresholdValue: 2000, ThresholdUnit: "ml", PrerequisiteType: "hydration_gold"},
 		{Type: "sleep", Title: "Sleep Goal Met", XP: 35, Stat: "recovery", Icon: "moon", Goal: "7 hours", ThresholdValue: sleepGoalHours, ThresholdUnit: "hours"},
 		{Type: "mindfulness", Title: "Mindset Moment", XP: 20, Stat: "mindset", Icon: "sparkles", Goal: "not ready yet"},
-		{Type: "recovery", Title: "Recovery Ritual", XP: 20, Stat: "recovery", Icon: "heart-pulse", Goal: "10+ min mobility"},
+		{Type: "recovery", Title: "Recovery Ritual", XP: 20, Stat: "recovery", Icon: "stretch-horizontal", Goal: "10+ min stretching"},
 		{Type: "scale_measurement", Title: "Scale Measurement", XP: 15, Stat: "biometrics", Icon: "scale", Goal: "Weight or body fat"},
 		{Type: "waist_to_height_ratio", Title: "Waist-to-Height Ratio", XP: 15, Stat: "biometrics", Icon: "ruler", Goal: "Waist + height"},
 	})
@@ -835,7 +836,9 @@ func questTypeForExercise(exerciseType string) string {
 		return "cardio"
 	case strings.Contains(value, "STRENGTH") || strings.Contains(value, "WEIGHT") || strings.Contains(value, "RESISTANCE") || strings.Contains(value, "CIRCUIT"):
 		return "exercise"
-	case strings.Contains(value, "YOGA") || strings.Contains(value, "PILATES") || strings.Contains(value, "STRETCH") || strings.Contains(value, "TAI_CHI") || strings.Contains(value, "MOBILITY"):
+	case strings.Contains(value, "YOGA") || strings.Contains(value, "PILATES") || strings.Contains(value, "TAI_CHI") || strings.Contains(value, "TAI CHI") || strings.Contains(value, "TAICHI") || strings.Contains(value, "MOBILITY"):
+		return "mobility"
+	case strings.Contains(value, "STRETCH"):
 		return "recovery"
 	default:
 		return ""

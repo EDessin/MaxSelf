@@ -11,11 +11,13 @@ import {
   LucideFootprints,
   LucideHeartPulse,
   LucideMoon,
+  LucidePersonStanding,
   LucideRuler,
   LucideScale,
   LucideShield,
   LucideSparkles,
   LucideStar,
+  LucideStretchHorizontal,
   LucideTrophy,
   LucideX,
   LucideZap
@@ -64,11 +66,13 @@ interface VisibleActivityRule extends ActivityRule {
     LucideFootprints,
     LucideHeartPulse,
     LucideMoon,
+    LucidePersonStanding,
     LucideRuler,
     LucideScale,
     LucideShield,
     LucideSparkles,
     LucideStar,
+    LucideStretchHorizontal,
     LucideTrophy,
     LucideX,
     LucideZap
@@ -110,7 +114,8 @@ export class App implements OnInit {
     { type: 'daily_steps_silver', title: 'Daily Steps — Silver', xp: 30, stat: 'cardio', icon: 'footprints', color: '#f59e0b', goal: '8000 steps', tier: 'Silver', thresholdValue: 8000, thresholdUnit: 'steps', followUpType: 'daily_steps_gold', prerequisiteType: 'daily_steps_bronze' },
     { type: 'daily_steps_gold', title: 'Daily Steps — Gold', xp: 45, stat: 'cardio', icon: 'footprints', color: '#f59e0b', goal: '10000 steps', tier: 'Gold', thresholdValue: 10000, thresholdUnit: 'steps', followUpType: 'daily_steps_diamond', prerequisiteType: 'daily_steps_silver' },
     { type: 'daily_steps_diamond', title: 'Daily Steps — Diamond', xp: 70, stat: 'cardio', icon: 'footprints', color: '#f59e0b', goal: '15000 steps', tier: 'Diamond', thresholdValue: 15000, thresholdUnit: 'steps', prerequisiteType: 'daily_steps_gold' },
-    { type: 'exercise', title: 'Strength Session', xp: 40, stat: 'strength', icon: 'dumbbell', color: '#ff5a5f', goal: '10+ min strength' },
+    { type: 'exercise', title: 'Resistance Training', xp: 40, stat: 'strength', icon: 'dumbbell', color: '#ff5a5f', goal: '10+ min resistance training' },
+    { type: 'mobility', title: 'Mobility Session', xp: 20, stat: 'strength', icon: 'person-standing', color: '#ff5a5f', goal: '10+ min mobility' },
     { type: 'healthy_meal', title: 'Nourishing Meal', xp: 25, stat: 'fuel', icon: 'apple', color: '#22c55e', goal: 'Log nutrition' },
     { type: 'hydration_bronze', title: 'Hydration Boost — Bronze', xp: 10, stat: 'fuel', icon: 'droplet', color: '#22c55e', goal: '500 ml', tier: 'Bronze', thresholdValue: 500, thresholdUnit: 'ml', followUpType: 'hydration_silver' },
     { type: 'hydration_silver', title: 'Hydration Boost — Silver', xp: 15, stat: 'fuel', icon: 'droplet', color: '#22c55e', goal: '1000 ml', tier: 'Silver', thresholdValue: 1000, thresholdUnit: 'ml', followUpType: 'hydration_gold', prerequisiteType: 'hydration_bronze' },
@@ -118,14 +123,14 @@ export class App implements OnInit {
     { type: 'hydration_diamond', title: 'Hydration Boost — Diamond', xp: 30, stat: 'fuel', icon: 'droplet', color: '#22c55e', goal: '2000 ml', tier: 'Diamond', thresholdValue: 2000, thresholdUnit: 'ml', prerequisiteType: 'hydration_gold' },
     { type: 'sleep', title: 'Sleep Goal Met', xp: 35, stat: 'recovery', icon: 'moon', color: '#6366f1', goal: '7 hours', thresholdValue: 7, thresholdUnit: 'hours' },
     { type: 'mindfulness', title: 'Mindset Moment', xp: 20, stat: 'mindset', icon: 'sparkles', color: '#a855f7', goal: 'not ready yet' },
-    { type: 'recovery', title: 'Recovery Ritual', xp: 20, stat: 'recovery', icon: 'heart-pulse', color: '#6366f1', goal: '10+ min mobility' },
+    { type: 'recovery', title: 'Recovery Ritual', xp: 20, stat: 'recovery', icon: 'stretch-horizontal', color: '#6366f1', goal: '10+ min stretching' },
     { type: 'scale_measurement', title: 'Scale Measurement', xp: 15, stat: 'biometrics', icon: 'scale', color: '#0891b2', goal: 'Weight or body fat' },
     { type: 'waist_to_height_ratio', title: 'Waist-to-Height Ratio', xp: 15, stat: 'biometrics', icon: 'ruler', color: '#0891b2', goal: 'Waist + height' }
   ];
 
   categoryMeta: CategoryMeta[] = [
     { key: 'cardio', label: 'Cardio', color: '#f59e0b', consistencyKey: 'cardio_consistency' },
-    { key: 'strength', label: 'Strength', color: '#ff5a5f', consistencyKey: 'strength_consistency' },
+    { key: 'strength', label: 'Strength & mobility', color: '#ff5a5f', consistencyKey: 'strength_consistency' },
     { key: 'fuel', label: 'Fuel', color: '#22c55e', consistencyKey: 'fuel_consistency' },
     { key: 'recovery', label: 'Recovery', color: '#6366f1', consistencyKey: 'recovery_consistency' },
     { key: 'mindset', label: 'Mindset', color: '#a855f7', consistencyKey: 'mindset_consistency' },
@@ -589,7 +594,9 @@ export class App implements OnInit {
       case 'cardio':
         return '10+ min cardio';
       case 'exercise':
-        return '10+ min strength';
+        return '10+ min resistance training';
+      case 'mobility':
+        return '10+ min mobility';
       case 'healthy_meal':
         return 'Log nutrition';
       case 'sleep':
@@ -597,7 +604,7 @@ export class App implements OnInit {
       case 'mindfulness':
         return 'not ready yet';
       case 'recovery':
-        return '10+ min mobility';
+        return '10+ min stretching';
       case 'scale_measurement':
         return 'Weight or body fat';
       case 'waist_to_height_ratio':
