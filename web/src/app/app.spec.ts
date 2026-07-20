@@ -233,12 +233,12 @@ describe('App', () => {
     expect(root.textContent).toContain('Recent Wins');
     expect(root.textContent).toContain('Google Health Sync');
     expect(root.textContent).toContain('Connect Google Health');
-    expect(Array.from(root.querySelectorAll('.quest-column-header span')).map((header) => header.textContent?.trim()))
+    expect(Array.from(root.querySelectorAll('.pillar-category-name')).map((header) => header.textContent?.trim()))
       .toEqual(['Cardio', 'Strength & mobility', 'Fuel', 'Recovery', 'Mindset', 'Biometrics']);
-    expect(Array.from(root.querySelectorAll('.quest-column-header')).map((header) => [
-      header.querySelector('span')?.textContent?.trim(),
-      header.querySelector('strong')?.textContent?.trim(),
-      header.querySelector('small')?.textContent?.trim()
+    expect(Array.from(root.querySelectorAll('.pillar-heading')).map((header) => [
+      header.querySelector('.pillar-category-name')?.textContent?.trim(),
+      header.querySelector('.pillar-xp-summary strong')?.textContent?.trim(),
+      header.querySelector('.pillar-xp-summary small')?.textContent?.trim()
     ].join(' ')))
       .toEqual([
         'Cardio 30 total XP 5 consistency XP',
@@ -248,6 +248,7 @@ describe('App', () => {
         'Mindset 25 total XP 25 consistency XP',
         'Biometrics 30 total XP 30 consistency XP'
       ]);
+    expect(root.querySelectorAll('.quest-column-header').length).toBe(0);
     expect(root.textContent).toContain('Scale Measurement');
     expect(root.textContent).toContain('Waist-to-Height Ratio');
     expect(root.textContent).toContain('10+ min cardio');

@@ -174,10 +174,12 @@
         @for (column of questColumns(); track column.key) {
           <div class="quest-column pillar-{{ column.key }}" [style.--column-color]="column.color">
             <img class="pillar-art" [src]="'/quest-art/pillar-' + column.key + '.svg'" alt="" aria-hidden="true" />
-            <header class="quest-column-header">
-              <span>{{ column.label }}</span>
-              <strong>{{ column.totalXp }} total XP</strong>
-              <small>{{ column.consistencyXp }} consistency XP</small>
+            <header class="pillar-heading">
+              <span class="pillar-category-name">{{ column.label }}</span>
+              <div class="pillar-xp-summary">
+                <strong>{{ column.totalXp }} total XP</strong>
+                <small>{{ column.consistencyXp }} consistency XP</small>
+              </div>
             </header>
 
             <div class="quest-list">
