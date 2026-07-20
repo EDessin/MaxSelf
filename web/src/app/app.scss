@@ -311,7 +311,7 @@ textarea {
   position: relative;
   overflow: hidden;
   display: grid;
-  grid-template-columns: minmax(20rem, 0.78fr) minmax(16rem, 1fr) minmax(8.5rem, 10rem);
+  grid-template-columns: minmax(0, 1fr) minmax(8.75rem, 10rem);
   min-height: 12.25rem;
   gap: clamp(0.8rem, 1.6vw, 1.25rem);
   align-items: stretch;
@@ -353,16 +353,17 @@ textarea {
 .hero-performance-art {
   position: absolute;
   z-index: 0;
-  right: clamp(9rem, 12vw, 12.5rem);
-  bottom: 0.6rem;
-  width: min(48%, 43rem);
-  height: calc(100% - 1.2rem);
+  right: clamp(8.75rem, 11vw, 12rem);
+  bottom: -1.25rem;
+  width: min(64%, 62rem);
+  height: calc(100% + 4rem);
   object-fit: contain;
   object-position: center bottom;
-  opacity: 0.5;
+  opacity: 0.74;
   pointer-events: none;
   filter: saturate(1.2) contrast(1.08) drop-shadow(0 18px 46px rgba(0, 0, 0, 0.32));
-  mask-image: radial-gradient(ellipse at center, #000 0 58%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse at center, #000 0 74%, transparent 100%);
+  mask-image: radial-gradient(ellipse at center, #000 0 74%, transparent 100%);
   mix-blend-mode: screen;
 }
 
@@ -426,7 +427,7 @@ textarea {
 .hero-metrics {
   position: relative;
   z-index: 2;
-  grid-column: 3;
+  grid-column: 2;
   display: grid;
   grid-template-rows: repeat(2, minmax(0, 1fr));
   gap: 0.65rem;
@@ -435,12 +436,17 @@ textarea {
 
 .level-ring {
   position: absolute;
-  width: 4.75rem;
-  height: 4.75rem;
+  right: 50%;
+  bottom: 0.45rem;
+  width: 4.15rem;
+  height: 4.15rem;
+  transform: translateX(50%);
   border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top-color: #fcd34d;
+  border-top-color: transparent;
+  border-right-color: #fcd34d;
+  border-bottom-color: #fcd34d;
   border-radius: 999px;
-  animation: slowSpin 9s linear infinite;
+  animation: levelHaloPulse 2.8s ease-in-out infinite alternate;
 }
 
 .level-badge svg,
@@ -476,7 +482,7 @@ textarea {
 }
 
 .level-copy h2 {
-  max-width: 34rem;
+  max-width: min(58rem, 100%);
   margin: 0.25rem 0 0.75rem;
   font-size: clamp(1.75rem, 3vw, 3.05rem);
   line-height: 1.04;
@@ -487,6 +493,7 @@ textarea {
   z-index: 2;
   grid-column: 1;
   align-self: center;
+  width: 100%;
   min-width: 0;
 }
 
@@ -1326,6 +1333,18 @@ textarea {
 @keyframes slowSpin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+@keyframes levelHaloPulse {
+  from {
+    opacity: 0.58;
+    transform: translateX(50%) scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(50%) scale(1.06);
   }
 }
 
