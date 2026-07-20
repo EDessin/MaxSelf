@@ -91,13 +91,6 @@
           <span></span>
         </div>
         <img class="hero-performance-art" src="/quest-art/hero-performance.svg" alt="" aria-hidden="true" />
-        <div class="level-badge">
-          <span class="level-ring" aria-hidden="true"></span>
-          <svg lucideTrophy size="42"></svg>
-          <span>Level</span>
-          <strong>{{ dashboard.progress.level }}</strong>
-        </div>
-
         <div class="level-copy">
           <span class="eyebrow">Today: {{ todayXp() }} Health XP</span>
           <h2>Your healthy self is gaining momentum.</h2>
@@ -108,11 +101,20 @@
           </div>
         </div>
 
-        <div class="streak-tile">
-          <span class="ember-field" aria-hidden="true"></span>
-          <svg lucideFlame size="34"></svg>
-          <span>{{ dashboard.progress.streakDays }}</span>
-          <strong>day streak</strong>
+        <div class="hero-metrics">
+          <div class="level-badge">
+            <span class="level-ring" aria-hidden="true"></span>
+            <svg lucideTrophy size="42"></svg>
+            <span>Level</span>
+            <strong>{{ dashboard.progress.level }}</strong>
+          </div>
+
+          <div class="streak-tile">
+            <span class="ember-field" aria-hidden="true"></span>
+            <svg lucideFlame size="34"></svg>
+            <span>{{ dashboard.progress.streakDays }}</span>
+            <strong>day streak</strong>
+          </div>
         </div>
       </section>
 

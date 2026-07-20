@@ -23,7 +23,6 @@
       <feBlend in="SourceGraphic"/>
     </filter>
   </defs>
-  <rect width="980" height="360" fill="url(#sky)"/>
   <circle cx="740" cy="100" r="76" fill="url(#sun)" opacity=".26"/>
   <circle cx="740" cy="100" r="120" fill="none" stroke="#f59e0b" stroke-width="2" opacity=".2"/>
   <circle cx="740" cy="100" r="158" fill="none" stroke="#22d3ee" stroke-width="1" opacity=".14"/>

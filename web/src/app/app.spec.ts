@@ -271,6 +271,7 @@ describe('App', () => {
     expect(root.querySelectorAll('.action-tile').length).toBe(visibleRuleCount);
     expect(root.querySelectorAll('.quest-stack').length).toBe(2);
     expect(root.querySelectorAll('.stack-pips').length).toBe(2);
+    expect(root.querySelector('.hero-metrics')).not.toBeNull();
     expect(root.querySelector('.hero-performance-art')?.getAttribute('src')).toBe('/quest-art/hero-performance.svg');
     expect(Array.from(root.querySelectorAll<HTMLImageElement>('.pillar-art')).map((image) => image.getAttribute('src')))
       .toEqual([
