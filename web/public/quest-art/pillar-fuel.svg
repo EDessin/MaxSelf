@@ -15,8 +15,10 @@
   </defs>
   <rect width="280" height="720" rx="34" fill="url(#bg)"/>
   <circle cx="70" cy="134" r="112" fill="#22c55e" opacity=".18"/>
-  <path d="M146 126c56 44 84 90 84 138 0 50-34 84-84 84s-84-34-84-84c0-48 28-94 84-138Z" fill="url(#drop)" opacity=".64"/>
-  <path d="M146 178c22 25 34 52 34 80 0 27-15 45-34 45" fill="none" stroke="#dcfce7" stroke-width="8" stroke-linecap="round" opacity=".58"/>
+  <g transform="translate(94 30) scale(.72)">
+    <path d="M146 126c56 44 84 90 84 138 0 50-34 84-84 84s-84-34-84-84c0-48 28-94 84-138Z" fill="url(#drop)" opacity=".78"/>
+    <path d="M146 178c22 25 34 52 34 80 0 27-15 45-34 45" fill="none" stroke="#dcfce7" stroke-width="8" stroke-linecap="round" opacity=".68"/>
+  </g>
   <g fill="#bbf7d0" opacity=".82">
     <path d="M86 410c44-34 83-38 118-13-36 28-75 32-118 13Z"/>
     <path d="M82 488c50-26 92-22 126 13-44 21-86 17-126-13Z"/>

@@ -9,11 +9,13 @@
     </linearGradient>
   </defs>
   <rect width="280" height="720" rx="34" fill="url(#bg)"/>
-  <circle cx="140" cy="190" r="128" fill="#a855f7" opacity=".2"/>
-  <circle cx="140" cy="190" r="86" fill="none" stroke="#f0abfc" stroke-width="3" opacity=".42"/>
-  <circle cx="140" cy="190" r="116" fill="none" stroke="#c084fc" stroke-width="2" opacity=".25"/>
-  <path d="M98 194c-22-17-19-51 8-62 1-26 37-39 58-19 27-18 66 1 67 34 23 14 26 50 3 67 9 28-19 56-48 44-20 23-58 17-69-11-29 4-49-30-19-53Z" fill="#f5d0fe" opacity=".78"/>
-  <path d="M126 128c-12 22-8 42 12 58m38-72c-18 18-19 39-3 62m-70 36c30-10 56-4 78 18m-40-44c22-2 42 6 60 24" fill="none" stroke="#7e22ce" stroke-width="7" stroke-linecap="round" opacity=".72"/>
+  <g transform="translate(76 16) scale(.7)">
+    <circle cx="140" cy="190" r="128" fill="#a855f7" opacity=".24"/>
+    <circle cx="140" cy="190" r="86" fill="none" stroke="#f0abfc" stroke-width="3" opacity=".5"/>
+    <circle cx="140" cy="190" r="116" fill="none" stroke="#c084fc" stroke-width="2" opacity=".32"/>
+    <path d="M98 194c-22-17-19-51 8-62 1-26 37-39 58-19 27-18 66 1 67 34 23 14 26 50 3 67 9 28-19 56-48 44-20 23-58 17-69-11-29 4-49-30-19-53Z" fill="#f5d0fe" opacity=".88"/>
+    <path d="M126 128c-12 22-8 42 12 58m38-72c-18 18-19 39-3 62m-70 36c30-10 56-4 78 18m-40-44c22-2 42 6 60 24" fill="none" stroke="#7e22ce" stroke-width="7" stroke-linecap="round" opacity=".78"/>
+  </g>
   <g fill="#fef3c7">
     <path d="M58 78h13v13H58z" transform="rotate(45 64.5 84.5)" opacity=".9"/>
     <path d="M220 116h10v10h-10z" transform="rotate(45 225 121)" opacity=".75"/>

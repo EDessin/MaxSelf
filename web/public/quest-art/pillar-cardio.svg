@@ -24,7 +24,7 @@
     <ellipse cx="162" cy="482" rx="10" ry="18" transform="rotate(36 162 482)"/>
     <ellipse cx="193" cy="454" rx="10" ry="18" transform="rotate(36 193 454)"/>
   </g>
-  <g fill="none" stroke="#fff7ed" stroke-linecap="round" stroke-linejoin="round" opacity=".9">
+  <g transform="translate(108 -42)" fill="none" stroke="#fff7ed" stroke-linecap="round" stroke-linejoin="round" opacity=".9">
     <circle cx="82" cy="122" r="12" fill="#fff7ed" stroke="none"/>
     <path d="M78 139 64 176l24 24M70 155l-24 18M89 160l26-12M88 199l-18 34M88 199l35 20" stroke-width="8"/>
   </g>

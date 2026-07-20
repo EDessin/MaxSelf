@@ -11,7 +11,7 @@
   <rect width="280" height="720" rx="34" fill="url(#bg)"/>
   <circle cx="210" cy="120" r="92" fill="#ff5a5f" opacity=".22"/>
   <circle cx="76" cy="562" r="132" fill="#f97316" opacity=".12"/>
-  <g transform="translate(34 158)" fill="none" stroke="#fee2e2" stroke-linecap="round" stroke-linejoin="round" opacity=".9">
+  <g transform="translate(76 34) scale(.82)" fill="none" stroke="#fee2e2" stroke-linecap="round" stroke-linejoin="round" opacity=".9">
     <path d="M2 80h210" stroke-width="12"/>
     <path d="M34 48v64M56 36v88M156 36v88M178 48v64" stroke-width="14"/>
     <path d="M104 118c-44 16-62 54-48 98 16 50 86 56 112 16" stroke="#fb7185" stroke-width="7" opacity=".78"/>

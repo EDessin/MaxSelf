@@ -9,7 +9,7 @@
     </linearGradient>
   </defs>
   <rect width="280" height="720" rx="34" fill="url(#bg)"/>
-  <path d="M190 74c-24 52 8 109 66 118-19 29-54 49-94 49-62 0-112-50-112-112 0-44 25-82 62-101-10 58 23 104 78 46Z" fill="#c7d2fe" opacity=".72"/>
+  <path transform="translate(70 12) scale(.72)" d="M190 74c-24 52 8 109 66 118-19 29-54 49-94 49-62 0-112-50-112-112 0-44 25-82 62-101-10 58 23 104 78 46Z" fill="#c7d2fe" opacity=".82"/>
   <g fill="#e0e7ff" opacity=".76">
     <circle cx="56" cy="276" r="3"/>
     <circle cx="104" cy="324" r="2.5"/>
