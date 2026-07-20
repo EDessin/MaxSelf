@@ -289,9 +289,12 @@ func TestHealthHelpers(t *testing.T) {
 		if rule.Color != activityRuleCategoryColor(rule.Stat) {
 			t.Fatalf("expected local rule %s to use %s category color %s, got %s", rule.Type, rule.Stat, activityRuleCategoryColor(rule.Stat), rule.Color)
 		}
+		if rule.Goal == "" {
+			t.Fatalf("expected local rule %s to define a goal", rule.Type)
+		}
 	}
 	recoveryRule := ruleForType("recovery")
-	if recoveryRule.Title != "Recovery Ritual" || recoveryRule.Color != "#6366f1" {
+	if recoveryRule.Title != "Recovery Ritual" || recoveryRule.Color != "#6366f1" || recoveryRule.Goal != "10+ min mobility" {
 		t.Fatalf("expected Recovery Ritual to use recovery category color, got %+v", recoveryRule)
 	}
 }

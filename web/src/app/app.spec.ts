@@ -14,26 +14,27 @@ const rule = {
   xp: 40,
   stat: 'strength',
   icon: 'dumbbell',
-  color: '#ff5a5f'
+  color: '#ff5a5f',
+  goal: '10+ min strength'
 };
 
 const allRules = [
-  { type: 'cardio', title: 'Cardio Session', xp: 30, stat: 'cardio', icon: 'flame', color: '#f59e0b' },
-  { type: 'daily_steps_bronze', title: 'Daily Steps — Bronze', xp: 20, stat: 'cardio', icon: 'footprints', color: '#f59e0b', tier: 'Bronze', thresholdValue: 6000, thresholdUnit: 'steps', followUpType: 'daily_steps_silver' },
-  { type: 'daily_steps_silver', title: 'Daily Steps — Silver', xp: 30, stat: 'cardio', icon: 'footprints', color: '#f59e0b', tier: 'Silver', thresholdValue: 8000, thresholdUnit: 'steps', followUpType: 'daily_steps_gold', prerequisiteType: 'daily_steps_bronze' },
-  { type: 'daily_steps_gold', title: 'Daily Steps — Gold', xp: 45, stat: 'cardio', icon: 'footprints', color: '#f59e0b', tier: 'Gold', thresholdValue: 10000, thresholdUnit: 'steps', followUpType: 'daily_steps_diamond', prerequisiteType: 'daily_steps_silver' },
-  { type: 'daily_steps_diamond', title: 'Daily Steps — Diamond', xp: 70, stat: 'cardio', icon: 'footprints', color: '#f59e0b', tier: 'Diamond', thresholdValue: 15000, thresholdUnit: 'steps', prerequisiteType: 'daily_steps_gold' },
+  { type: 'cardio', title: 'Cardio Session', xp: 30, stat: 'cardio', icon: 'flame', color: '#f59e0b', goal: '10+ min cardio' },
+  { type: 'daily_steps_bronze', title: 'Daily Steps — Bronze', xp: 20, stat: 'cardio', icon: 'footprints', color: '#f59e0b', goal: '6000 steps', tier: 'Bronze', thresholdValue: 6000, thresholdUnit: 'steps', followUpType: 'daily_steps_silver' },
+  { type: 'daily_steps_silver', title: 'Daily Steps — Silver', xp: 30, stat: 'cardio', icon: 'footprints', color: '#f59e0b', goal: '8000 steps', tier: 'Silver', thresholdValue: 8000, thresholdUnit: 'steps', followUpType: 'daily_steps_gold', prerequisiteType: 'daily_steps_bronze' },
+  { type: 'daily_steps_gold', title: 'Daily Steps — Gold', xp: 45, stat: 'cardio', icon: 'footprints', color: '#f59e0b', goal: '10000 steps', tier: 'Gold', thresholdValue: 10000, thresholdUnit: 'steps', followUpType: 'daily_steps_diamond', prerequisiteType: 'daily_steps_silver' },
+  { type: 'daily_steps_diamond', title: 'Daily Steps — Diamond', xp: 70, stat: 'cardio', icon: 'footprints', color: '#f59e0b', goal: '15000 steps', tier: 'Diamond', thresholdValue: 15000, thresholdUnit: 'steps', prerequisiteType: 'daily_steps_gold' },
   rule,
-  { type: 'healthy_meal', title: 'Nourishing Meal', xp: 25, stat: 'fuel', icon: 'apple', color: '#22c55e' },
-  { type: 'hydration_bronze', title: 'Hydration Boost — Bronze', xp: 10, stat: 'fuel', icon: 'droplet', color: '#22c55e', tier: 'Bronze', thresholdValue: 500, thresholdUnit: 'ml', followUpType: 'hydration_silver' },
-  { type: 'hydration_silver', title: 'Hydration Boost — Silver', xp: 15, stat: 'fuel', icon: 'droplet', color: '#22c55e', tier: 'Silver', thresholdValue: 1000, thresholdUnit: 'ml', followUpType: 'hydration_gold', prerequisiteType: 'hydration_bronze' },
-  { type: 'hydration_gold', title: 'Hydration Boost — Gold', xp: 20, stat: 'fuel', icon: 'droplet', color: '#22c55e', tier: 'Gold', thresholdValue: 1500, thresholdUnit: 'ml', followUpType: 'hydration_diamond', prerequisiteType: 'hydration_silver' },
-  { type: 'hydration_diamond', title: 'Hydration Boost — Diamond', xp: 30, stat: 'fuel', icon: 'droplet', color: '#22c55e', tier: 'Diamond', thresholdValue: 2000, thresholdUnit: 'ml', prerequisiteType: 'hydration_gold' },
-  { type: 'sleep', title: 'Sleep Goal Met', xp: 35, stat: 'recovery', icon: 'moon', color: '#6366f1', thresholdValue: 7, thresholdUnit: 'hours' },
-  { type: 'mindfulness', title: 'Mindset Moment', xp: 20, stat: 'mindset', icon: 'sparkles', color: '#a855f7' },
-  { type: 'recovery', title: 'Recovery Ritual', xp: 20, stat: 'recovery', icon: 'heart-pulse', color: '#6366f1' },
-  { type: 'scale_measurement', title: 'Scale Measurement', xp: 15, stat: 'biometrics', icon: 'scale', color: '#0891b2' },
-  { type: 'waist_to_height_ratio', title: 'Waist-to-Height Ratio', xp: 15, stat: 'biometrics', icon: 'ruler', color: '#0891b2' },
+  { type: 'healthy_meal', title: 'Nourishing Meal', xp: 25, stat: 'fuel', icon: 'apple', color: '#22c55e', goal: 'Log nutrition' },
+  { type: 'hydration_bronze', title: 'Hydration Boost — Bronze', xp: 10, stat: 'fuel', icon: 'droplet', color: '#22c55e', goal: '500 ml', tier: 'Bronze', thresholdValue: 500, thresholdUnit: 'ml', followUpType: 'hydration_silver' },
+  { type: 'hydration_silver', title: 'Hydration Boost — Silver', xp: 15, stat: 'fuel', icon: 'droplet', color: '#22c55e', goal: '1000 ml', tier: 'Silver', thresholdValue: 1000, thresholdUnit: 'ml', followUpType: 'hydration_gold', prerequisiteType: 'hydration_bronze' },
+  { type: 'hydration_gold', title: 'Hydration Boost — Gold', xp: 20, stat: 'fuel', icon: 'droplet', color: '#22c55e', goal: '1500 ml', tier: 'Gold', thresholdValue: 1500, thresholdUnit: 'ml', followUpType: 'hydration_diamond', prerequisiteType: 'hydration_silver' },
+  { type: 'hydration_diamond', title: 'Hydration Boost — Diamond', xp: 30, stat: 'fuel', icon: 'droplet', color: '#22c55e', goal: '2000 ml', tier: 'Diamond', thresholdValue: 2000, thresholdUnit: 'ml', prerequisiteType: 'hydration_gold' },
+  { type: 'sleep', title: 'Sleep Goal Met', xp: 35, stat: 'recovery', icon: 'moon', color: '#6366f1', goal: '7 hours', thresholdValue: 7, thresholdUnit: 'hours' },
+  { type: 'mindfulness', title: 'Mindset Moment', xp: 20, stat: 'mindset', icon: 'sparkles', color: '#a855f7', goal: 'not ready yet' },
+  { type: 'recovery', title: 'Recovery Ritual', xp: 20, stat: 'recovery', icon: 'heart-pulse', color: '#6366f1', goal: '10+ min mobility' },
+  { type: 'scale_measurement', title: 'Scale Measurement', xp: 15, stat: 'biometrics', icon: 'scale', color: '#0891b2', goal: 'Weight or body fat' },
+  { type: 'waist_to_height_ratio', title: 'Waist-to-Height Ratio', xp: 15, stat: 'biometrics', icon: 'ruler', color: '#0891b2', goal: 'Waist + height' },
   { type: 'bonus', title: 'Bonus Quest', xp: 5, stat: 'mindset', icon: 'unknown', color: '#f59e0b' }
 ];
 
@@ -248,9 +249,19 @@ describe('App', () => {
       ]);
     expect(root.textContent).toContain('Scale Measurement');
     expect(root.textContent).toContain('Waist-to-Height Ratio');
+    expect(root.textContent).toContain('10+ min cardio');
+    expect(root.textContent).toContain('10+ min strength');
+    expect(root.textContent).toContain('Log nutrition');
     expect(root.textContent).toContain('7 hours');
-    expect(root.textContent).toContain('Bronze · 6000 steps');
-    expect(root.textContent).toContain('Bronze · 500 ml');
+    expect(root.textContent).toContain('6000 steps');
+    expect(root.textContent).toContain('500 ml');
+    expect(root.textContent).toContain('not ready yet');
+    expect(root.textContent).toContain('10+ min mobility');
+    expect(root.textContent).toContain('Weight or body fat');
+    expect(root.textContent).toContain('Waist + height');
+    expect(root.textContent).not.toContain('Bronze · 6000 steps');
+    expect(root.textContent).not.toContain('Bronze · 500 ml');
+    expect(root.textContent).not.toContain(`Sync to ${'unlock'}`);
     expect(root.textContent).not.toContain('Lab Results');
     expect(root.textContent).not.toContain('Body Composition Scan');
     expect(root.querySelectorAll('.action-tile').length).toBe(visibleRuleCount);
@@ -317,7 +328,8 @@ describe('App', () => {
     const dailyStepsTile = tileText.find((text) => text.includes('Daily Steps'));
 
     expect(dailyStepsTile).toContain('Daily Steps — Silver');
-    expect(dailyStepsTile).toContain('Silver · 8000 steps');
+    expect(dailyStepsTile).toContain('8000 steps');
+    expect(dailyStepsTile).not.toContain('Silver · 8000 steps');
     expect(dailyStepsTile).not.toContain('2/4');
     expect(dailyStepsElement?.querySelectorAll('.stack-pip.filled').length).toBe(2);
     expect(dailyStepsElement?.querySelector('.tier-marker.silver')).not.toBeNull();
@@ -351,7 +363,8 @@ describe('App', () => {
     const dailyStepsTile = dailyStepsElement?.textContent?.replace(/\s+/g, ' ').trim() ?? '';
 
     expect(dailyStepsTile).toContain('Daily Steps — Silver');
-    expect(dailyStepsTile).toContain('Silver · 8000 steps');
+    expect(dailyStepsTile).toContain('8000 steps');
+    expect(dailyStepsTile).not.toContain('Silver · 8000 steps');
     expect(dailyStepsTile).not.toContain('Daily Steps — Bronze');
     expect(dailyStepsElement?.querySelectorAll('.stack-pip.filled').length).toBe(2);
 

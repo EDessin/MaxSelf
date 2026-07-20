@@ -18,6 +18,7 @@ export interface ActivityRule {
   stat: string;
   icon: string;
   color: string;
+  goal?: string;
   tier?: string;
   thresholdValue?: number;
   thresholdUnit?: string;

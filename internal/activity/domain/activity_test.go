@@ -20,13 +20,16 @@ func TestRulesAndRuleFor(t *testing.T) {
 		if rule.Color != CategoryColor(rule.Stat) {
 			t.Fatalf("expected %s to use %s category color %s, got %s", rule.Type, rule.Stat, CategoryColor(rule.Stat), rule.Color)
 		}
+		if rule.Goal == "" {
+			t.Fatalf("expected %s to define a goal", rule.Type)
+		}
 	}
 
 	rule, err := RuleFor(TypeDailyStepsBronze)
 	if err != nil {
 		t.Fatalf("RuleFor returned error for daily steps bronze: %v", err)
 	}
-	if rule.Title != "Daily Steps — Bronze" || rule.XP != 20 || rule.Stat != StatCardio || rule.Icon != "footprints" || rule.Tier != "Bronze" || rule.ThresholdValue != 6000 || rule.ThresholdUnit != "steps" || rule.FollowUpType != TypeDailyStepsSilver {
+	if rule.Title != "Daily Steps — Bronze" || rule.XP != 20 || rule.Stat != StatCardio || rule.Icon != "footprints" || rule.Goal != "6000 steps" || rule.Tier != "Bronze" || rule.ThresholdValue != 6000 || rule.ThresholdUnit != "steps" || rule.FollowUpType != TypeDailyStepsSilver {
 		t.Fatalf("unexpected daily steps bronze rule: %+v", rule)
 	}
 
@@ -50,8 +53,16 @@ func TestRulesAndRuleFor(t *testing.T) {
 	if err != nil {
 		t.Fatalf("RuleFor returned error for sleep: %v", err)
 	}
-	if rule.Title != "Sleep Goal Met" || rule.XP != 35 || rule.Stat != StatRecovery || rule.ThresholdValue != SleepGoalHours || rule.ThresholdUnit != "hours" {
+	if rule.Title != "Sleep Goal Met" || rule.XP != 35 || rule.Stat != StatRecovery || rule.Goal != "7 hours" || rule.ThresholdValue != SleepGoalHours || rule.ThresholdUnit != "hours" {
 		t.Fatalf("unexpected sleep rule: %+v", rule)
+	}
+
+	rule, err = RuleFor(TypeMindfulness)
+	if err != nil {
+		t.Fatalf("RuleFor returned error for mindfulness: %v", err)
+	}
+	if rule.Goal != "not ready yet" {
+		t.Fatalf("unexpected mindfulness goal: %+v", rule)
 	}
 
 	rule, err = RuleFor(TypeExercise)

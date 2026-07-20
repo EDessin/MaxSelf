@@ -729,22 +729,22 @@ func ruleForType(ruleType string) ActivityRule {
 
 func localActivityRules() []ActivityRule {
 	return applyActivityRuleCategoryColors([]ActivityRule{
-		{Type: "cardio", Title: "Cardio Session", XP: 30, Stat: "cardio", Icon: "flame"},
-		{Type: "daily_steps_bronze", Title: "Daily Steps — Bronze", XP: 20, Stat: "cardio", Icon: "footprints", Tier: "Bronze", ThresholdValue: 6000, ThresholdUnit: "steps", FollowUpType: "daily_steps_silver"},
-		{Type: "daily_steps_silver", Title: "Daily Steps — Silver", XP: 30, Stat: "cardio", Icon: "footprints", Tier: "Silver", ThresholdValue: 8000, ThresholdUnit: "steps", FollowUpType: "daily_steps_gold", PrerequisiteType: "daily_steps_bronze"},
-		{Type: "daily_steps_gold", Title: "Daily Steps — Gold", XP: 45, Stat: "cardio", Icon: "footprints", Tier: "Gold", ThresholdValue: 10000, ThresholdUnit: "steps", FollowUpType: "daily_steps_diamond", PrerequisiteType: "daily_steps_silver"},
-		{Type: "daily_steps_diamond", Title: "Daily Steps — Diamond", XP: 70, Stat: "cardio", Icon: "footprints", Tier: "Diamond", ThresholdValue: 15000, ThresholdUnit: "steps", PrerequisiteType: "daily_steps_gold"},
-		{Type: "exercise", Title: "Strength Session", XP: 40, Stat: "strength", Icon: "dumbbell"},
-		{Type: "healthy_meal", Title: "Nourishing Meal", XP: 25, Stat: "fuel", Icon: "apple"},
-		{Type: "hydration_bronze", Title: "Hydration Boost — Bronze", XP: 10, Stat: "fuel", Icon: "droplet", Tier: "Bronze", ThresholdValue: 500, ThresholdUnit: "ml", FollowUpType: "hydration_silver"},
-		{Type: "hydration_silver", Title: "Hydration Boost — Silver", XP: 15, Stat: "fuel", Icon: "droplet", Tier: "Silver", ThresholdValue: 1000, ThresholdUnit: "ml", FollowUpType: "hydration_gold", PrerequisiteType: "hydration_bronze"},
-		{Type: "hydration_gold", Title: "Hydration Boost — Gold", XP: 20, Stat: "fuel", Icon: "droplet", Tier: "Gold", ThresholdValue: 1500, ThresholdUnit: "ml", FollowUpType: "hydration_diamond", PrerequisiteType: "hydration_silver"},
-		{Type: "hydration_diamond", Title: "Hydration Boost — Diamond", XP: 30, Stat: "fuel", Icon: "droplet", Tier: "Diamond", ThresholdValue: 2000, ThresholdUnit: "ml", PrerequisiteType: "hydration_gold"},
-		{Type: "sleep", Title: "Sleep Goal Met", XP: 35, Stat: "recovery", Icon: "moon", ThresholdValue: sleepGoalHours, ThresholdUnit: "hours"},
-		{Type: "mindfulness", Title: "Mindset Moment", XP: 20, Stat: "mindset", Icon: "sparkles"},
-		{Type: "recovery", Title: "Recovery Ritual", XP: 20, Stat: "recovery", Icon: "heart-pulse"},
-		{Type: "scale_measurement", Title: "Scale Measurement", XP: 15, Stat: "biometrics", Icon: "scale"},
-		{Type: "waist_to_height_ratio", Title: "Waist-to-Height Ratio", XP: 15, Stat: "biometrics", Icon: "ruler"},
+		{Type: "cardio", Title: "Cardio Session", XP: 30, Stat: "cardio", Icon: "flame", Goal: "10+ min cardio"},
+		{Type: "daily_steps_bronze", Title: "Daily Steps — Bronze", XP: 20, Stat: "cardio", Icon: "footprints", Goal: "6000 steps", Tier: "Bronze", ThresholdValue: 6000, ThresholdUnit: "steps", FollowUpType: "daily_steps_silver"},
+		{Type: "daily_steps_silver", Title: "Daily Steps — Silver", XP: 30, Stat: "cardio", Icon: "footprints", Goal: "8000 steps", Tier: "Silver", ThresholdValue: 8000, ThresholdUnit: "steps", FollowUpType: "daily_steps_gold", PrerequisiteType: "daily_steps_bronze"},
+		{Type: "daily_steps_gold", Title: "Daily Steps — Gold", XP: 45, Stat: "cardio", Icon: "footprints", Goal: "10000 steps", Tier: "Gold", ThresholdValue: 10000, ThresholdUnit: "steps", FollowUpType: "daily_steps_diamond", PrerequisiteType: "daily_steps_silver"},
+		{Type: "daily_steps_diamond", Title: "Daily Steps — Diamond", XP: 70, Stat: "cardio", Icon: "footprints", Goal: "15000 steps", Tier: "Diamond", ThresholdValue: 15000, ThresholdUnit: "steps", PrerequisiteType: "daily_steps_gold"},
+		{Type: "exercise", Title: "Strength Session", XP: 40, Stat: "strength", Icon: "dumbbell", Goal: "10+ min strength"},
+		{Type: "healthy_meal", Title: "Nourishing Meal", XP: 25, Stat: "fuel", Icon: "apple", Goal: "Log nutrition"},
+		{Type: "hydration_bronze", Title: "Hydration Boost — Bronze", XP: 10, Stat: "fuel", Icon: "droplet", Goal: "500 ml", Tier: "Bronze", ThresholdValue: 500, ThresholdUnit: "ml", FollowUpType: "hydration_silver"},
+		{Type: "hydration_silver", Title: "Hydration Boost — Silver", XP: 15, Stat: "fuel", Icon: "droplet", Goal: "1000 ml", Tier: "Silver", ThresholdValue: 1000, ThresholdUnit: "ml", FollowUpType: "hydration_gold", PrerequisiteType: "hydration_bronze"},
+		{Type: "hydration_gold", Title: "Hydration Boost — Gold", XP: 20, Stat: "fuel", Icon: "droplet", Goal: "1500 ml", Tier: "Gold", ThresholdValue: 1500, ThresholdUnit: "ml", FollowUpType: "hydration_diamond", PrerequisiteType: "hydration_silver"},
+		{Type: "hydration_diamond", Title: "Hydration Boost — Diamond", XP: 30, Stat: "fuel", Icon: "droplet", Goal: "2000 ml", Tier: "Diamond", ThresholdValue: 2000, ThresholdUnit: "ml", PrerequisiteType: "hydration_gold"},
+		{Type: "sleep", Title: "Sleep Goal Met", XP: 35, Stat: "recovery", Icon: "moon", Goal: "7 hours", ThresholdValue: sleepGoalHours, ThresholdUnit: "hours"},
+		{Type: "mindfulness", Title: "Mindset Moment", XP: 20, Stat: "mindset", Icon: "sparkles", Goal: "not ready yet"},
+		{Type: "recovery", Title: "Recovery Ritual", XP: 20, Stat: "recovery", Icon: "heart-pulse", Goal: "10+ min mobility"},
+		{Type: "scale_measurement", Title: "Scale Measurement", XP: 15, Stat: "biometrics", Icon: "scale", Goal: "Weight or body fat"},
+		{Type: "waist_to_height_ratio", Title: "Waist-to-Height Ratio", XP: 15, Stat: "biometrics", Icon: "ruler", Goal: "Waist + height"},
 	})
 }
 

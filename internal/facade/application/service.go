@@ -37,6 +37,7 @@ type ActivityRule struct {
 	Stat             string `json:"stat"`
 	Icon             string `json:"icon"`
 	Color            string `json:"color"`
+	Goal             string `json:"goal,omitempty"`
 	Tier             string `json:"tier,omitempty"`
 	ThresholdValue   int    `json:"thresholdValue,omitempty"`
 	ThresholdUnit    string `json:"thresholdUnit,omitempty"`
