@@ -40,11 +40,11 @@
     </filter>
   </defs>
 
-  <path d="M122 238C272 84 432 58 578 132s268 118 486 16" fill="none" stroke="url(#energyLine)" stroke-width="4" stroke-linecap="round" opacity=".72"/>
-  <path d="M178 276c130 74 260 78 390 12 158-80 300-78 448 12" fill="none" stroke="url(#energyLine)" stroke-width="2" stroke-dasharray="10 16" stroke-linecap="round" opacity=".42"/>
-  <path d="M178 192 384 98l216 58 206-64 222 102-226 116-210-58-204 70-210-130Z" fill="none" stroke="#f8fafc" stroke-width="1.5" opacity=".1"/>
+  <path d="M384 98c86 0 144 24 216 58s136-72 206-64c83 10 140 88 222 102-44 92-126 116-226 116-91 0-167 25-254 8" fill="none" stroke="url(#energyLine)" stroke-width="4" stroke-linecap="round" opacity=".72"/>
+  <path d="M384 132c96 84 198 128 306 132 136 5 240-32 338-70" fill="none" stroke="url(#energyLine)" stroke-width="2" stroke-dasharray="10 16" stroke-linecap="round" opacity=".42"/>
+  <path d="M384 98 600 156 806 92l222 102-226 116-254 8L384 98Z" fill="none" stroke="#f8fafc" stroke-width="1.5" opacity=".1"/>
 
-  <g data-category="cardio" transform="translate(178 192)">
+  <g data-category="cardio" transform="translate(548 318)">
     <circle r="92" fill="url(#cardioGlow)"/>
     <circle r="62" fill="#431407" fill-opacity=".7" stroke="#f59e0b" stroke-width="3"/>
     <circle r="76" fill="none" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="28 10" opacity=".4"/>
