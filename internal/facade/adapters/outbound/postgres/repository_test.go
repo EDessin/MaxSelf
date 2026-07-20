@@ -139,7 +139,7 @@ func TestRepositoryAuthStatesConnectionsAndQuestClaims(t *testing.T) {
 	secondClaim.Title = "Sleep Goal Met"
 	secondClaim.Stat = "recovery"
 	secondClaim.SourceID = "sleep-1"
-	secondClaim.Evidence = "450 minutes asleep"
+	secondClaim.Evidence = "7 hours 30 minutes asleep"
 	secondClaim.OccurredAt = now.Add(24 * time.Hour)
 	secondClaim.QuestDate = "2026-07-18"
 	if _, inserted, err := repo.UpsertQuestClaim(ctx, secondClaim); err != nil || !inserted {

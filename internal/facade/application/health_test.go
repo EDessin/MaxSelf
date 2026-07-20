@@ -184,6 +184,7 @@ func TestHealthCandidatesBuildSyncedQuestClaims(t *testing.T) {
 		}
 	}
 	if !containsEvidence(candidates, "Running · 45 min · 5.0 km") ||
+		!containsEvidence(candidates, "7 hours 30 minutes asleep") ||
 		!containsEvidence(candidates, "10500 steps") ||
 		!containsEvidence(candidates, "1600 ml hydration logged") ||
 		!containsEvidence(candidates, "Weight 70.0 kg, body fat 22.5%") ||
@@ -264,6 +265,9 @@ func TestHealthHelpers(t *testing.T) {
 	}
 	if displayExerciseType("") != "Exercise" || displayExerciseType("STRENGTH_TRAINING") != "Strength Training" {
 		t.Fatal("exercise type display regressed")
+	}
+	if sleepEvidence(450) != "7 hours 30 minutes asleep" || sleepEvidence(421) != "7 hours 1 minute asleep" {
+		t.Fatal("sleep evidence display regressed")
 	}
 	if (HealthDataPoint{DataPointName: "data-point", Name: "name"}).ID() != "data-point" ||
 		(HealthDataPoint{Name: "name"}).ID() != "name" ||

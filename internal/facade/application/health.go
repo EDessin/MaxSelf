@@ -517,7 +517,7 @@ func healthCandidates(userID string, pointsByType map[string][]HealthDataPoint) 
 		if occurredAt.IsZero() {
 			continue
 		}
-		candidates = append(candidates, newQuestClaim(userID, "sleep", QuestClaimSourceGoogleHealth, point.ID(), occurredAt, fmt.Sprintf("%d minutes asleep", minutes)))
+		candidates = append(candidates, newQuestClaim(userID, "sleep", QuestClaimSourceGoogleHealth, point.ID(), occurredAt, sleepEvidence(minutes)))
 	}
 	candidates = append(candidates, hydrationCandidates(userID, pointsByType["hydration-log"])...)
 	for _, point := range pointsByType["nutrition-log"] {
@@ -864,6 +864,19 @@ func exerciseEvidence(exercise HealthExercise) string {
 		parts = append(parts, fmt.Sprintf("%.1f km", exercise.MetricsSummary.DistanceMillimeters/1000000))
 	}
 	return strings.Join(parts, " · ")
+}
+
+func sleepEvidence(minutes int) string {
+	hours := minutes / 60
+	remainder := minutes % 60
+	return fmt.Sprintf("%s %s asleep", pluralize(hours, "hour"), pluralize(remainder, "minute"))
+}
+
+func pluralize(value int, unit string) string {
+	if value == 1 {
+		return fmt.Sprintf("%d %s", value, unit)
+	}
+	return fmt.Sprintf("%d %ss", value, unit)
 }
 
 func displayExerciseType(value string) string {

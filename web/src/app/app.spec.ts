@@ -63,7 +63,7 @@ const secondClaim = {
   xp: 35,
   stat: 'recovery',
   sourceId: 'sleep-1',
-  evidence: '450 minutes asleep'
+  evidence: '7 hours 30 minutes asleep'
 };
 
 function questDateKey(date = new Date()) {
