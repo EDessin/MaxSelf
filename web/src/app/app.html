@@ -313,6 +313,13 @@
             <strong>+{{ selectedClaim.xp }} Health XP</strong>
           </div>
 
+          @if (isPastClaim(selectedClaim)) {
+            <div class="claim-date-cue">
+              <strong>{{ claimAgeLabel(selectedClaim) }} · {{ claimDateLabel(selectedClaim) }}</strong>
+              <span>This XP comes from synced data for a previous day.</span>
+            </div>
+          }
+
           <div class="claim-evidence">
             <span>Evidence</span>
             <strong>{{ selectedClaim.evidence }}</strong>
@@ -329,7 +336,7 @@
             } @else {
               <svg lucideZap size="18"></svg>
             }
-            <span>Claim XP</span>
+            <span>{{ claimButtonLabel(selectedClaim) }}</span>
           </button>
         </div>
       </section>

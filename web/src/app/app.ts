@@ -430,6 +430,34 @@ export class App implements OnInit {
     return `tier-marker ${rule.tier?.toLowerCase() ?? ''}`;
   }
 
+  isPastClaim(claim: QuestClaim): boolean {
+    return this.isValidQuestDate(claim.questDate) && claim.questDate < this.todayQuestDate();
+  }
+
+  claimAgeLabel(claim: QuestClaim): string {
+    if (!this.isPastClaim(claim)) {
+      return "Today's quest";
+    }
+    const yesterday = this.dateKeyFor(this.addDays(new Date(), -1));
+    return claim.questDate === yesterday ? "Yesterday's quest" : 'Past quest';
+  }
+
+  claimDateLabel(claim: QuestClaim): string {
+    const date = this.dateFromQuestDate(claim.questDate);
+    if (!date) {
+      return claim.questDate || 'unknown date';
+    }
+    return new Intl.DateTimeFormat('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    }).format(date);
+  }
+
+  claimButtonLabel(claim: QuestClaim): string {
+    return this.isPastClaim(claim) ? `Claim XP for ${this.claimDateLabel(claim)}` : 'Claim XP';
+  }
+
   closeActivityDialog(): void {
     this.activitySaving.set(false);
     this.activityDialogOpen.set(false);
@@ -560,6 +588,31 @@ export class App implements OnInit {
     return chain[lastClaimedIndex + 1] ?? (lastClaimedIndex === -1 ? chain[0] : undefined);
   }
 
+  private isValidQuestDate(questDate: string): boolean {
+    return Boolean(this.dateFromQuestDate(questDate));
+  }
+
+  private dateFromQuestDate(questDate: string): Date | undefined {
+    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(questDate);
+    if (!match) {
+      return undefined;
+    }
+    const year = Number(match[1]);
+    const month = Number(match[2]);
+    const day = Number(match[3]);
+    const date = new Date(year, month - 1, day);
+    if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day) {
+      return undefined;
+    }
+    return date;
+  }
+
+  private addDays(date: Date, days: number): Date {
+    const result = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    result.setDate(result.getDate() + days);
+    return result;
+  }
+
   private apiErrorMessage(error: unknown): string | undefined {
     if (!(error instanceof HttpErrorResponse)) {
       return undefined;
@@ -615,10 +668,13 @@ export class App implements OnInit {
   }
 
   private todayQuestDate(): string {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const day = String(today.getDate()).padStart(2, '0');
+    return this.dateKeyFor(new Date());
+  }
+
+  private dateKeyFor(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
   }
 }

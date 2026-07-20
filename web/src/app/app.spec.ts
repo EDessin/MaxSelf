@@ -446,6 +446,57 @@ describe('App', () => {
     expect(root.querySelector('.activity-dialog')).toBeNull();
   });
 
+  it('should make old pending claim dates clear in the XP dialog', () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    const root = fixture.nativeElement as HTMLElement;
+
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayClaim = {
+      ...claim,
+      questDate: questDateKey(yesterday),
+      occurredAt: yesterday.toISOString()
+    };
+
+    app.dashboard.set({ ...dashboard(), questClaims: [yesterdayClaim] });
+    app.claimQueue.set([yesterdayClaim]);
+    app.selectedClaim.set(yesterdayClaim);
+    app.activityDialogOpen.set(true);
+    fixture.detectChanges();
+
+    expect(root.textContent).toContain(`Yesterday's quest · ${app.claimDateLabel(yesterdayClaim)}`);
+    expect(root.textContent).toContain('This XP comes from synced data for a previous day.');
+    expect(root.textContent).toContain(`Claim XP for ${app.claimDateLabel(yesterdayClaim)}`);
+
+    const older = new Date();
+    older.setDate(older.getDate() - 3);
+    const olderClaim = {
+      ...claim,
+      questDate: questDateKey(older),
+      occurredAt: older.toISOString()
+    };
+    app.selectedClaim.set(olderClaim);
+    fixture.detectChanges();
+
+    expect(root.textContent).toContain(`Past quest · ${app.claimDateLabel(olderClaim)}`);
+    expect(root.textContent).not.toContain("Yesterday's quest");
+
+    const todayClaim = {
+      ...claim,
+      questDate: questDateKey(),
+      occurredAt: new Date().toISOString()
+    };
+    app.selectedClaim.set(todayClaim);
+    fixture.detectChanges();
+
+    expect(root.textContent).not.toContain('This XP comes from synced data for a previous day.');
+    expect(root.textContent).not.toContain('Past quest');
+    expect(root.textContent).not.toContain("Yesterday's quest");
+    expect(root.textContent).toContain('Claim XP');
+    expect(root.textContent).not.toContain('Claim XP for');
+  });
+
   it('should sync Google Health and open the first claimable quest', async () => {
     const fixture = TestBed.createComponent(App);
     const app = fixture.componentInstance;
