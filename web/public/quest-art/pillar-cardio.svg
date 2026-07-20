@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 720" role="img" aria-labelledby="title desc">
+  <title id="title">Cardio pillar</title>
+  <desc id="desc">A glowing orange running trail with footprints and a sunrise.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#431407"/>
+      <stop offset=".56" stop-color="#7c2d12"/>
+      <stop offset="1" stop-color="#0f172a"/>
+    </linearGradient>
+    <radialGradient id="orb" cx=".66" cy=".18" r=".5">
+      <stop offset="0" stop-color="#fbbf24" stop-opacity=".9"/>
+      <stop offset=".42" stop-color="#f97316" stop-opacity=".34"/>
+      <stop offset="1" stop-color="#f97316" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="280" height="720" rx="34" fill="url(#bg)"/>
+  <rect width="280" height="720" rx="34" fill="url(#orb)"/>
+  <path d="M28 620c42-126 116-199 221-269" fill="none" stroke="#fed7aa" stroke-width="4" stroke-dasharray="14 14" opacity=".7"/>
+  <path d="M22 664c48-158 122-244 236-322" fill="none" stroke="#f59e0b" stroke-width="24" stroke-linecap="round" opacity=".2"/>
+  <path d="M62 588c68-78 126-130 185-165" fill="none" stroke="#f59e0b" stroke-width="7" stroke-linecap="round"/>
+  <g fill="#fff7ed" opacity=".72">
+    <ellipse cx="102" cy="542" rx="10" ry="18" transform="rotate(36 102 542)"/>
+    <ellipse cx="132" cy="512" rx="10" ry="18" transform="rotate(36 132 512)"/>
+    <ellipse cx="162" cy="482" rx="10" ry="18" transform="rotate(36 162 482)"/>
+    <ellipse cx="193" cy="454" rx="10" ry="18" transform="rotate(36 193 454)"/>
+  </g>
+  <g fill="none" stroke="#fff7ed" stroke-linecap="round" stroke-linejoin="round" opacity=".9">
+    <circle cx="82" cy="122" r="12" fill="#fff7ed" stroke="none"/>
+    <path d="M78 139 64 176l24 24M70 155l-24 18M89 160l26-12M88 199l-18 34M88 199l35 20" stroke-width="8"/>
+  </g>
+  <path d="M24 96c54-24 104-24 158 0" fill="none" stroke="#fbbf24" stroke-width="3" opacity=".34"/>
+  <path d="M42 252h196M24 298h232M36 344h212" stroke="#fff7ed" stroke-width="1" opacity=".1"/>
+</svg>

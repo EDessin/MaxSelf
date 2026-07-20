@@ -271,6 +271,16 @@ describe('App', () => {
     expect(root.querySelectorAll('.action-tile').length).toBe(visibleRuleCount);
     expect(root.querySelectorAll('.quest-stack').length).toBe(2);
     expect(root.querySelectorAll('.stack-pips').length).toBe(2);
+    expect(root.querySelector('.hero-performance-art')?.getAttribute('src')).toBe('/quest-art/hero-performance.svg');
+    expect(Array.from(root.querySelectorAll<HTMLImageElement>('.pillar-art')).map((image) => image.getAttribute('src')))
+      .toEqual([
+        '/quest-art/pillar-cardio.svg',
+        '/quest-art/pillar-strength.svg',
+        '/quest-art/pillar-fuel.svg',
+        '/quest-art/pillar-recovery.svg',
+        '/quest-art/pillar-mindset.svg',
+        '/quest-art/pillar-biometrics.svg'
+      ]);
     expect(Array.from(root.querySelectorAll('.action-tile')).map((tile) => tile.textContent).join('\n'))
       .not.toContain('Daily Steps — Silver');
     expect(root.querySelectorAll('.quest-column').length).toBe(6);
@@ -797,6 +807,10 @@ describe('App', () => {
     const claimButton = Array.from(root.querySelectorAll('button'))
       .find((button) => button.textContent?.includes('Claim XP'));
     claimButton?.click();
+    fixture.detectChanges();
+
+    expect(root.querySelector('.claim-impact')).not.toBeNull();
+    expect(root.querySelector('.activity-dialog')?.classList.contains('claim-ritual-active')).toBe(true);
 
     http!.expectOne('http://localhost:8080/api/quest-claims/claim-1/claim')
       .flush({ error: 'nope' }, { status: 500, statusText: 'Server Error' });

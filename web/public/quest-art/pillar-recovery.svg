@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 720" role="img" aria-labelledby="title desc">
+  <title id="title">Recovery pillar</title>
+  <desc id="desc">A calm indigo pillar with moon, sleep waves, and stretching lines.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#1e1b4b"/>
+      <stop offset=".55" stop-color="#3730a3"/>
+      <stop offset="1" stop-color="#0f172a"/>
+    </linearGradient>
+  </defs>
+  <rect width="280" height="720" rx="34" fill="url(#bg)"/>
+  <path d="M190 74c-24 52 8 109 66 118-19 29-54 49-94 49-62 0-112-50-112-112 0-44 25-82 62-101-10 58 23 104 78 46Z" fill="#c7d2fe" opacity=".72"/>
+  <g fill="#e0e7ff" opacity=".76">
+    <circle cx="56" cy="276" r="3"/>
+    <circle cx="104" cy="324" r="2.5"/>
+    <circle cx="222" cy="302" r="3.5"/>
+    <circle cx="198" cy="66" r="2.5"/>
+  </g>
+  <path d="M36 396c42-24 82-24 120 0s78 24 120 0M22 458c52-28 102-28 150 0 30 17 58 19 86 6M38 520c42-22 82-22 120 0s78 22 120 0" fill="none" stroke="#e0e7ff" stroke-width="6" stroke-linecap="round" opacity=".42"/>
+  <g transform="translate(56 560)" fill="none" stroke="#f8fafc" stroke-linecap="round" stroke-linejoin="round" opacity=".74">
+    <circle cx="52" cy="22" r="12" fill="#f8fafc" stroke="none"/>
+    <path d="M52 38v48M52 64H12M52 84h72M88 84l46 42M52 86l-34 48" stroke-width="8"/>
+  </g>
+  <path d="M42 670h196" stroke="#c7d2fe" stroke-width="1" opacity=".16"/>
+</svg>

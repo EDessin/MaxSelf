@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 360" role="img" aria-labelledby="title desc">
+  <title id="title">MaxSelf performance landscape</title>
+  <desc id="desc">A dark quest landscape with a runner, strength gear, health pulse, mountains, and glowing performance energy.</desc>
+  <defs>
+    <linearGradient id="sky" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#09111f"/>
+      <stop offset=".48" stop-color="#14213d"/>
+      <stop offset="1" stop-color="#062b31"/>
+    </linearGradient>
+    <linearGradient id="sun" x1="0" x2="1">
+      <stop offset="0" stop-color="#f59e0b"/>
+      <stop offset=".55" stop-color="#fb7185"/>
+      <stop offset="1" stop-color="#22d3ee"/>
+    </linearGradient>
+    <linearGradient id="trail" x1="0" x2="1">
+      <stop offset="0" stop-color="#f59e0b" stop-opacity=".08"/>
+      <stop offset=".5" stop-color="#f97316" stop-opacity=".78"/>
+      <stop offset="1" stop-color="#22d3ee" stop-opacity=".18"/>
+    </linearGradient>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feColorMatrix in="blur" values="1 0 0 0 0.99 0 1 0 0 0.58 0 0 1 0 0.17 0 0 0 .9 0"/>
+      <feBlend in="SourceGraphic"/>
+    </filter>
+  </defs>
+  <rect width="980" height="360" fill="url(#sky)"/>
+  <circle cx="740" cy="100" r="76" fill="url(#sun)" opacity=".26"/>
+  <circle cx="740" cy="100" r="120" fill="none" stroke="#f59e0b" stroke-width="2" opacity=".2"/>
+  <circle cx="740" cy="100" r="158" fill="none" stroke="#22d3ee" stroke-width="1" opacity=".14"/>
+
+  <path d="M0 210 96 126l72 52 94-92 92 110 90-72 70 60 94-102 108 120 96-68 168 92v134H0Z" fill="#132337" opacity=".82"/>
+  <path d="M0 238c116-24 196-17 314 20 117 36 195 39 310 8 144-40 225-24 356 24v70H0Z" fill="#081525"/>
+  <path d="M0 286c184-52 326-55 516-6 168 43 300 36 464-20v100H0Z" fill="#07111f"/>
+
+  <path d="M90 302c188-100 384-106 804 10" fill="none" stroke="url(#trail)" stroke-width="40" stroke-linecap="round" opacity=".78"/>
+  <path d="M96 298c210-80 394-79 790 6" fill="none" stroke="#f59e0b" stroke-width="4" stroke-linecap="round" opacity=".9" filter="url(#glow)"/>
+  <path d="M178 288c34-10 58-10 92 0M336 274c44-4 82 1 126 15M612 286c62 4 110 12 168 30" fill="none" stroke="#fff7ed" stroke-width="3" stroke-linecap="round" opacity=".42"/>
+
+  <g transform="translate(432 183)" fill="none" stroke="#f8fafc" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="48" cy="14" r="13" fill="#f8fafc" stroke="none"/>
+    <path d="M45 30 25 78l35 34" stroke-width="11"/>
+    <path d="M34 50 4 66" stroke-width="9"/>
+    <path d="M57 58 92 42" stroke-width="9"/>
+    <path d="M59 112 36 154" stroke-width="11"/>
+    <path d="M58 111 106 136" stroke-width="11"/>
+  </g>
+
+  <g transform="translate(104 214)" opacity=".9">
+    <rect x="0" y="46" width="98" height="14" rx="7" fill="#94a3b8"/>
+    <rect x="16" y="28" width="18" height="50" rx="5" fill="#475569"/>
+    <rect x="64" y="28" width="18" height="50" rx="5" fill="#475569"/>
+    <path d="M9 86h80" stroke="#22d3ee" stroke-width="5" stroke-linecap="round" opacity=".7"/>
+  </g>
+
+  <path d="M628 194h54l17-36 30 88 22-52h84" fill="none" stroke="#22d3ee" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" opacity=".86" filter="url(#glow)"/>
+  <g fill="#fef3c7" opacity=".86">
+    <path d="M160 74h10v10h-10z" transform="rotate(45 165 79)"/>
+    <path d="M290 46h7v7h-7z" transform="rotate(45 293.5 49.5)"/>
+    <path d="M884 158h8v8h-8z" transform="rotate(45 888 162)"/>
+    <path d="M814 54h6v6h-6z" transform="rotate(45 817 57)"/>
+    <circle cx="552" cy="64" r="3"/>
+    <circle cx="244" cy="146" r="2.5"/>
+  </g>
+</svg>

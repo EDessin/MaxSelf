@@ -3,11 +3,11 @@
   overflow-x: hidden;
   min-height: 100vh;
   background:
-    radial-gradient(circle at 12% 18%, rgba(255, 90, 95, 0.28), transparent 26rem),
-    radial-gradient(circle at 84% 10%, rgba(56, 189, 248, 0.28), transparent 24rem),
-    radial-gradient(circle at 72% 82%, rgba(168, 85, 247, 0.18), transparent 28rem),
-    linear-gradient(135deg, #fff7ed 0%, #f8fafc 44%, #ecfeff 100%);
-  color: #172033;
+    radial-gradient(circle at 10% 14%, rgba(249, 115, 22, 0.28), transparent 25rem),
+    radial-gradient(circle at 84% 8%, rgba(34, 211, 238, 0.22), transparent 23rem),
+    radial-gradient(circle at 72% 78%, rgba(168, 85, 247, 0.2), transparent 29rem),
+    linear-gradient(135deg, #050b16 0%, #0c1728 45%, #102923 100%);
+  color: #e5edf7;
 }
 
 .app-shell::before,
@@ -21,20 +21,21 @@
 .app-shell::before {
   z-index: 0;
   background-image:
-    radial-gradient(circle, rgba(124, 58, 237, 0.18) 0 1px, transparent 1.5px),
-    radial-gradient(circle, rgba(245, 158, 11, 0.16) 0 1px, transparent 1.5px);
+    radial-gradient(circle, rgba(251, 191, 36, 0.2) 0 1px, transparent 1.5px),
+    radial-gradient(circle, rgba(34, 211, 238, 0.14) 0 1px, transparent 1.5px);
   background-position: 0 0, 14px 16px;
   background-size: 32px 32px, 42px 42px;
-  opacity: 0.5;
+  opacity: 0.38;
   animation: starDrift 34s linear infinite;
 }
 
 .app-shell::after {
   z-index: 0;
   background:
-    radial-gradient(circle at 18% 72%, rgba(34, 197, 94, 0.18), transparent 18rem),
-    radial-gradient(circle at 88% 46%, rgba(245, 158, 11, 0.18), transparent 16rem);
-  opacity: 0.74;
+    radial-gradient(circle at 18% 72%, rgba(34, 197, 94, 0.14), transparent 18rem),
+    radial-gradient(circle at 88% 46%, rgba(245, 158, 11, 0.15), transparent 16rem),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03), transparent 26%, rgba(255, 255, 255, 0.03));
+  opacity: 0.86;
   animation: auraFloat 12s ease-in-out infinite alternate;
 }
 
@@ -53,16 +54,16 @@
   margin: 1.5rem 0 0.75rem;
   font-size: clamp(3.25rem, 9vw, 7rem);
   line-height: 0.92;
-  background: linear-gradient(135deg, #111827 8%, #7c3aed 48%, #f59e0b 92%);
+  background: linear-gradient(135deg, #f8fafc 8%, #22d3ee 42%, #f59e0b 92%);
   background-clip: text;
   color: transparent;
   letter-spacing: -0.08em;
-  text-shadow: 0 22px 60px rgba(124, 58, 237, 0.18);
+  text-shadow: 0 22px 60px rgba(34, 211, 238, 0.18);
 }
 
 .brand-panel p {
   max-width: 34rem;
-  color: #475569;
+  color: #b6c6d9;
   font-size: 1.25rem;
 }
 
@@ -70,8 +71,8 @@
   display: inline-flex;
   align-items: center;
   gap: 0.7rem;
-  color: #7c3aed;
-  filter: drop-shadow(0 10px 20px rgba(124, 58, 237, 0.22));
+  color: #fbbf24;
+  filter: drop-shadow(0 10px 20px rgba(245, 158, 11, 0.28));
 }
 
 .preview-card {
@@ -81,11 +82,12 @@
   margin-top: 2rem;
   padding: 1rem;
   background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.82), rgba(255, 247, 237, 0.86)),
-    radial-gradient(circle at 88% 18%, rgba(245, 158, 11, 0.22), transparent 8rem);
-  border: 1px solid rgba(245, 158, 11, 0.32);
+    linear-gradient(135deg, rgba(8, 19, 36, 0.86), rgba(31, 41, 55, 0.78)),
+    radial-gradient(circle at 88% 18%, rgba(245, 158, 11, 0.2), transparent 8rem);
+  border: 1px solid rgba(245, 158, 11, 0.3);
   border-radius: 18px;
-  box-shadow: 0 22px 55px rgba(15, 23, 42, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.74);
+  color: #f8fafc;
+  box-shadow: 0 22px 55px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
 .preview-card::after {
@@ -122,7 +124,7 @@
 .eyebrow,
 .logo-lockup span,
 label span {
-  color: #64748b;
+  color: #9fb0c5;
   font-size: 0.85rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -211,7 +213,7 @@ textarea {
 
 .app-button:not(:disabled):hover {
   transform: translateY(-1px);
-  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.14);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.24);
 }
 
 .app-button:disabled {
@@ -229,10 +231,11 @@ textarea {
 }
 
 .secondary-action {
-  background: rgba(255, 255, 255, 0.88);
-  border-color: rgba(148, 163, 184, 0.62);
-  color: #334155;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  background: rgba(15, 23, 42, 0.78);
+  border-color: rgba(148, 163, 184, 0.38);
+  color: #e5edf7;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(8px);
 }
 
 .topbar-action {
@@ -263,15 +266,15 @@ textarea {
 .error {
   padding: 0.75rem;
   border-radius: 8px;
-  background: #fee2e2;
-  color: #b91c1c;
+  background: rgba(127, 29, 29, 0.88);
+  color: #fecaca;
   font-weight: 700;
 }
 
 .dashboard {
   position: relative;
   z-index: 1;
-  width: min(1180px, calc(100% - 2rem));
+  width: min(1480px, calc(100% - 2rem));
   margin: 0 auto;
   padding: 1rem 0 3rem;
 }
@@ -287,6 +290,7 @@ textarea {
 .logo-lockup strong {
   display: block;
   font-size: 1.2rem;
+  color: #f8fafc;
 }
 
 .mini-mark {
@@ -307,42 +311,58 @@ textarea {
   position: relative;
   overflow: hidden;
   display: grid;
-  grid-template-columns: 11rem minmax(0, 1fr) 10rem;
-  gap: 1rem;
+  grid-template-columns: 8.25rem minmax(0, 1fr) 8rem;
+  min-height: 11.5rem;
+  gap: 0.8rem;
   align-items: stretch;
-  padding: clamp(1rem, 3vw, 2rem);
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  border-radius: 24px;
+  padding: clamp(0.85rem, 2vw, 1.25rem);
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 20px;
   background:
-    radial-gradient(circle at 18% 20%, rgba(255, 255, 255, 0.22), transparent 16rem),
-    radial-gradient(circle at 82% 14%, rgba(245, 158, 11, 0.28), transparent 15rem),
-    linear-gradient(135deg, rgba(124, 58, 237, 0.92), rgba(37, 99, 235, 0.86)),
-    #4f46e5;
+    radial-gradient(circle at 18% 20%, rgba(255, 255, 255, 0.12), transparent 16rem),
+    radial-gradient(circle at 82% 14%, rgba(245, 158, 11, 0.2), transparent 15rem),
+    linear-gradient(135deg, rgba(7, 17, 31, 0.96), rgba(15, 23, 42, 0.82)),
+    #07111f;
   color: white;
-  box-shadow: 0 26px 70px rgba(79, 70, 229, 0.34);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.34), 0 0 60px rgba(34, 211, 238, 0.1);
 }
 
 .hero-band::before {
   content: '';
   position: absolute;
   inset: -45%;
-  background: conic-gradient(from 90deg, transparent, rgba(255, 255, 255, 0.16), transparent, rgba(245, 158, 11, 0.18), transparent);
+  background: conic-gradient(from 90deg, transparent, rgba(255, 255, 255, 0.08), transparent, rgba(245, 158, 11, 0.14), transparent);
   animation: slowSpin 18s linear infinite;
 }
 
 .hero-band::after {
   content: '';
   position: absolute;
-  inset: auto 2rem -5rem auto;
-  width: 20rem;
-  height: 20rem;
+  inset: auto 2rem -6rem auto;
+  width: 18rem;
+  height: 18rem;
   border-radius: 999px;
-  background: radial-gradient(circle, rgba(6, 182, 212, 0.28), transparent 68%);
+  background: radial-gradient(circle, rgba(6, 182, 212, 0.24), transparent 68%);
 }
 
 .hero-band > * {
   position: relative;
   z-index: 1;
+}
+
+.hero-performance-art {
+  position: absolute;
+  z-index: 0;
+  right: -1.5rem;
+  bottom: -0.4rem;
+  width: min(54%, 38rem);
+  height: 112%;
+  object-fit: cover;
+  object-position: right bottom;
+  opacity: 0.58;
+  pointer-events: none;
+  filter: saturate(1.2) contrast(1.08) drop-shadow(0 18px 46px rgba(0, 0, 0, 0.32));
+  mix-blend-mode: screen;
 }
 
 .hero-sparkles {
@@ -392,10 +412,10 @@ textarea {
   overflow: hidden;
   display: grid;
   place-items: center;
-  padding: 1rem;
+  padding: 0.85rem;
   border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.16);
+  border-radius: 18px;
+  background: rgba(7, 17, 31, 0.48);
   text-align: center;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22);
   backdrop-filter: blur(10px);
@@ -403,8 +423,8 @@ textarea {
 
 .level-ring {
   position: absolute;
-  width: 7.25rem;
-  height: 7.25rem;
+  width: 6.1rem;
+  height: 6.1rem;
   border: 2px solid rgba(255, 255, 255, 0.3);
   border-top-color: #fcd34d;
   border-radius: 999px;
@@ -412,12 +432,12 @@ textarea {
 }
 
 .level-badge strong {
-  font-size: 3.6rem;
+  font-size: 2.65rem;
   line-height: 1;
 }
 
 .streak-tile span {
-  font-size: 2.5rem;
+  font-size: 2rem;
   font-weight: 900;
 }
 
@@ -433,9 +453,9 @@ textarea {
 
 .level-copy h2 {
   max-width: 44rem;
-  margin: 0.35rem 0 1rem;
-  font-size: clamp(2rem, 5vw, 4rem);
-  line-height: 1;
+  margin: 0.25rem 0 0.75rem;
+  font-size: clamp(1.55rem, 3vw, 2.55rem);
+  line-height: 1.04;
 }
 
 .xp-row {
@@ -473,7 +493,7 @@ textarea {
 .quick-actions {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 0.8rem;
+  gap: 0.85rem;
   margin: 1rem 0;
 }
 
@@ -486,19 +506,20 @@ textarea {
   align-items: center;
   margin: 1rem 0;
   padding: 1rem;
-  border: 1px solid rgba(56, 189, 248, 0.28);
+  border: 1px solid rgba(56, 189, 248, 0.24);
   border-radius: 18px;
   background:
     radial-gradient(circle at 8% 50%, rgba(56, 189, 248, 0.16), transparent 10rem),
-    rgba(255, 255, 255, 0.86);
-  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.78);
+    linear-gradient(135deg, rgba(8, 19, 36, 0.86), rgba(15, 23, 42, 0.78));
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
 }
 
 .sync-panel::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(115deg, transparent 0 42%, rgba(255, 255, 255, 0.52) 48%, transparent 54% 100%);
+  background: linear-gradient(115deg, transparent 0 42%, rgba(255, 255, 255, 0.16) 48%, transparent 54% 100%);
   transform: translateX(-120%);
   animation: scannerSweep 6s ease-in-out infinite;
 }
@@ -511,12 +532,12 @@ textarea {
 }
 
 .sync-copy strong {
-  color: #111827;
+  color: #f8fafc;
 }
 
 .sync-copy span,
 .claim-evidence small {
-  color: #64748b;
+  color: #9fb0c5;
   font-weight: 700;
 }
 
@@ -543,20 +564,70 @@ textarea {
 .sync-message {
   padding: 0.75rem;
   border-radius: 8px;
-  background: #ecfeff;
-  color: #0e7490;
+  background: rgba(8, 145, 178, 0.22);
+  color: #67e8f9;
   font-weight: 800;
 }
 
 .quest-column {
+  position: relative;
+  overflow: hidden;
   display: grid;
   grid-template-rows: auto 1fr;
   gap: 0.75rem;
   min-width: 0;
+  min-height: 33rem;
+  padding: 0.75rem;
+  border: 1px solid color-mix(in srgb, var(--column-color) 28%, rgba(148, 163, 184, 0.16));
+  border-radius: 26px;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--column-color) 18%, transparent), transparent 42%),
+    linear-gradient(160deg, rgba(7, 17, 31, 0.92), rgba(15, 23, 42, 0.84));
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    inset 0 -24px 40px rgba(0, 0, 0, 0.18);
+  isolation: isolate;
+}
+
+.quest-column::before,
+.quest-column::after {
+  content: '';
+  position: absolute;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.quest-column::before {
+  inset: 0.45rem;
+  border: 1px solid color-mix(in srgb, var(--column-color) 22%, transparent);
+  border-radius: 21px;
+  box-shadow: inset 0 0 38px rgba(255, 255, 255, 0.04);
+}
+
+.quest-column::after {
+  inset: -12rem -2rem auto;
+  height: 24rem;
+  background: radial-gradient(circle, color-mix(in srgb, var(--column-color) 34%, transparent), transparent 62%);
+  opacity: 0.72;
+}
+
+.pillar-art {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.42;
+  pointer-events: none;
+  filter: saturate(1.25) contrast(1.08);
+  mix-blend-mode: screen;
 }
 
 .quest-column-header {
   position: relative;
+  z-index: 1;
   overflow: hidden;
   display: grid;
   min-height: 4.8rem;
@@ -565,11 +636,12 @@ textarea {
   padding: 0.85rem;
   border-radius: 16px;
   background:
-    radial-gradient(circle at 86% 20%, color-mix(in srgb, var(--column-color) 24%, transparent), transparent 4rem),
-    color-mix(in srgb, var(--column-color) 14%, white);
-  color: #111827;
-  border: 1px solid color-mix(in srgb, var(--column-color) 28%, white);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.74);
+    radial-gradient(circle at 86% 20%, color-mix(in srgb, var(--column-color) 28%, transparent), transparent 4rem),
+    rgba(7, 17, 31, 0.72);
+  color: #f8fafc;
+  border: 1px solid color-mix(in srgb, var(--column-color) 34%, rgba(255, 255, 255, 0.12));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(10px);
 }
 
 .quest-column-header::after {
@@ -586,7 +658,7 @@ textarea {
 }
 
 .quest-column-header span {
-  color: var(--column-color);
+  color: color-mix(in srgb, var(--column-color) 72%, white);
   font-size: 0.8rem;
   font-weight: 900;
   text-transform: uppercase;
@@ -602,12 +674,14 @@ textarea {
 }
 
 .quest-column-header small {
-  color: #475569;
+  color: #a7b5c8;
   font-size: 0.78rem;
   font-weight: 800;
 }
 
 .quest-list {
+  position: relative;
+  z-index: 1;
   display: grid;
   align-content: start;
   gap: 0.75rem;
@@ -619,23 +693,24 @@ textarea {
   gap: 0.55rem;
   min-height: 9.2rem;
   padding: 1rem;
-  border: 1px solid color-mix(in srgb, var(--tile-color) 24%, rgba(15, 23, 42, 0.08));
+  border: 1px solid color-mix(in srgb, var(--tile-color) 34%, rgba(255, 255, 255, 0.1));
   border-radius: 18px;
   background:
-    linear-gradient(150deg, rgba(255, 255, 255, 0.96), color-mix(in srgb, var(--tile-color) 7%, white)),
-    white;
-  color: #111827;
+    linear-gradient(150deg, rgba(7, 17, 31, 0.82), color-mix(in srgb, var(--tile-color) 12%, rgba(15, 23, 42, 0.84))),
+    rgba(7, 17, 31, 0.82);
+  color: #f8fafc;
   text-align: left;
   cursor: pointer;
-  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.08);
   transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
   isolation: isolate;
+  backdrop-filter: blur(8px);
 }
 
 .action-tile:hover {
   transform: translateY(-5px) rotate(-0.25deg);
-  border-color: color-mix(in srgb, var(--tile-color) 44%, white);
-  box-shadow: 0 24px 55px rgba(15, 23, 42, 0.13), 0 0 34px color-mix(in srgb, var(--tile-color) 20%, transparent);
+  border-color: color-mix(in srgb, var(--tile-color) 58%, white);
+  box-shadow: 0 24px 55px rgba(0, 0, 0, 0.3), 0 0 34px color-mix(in srgb, var(--tile-color) 28%, transparent);
 }
 
 .action-tile.quest-stack {
@@ -648,10 +723,10 @@ textarea {
   content: '';
   position: absolute;
   inset: 0;
-  border: 1px solid color-mix(in srgb, var(--tile-color) 20%, rgba(15, 23, 42, 0.08));
+  border: 1px solid color-mix(in srgb, var(--tile-color) 22%, rgba(255, 255, 255, 0.08));
   border-radius: 18px;
-  background: color-mix(in srgb, var(--tile-color) 5%, white);
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+  background: color-mix(in srgb, var(--tile-color) 10%, rgba(7, 17, 31, 0.92));
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
   z-index: -1;
 }
 
@@ -672,7 +747,7 @@ textarea {
 .action-tile > span:last-child {
   position: relative;
   z-index: 1;
-  color: var(--tile-color);
+  color: color-mix(in srgb, var(--tile-color) 72%, white);
   font-weight: 900;
 }
 
@@ -694,8 +769,8 @@ textarea {
   height: 8rem;
   border-radius: 999px;
   background:
-    radial-gradient(circle at 42% 38%, rgba(255, 255, 255, 0.56), transparent 34%),
-    color-mix(in srgb, var(--tile-color) 24%, transparent);
+    radial-gradient(circle at 42% 38%, rgba(255, 255, 255, 0.28), transparent 34%),
+    color-mix(in srgb, var(--tile-color) 26%, transparent);
 }
 
 .quest-card-art::after {
@@ -706,7 +781,7 @@ textarea {
   height: 6rem;
   transform: rotate(-18deg);
   border-radius: 50%;
-  background: color-mix(in srgb, var(--tile-color) 11%, transparent);
+  background: color-mix(in srgb, var(--tile-color) 18%, transparent);
 }
 
 .quest-card-art span {
@@ -751,12 +826,12 @@ textarea {
   width: 3rem;
   height: 3rem;
   place-items: center;
-  border: 1px solid color-mix(in srgb, var(--tile-color) 25%, white);
+  border: 1px solid color-mix(in srgb, var(--tile-color) 36%, rgba(255, 255, 255, 0.16));
   border-radius: 16px;
   background:
-    radial-gradient(circle at 28% 20%, rgba(255, 255, 255, 0.74), transparent 32%),
-    color-mix(in srgb, var(--tile-color) 17%, white);
-  color: var(--tile-color);
+    radial-gradient(circle at 28% 20%, rgba(255, 255, 255, 0.24), transparent 32%),
+    color-mix(in srgb, var(--tile-color) 18%, rgba(7, 17, 31, 0.92));
+  color: color-mix(in srgb, var(--tile-color) 78%, white);
   box-shadow: 0 12px 26px color-mix(in srgb, var(--tile-color) 18%, transparent);
 }
 
@@ -765,9 +840,9 @@ textarea {
   width: 2rem;
   height: 2rem;
   place-items: center;
-  border: 1px solid color-mix(in srgb, var(--tile-color) 18%, rgba(15, 23, 42, 0.08));
+  border: 1px solid color-mix(in srgb, var(--tile-color) 28%, rgba(255, 255, 255, 0.1));
   border-radius: 7px;
-  background: color-mix(in srgb, var(--tile-color) 10%, white);
+  background: color-mix(in srgb, var(--tile-color) 14%, rgba(7, 17, 31, 0.92));
 }
 
 .tier-bar {
@@ -804,14 +879,15 @@ textarea {
   gap: 0.22rem;
   padding: 0.24rem 0.42rem;
   border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--tile-color) 22%, rgba(15, 23, 42, 0.08));
-  background: color-mix(in srgb, var(--tile-color) 12%, white);
+  border: 1px solid color-mix(in srgb, var(--tile-color) 32%, rgba(255, 255, 255, 0.1));
+  background: color-mix(in srgb, var(--tile-color) 16%, rgba(7, 17, 31, 0.9));
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
 }
 
 .stack-pip {
   width: 0.4rem;
   height: 0.4rem;
-  border: 1px solid color-mix(in srgb, var(--tile-color) 58%, white);
+  border: 1px solid color-mix(in srgb, var(--tile-color) 58%, rgba(255, 255, 255, 0.42));
   border-radius: 999px;
   background: transparent;
 }
@@ -831,13 +907,35 @@ textarea {
   height: 100%;
   border-radius: 18px;
   overflow: hidden;
-  box-shadow: 0 20px 48px rgba(15, 23, 42, 0.08);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  background: rgba(8, 19, 36, 0.82);
+  color: #e5edf7;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.24);
+}
+
+:host ::ng-deep .panel-card .p-card,
+:host ::ng-deep .panel-card .p-card-body,
+:host ::ng-deep .panel-card .p-card-content {
+  background: transparent;
+  color: inherit;
+}
+
+:host ::ng-deep .history-card .p-datatable,
+:host ::ng-deep .history-card .p-datatable-thead > tr > th,
+:host ::ng-deep .history-card .p-datatable-tbody > tr > td {
+  background: transparent;
+  color: #dbeafe;
+  border-color: rgba(148, 163, 184, 0.18);
+}
+
+:host ::ng-deep .history-card .p-datatable-tbody > tr {
+  background: rgba(7, 17, 31, 0.42);
 }
 
 .section-heading {
   gap: 0.5rem;
   padding: 1rem 1rem 0;
-  color: #111827;
+  color: #f8fafc;
 }
 
 .stat-list {
@@ -849,11 +947,11 @@ textarea {
   position: relative;
   overflow: hidden;
   padding: 0.8rem;
-  border: 1px solid rgba(148, 163, 184, 0.18);
+  border: 1px solid rgba(148, 163, 184, 0.2);
   border-radius: 14px;
   background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.94), #f8fafc),
-    #f8fafc;
+    linear-gradient(135deg, rgba(15, 23, 42, 0.78), rgba(30, 41, 59, 0.62)),
+    #0f172a;
 }
 
 .stat-row::after {
@@ -865,7 +963,7 @@ textarea {
   height: 3.4rem;
   transform: translateY(-50%) rotate(45deg);
   border-radius: 10px;
-  background: rgba(148, 163, 184, 0.1);
+  background: rgba(148, 163, 184, 0.12);
 }
 
 .stat-label {
@@ -909,8 +1007,8 @@ textarea {
   place-items: center;
   padding: 1rem;
   background:
-    radial-gradient(circle at 50% 40%, rgba(124, 58, 237, 0.18), transparent 18rem),
-    rgba(15, 23, 42, 0.52);
+    radial-gradient(circle at 50% 40%, rgba(245, 158, 11, 0.18), transparent 18rem),
+    rgba(2, 6, 23, 0.72);
   backdrop-filter: blur(6px);
 }
 
@@ -919,12 +1017,18 @@ textarea {
   overflow: hidden auto;
   width: min(92vw, 460px);
   max-height: min(86vh, 680px);
-  border: 1px solid rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(245, 158, 11, 0.24);
   border-radius: 22px;
   background:
-    radial-gradient(circle at 90% 0%, rgba(245, 158, 11, 0.12), transparent 11rem),
-    white;
-  box-shadow: 0 30px 90px rgba(15, 23, 42, 0.34), 0 0 60px rgba(245, 158, 11, 0.16);
+    radial-gradient(circle at 90% 0%, rgba(245, 158, 11, 0.18), transparent 11rem),
+    radial-gradient(circle at 12% 96%, rgba(34, 211, 238, 0.14), transparent 12rem),
+    linear-gradient(145deg, rgba(8, 19, 36, 0.98), rgba(15, 23, 42, 0.96));
+  color: #e5edf7;
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.46), 0 0 70px rgba(245, 158, 11, 0.18);
+}
+
+.activity-dialog.claim-ritual-active {
+  animation: dialogRewardPulse 900ms ease-out both;
 }
 
 .activity-dialog::before {
@@ -941,7 +1045,7 @@ textarea {
   justify-content: space-between;
   gap: 1rem;
   padding: 1rem;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.18);
 }
 
 .icon-button {
@@ -951,13 +1055,13 @@ textarea {
   place-items: center;
   border: 0;
   border-radius: 8px;
-  background: #f1f5f9;
-  color: #334155;
+  background: rgba(15, 23, 42, 0.82);
+  color: #e5edf7;
   cursor: pointer;
 }
 
 .icon-button:hover {
-  background: #e2e8f0;
+  background: rgba(30, 41, 59, 0.94);
 }
 
 .activity-form,
@@ -970,19 +1074,19 @@ textarea {
   overflow: hidden;
   padding: 1rem;
   margin-bottom: 1rem;
-  border: 1px solid color-mix(in srgb, var(--tile-color) 24%, white);
+  border: 1px solid color-mix(in srgb, var(--tile-color) 34%, rgba(255, 255, 255, 0.12));
   border-radius: 18px;
   background:
-    radial-gradient(circle at 84% 30%, color-mix(in srgb, var(--tile-color) 22%, transparent), transparent 6rem),
-    color-mix(in srgb, var(--tile-color) 16%, white);
-  color: var(--tile-color);
+    radial-gradient(circle at 84% 30%, color-mix(in srgb, var(--tile-color) 25%, transparent), transparent 6rem),
+    color-mix(in srgb, var(--tile-color) 15%, rgba(7, 17, 31, 0.92));
+  color: color-mix(in srgb, var(--tile-color) 72%, white);
 }
 
 .xp-preview strong {
   position: relative;
   z-index: 1;
   display: block;
-  color: #111827;
+  color: #f8fafc;
   font-size: 1.4rem;
 }
 
@@ -1053,11 +1157,11 @@ textarea {
   gap: 0.3rem;
   padding: 1rem;
   margin-bottom: 1rem;
-  border: 1px solid rgba(148, 163, 184, 0.16);
+  border: 1px solid rgba(148, 163, 184, 0.18);
   border-radius: 16px;
   background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.86), #f8fafc),
-    #f8fafc;
+    linear-gradient(135deg, rgba(15, 23, 42, 0.72), rgba(30, 41, 59, 0.56)),
+    #0f172a;
 }
 
 .claim-date-cue {
@@ -1065,26 +1169,92 @@ textarea {
   gap: 0.35rem;
   padding: 0.85rem 1rem;
   margin-bottom: 1rem;
-  border: 1px solid #fed7aa;
+  border: 1px solid rgba(251, 146, 60, 0.38);
   border-radius: 8px;
-  background: #fff7ed;
-  color: #9a3412;
+  background: rgba(124, 45, 18, 0.42);
+  color: #fed7aa;
 }
 
 .claim-date-cue strong {
-  color: #7c2d12;
+  color: #ffedd5;
 }
 
 .claim-date-cue span {
-  color: #9a3412;
+  color: #fed7aa;
   font-weight: 800;
 }
 
 .claim-evidence span {
-  color: #64748b;
+  color: #9fb0c5;
   font-size: 0.8rem;
   font-weight: 900;
   text-transform: uppercase;
+}
+
+.claim-impact {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(250, 204, 21, 0.28), transparent 42%),
+    radial-gradient(circle at 50% 50%, rgba(34, 211, 238, 0.2), transparent 64%);
+  animation: impactFade 1050ms ease-out both;
+}
+
+.claim-impact img {
+  width: min(72%, 20rem);
+  filter: drop-shadow(0 0 26px rgba(250, 204, 21, 0.62)) drop-shadow(0 22px 46px rgba(0, 0, 0, 0.38));
+  animation: claimBurst 980ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.claim-impact span {
+  position: absolute;
+  width: 0.75rem;
+  height: 0.75rem;
+  transform: rotate(45deg);
+  border-radius: 3px;
+  background: #fef3c7;
+  box-shadow: 0 0 24px #facc15;
+  animation: rewardShard 900ms ease-out both;
+}
+
+.claim-impact span:nth-child(2) {
+  --claim-x: -7rem;
+  --claim-y: -5rem;
+}
+
+.claim-impact span:nth-child(3) {
+  --claim-x: 7rem;
+  --claim-y: -3rem;
+  background: #a7f3d0;
+  animation-delay: 80ms;
+}
+
+.claim-impact span:nth-child(4) {
+  --claim-x: 0;
+  --claim-y: 6.5rem;
+  background: #bae6fd;
+  animation-delay: 140ms;
+}
+
+.claim-button.claiming {
+  position: relative;
+  overflow: hidden;
+  animation: claimButtonPulse 700ms ease-in-out infinite alternate;
+}
+
+.claim-button.claiming::after {
+  content: '';
+  position: absolute;
+  inset: -160% auto auto -40%;
+  width: 45%;
+  height: 420%;
+  transform: rotate(24deg);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.72), transparent);
+  animation: claimButtonShine 720ms ease-in-out infinite;
 }
 
 @keyframes spin {
@@ -1185,6 +1355,90 @@ textarea {
   }
 }
 
+@keyframes dialogRewardPulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 30px 90px rgba(0, 0, 0, 0.46), 0 0 70px rgba(245, 158, 11, 0.18);
+  }
+
+  38% {
+    transform: scale(1.018);
+    box-shadow: 0 34px 100px rgba(0, 0, 0, 0.5), 0 0 96px rgba(250, 204, 21, 0.42);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes impactFade {
+  0% {
+    opacity: 0;
+  }
+
+  16%,
+  72% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes claimBurst {
+  0% {
+    opacity: 0;
+    transform: scale(0.36) rotate(-16deg);
+  }
+
+  42% {
+    opacity: 1;
+    transform: scale(1.14) rotate(2deg);
+  }
+
+  100% {
+    opacity: 0.18;
+    transform: scale(1.32) rotate(10deg);
+  }
+}
+
+@keyframes rewardShard {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.4) rotate(45deg);
+  }
+
+  24% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(var(--claim-x), var(--claim-y)) scale(1.25) rotate(225deg);
+  }
+}
+
+@keyframes claimButtonPulse {
+  from {
+    box-shadow: 0 14px 34px rgba(245, 158, 11, 0.24);
+  }
+
+  to {
+    box-shadow: 0 18px 52px rgba(250, 204, 21, 0.46), 0 0 26px rgba(34, 211, 238, 0.18);
+  }
+}
+
+@keyframes claimButtonShine {
+  from {
+    transform: translateX(-40%) rotate(24deg);
+  }
+
+  to {
+    transform: translateX(360%) rotate(24deg);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -1204,6 +1458,16 @@ textarea {
     grid-template-columns: 1fr;
   }
 
+  .hero-band {
+    min-height: 0;
+  }
+
+  .hero-performance-art {
+    width: 100%;
+    height: 100%;
+    opacity: 0.26;
+  }
+
   .quick-actions {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -1216,5 +1480,9 @@ textarea {
 
   .quick-actions {
     grid-template-columns: 1fr;
+  }
+
+  .quest-column {
+    min-height: 0;
   }
 }

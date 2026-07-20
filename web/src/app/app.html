@@ -90,6 +90,7 @@
           <span></span>
           <span></span>
         </div>
+        <img class="hero-performance-art" src="/quest-art/hero-performance.svg" alt="" aria-hidden="true" />
         <div class="level-badge">
           <span class="level-ring" aria-hidden="true"></span>
           <svg lucideTrophy size="42"></svg>
@@ -169,7 +170,8 @@
 
       <section class="quick-actions">
         @for (column of questColumns(); track column.key) {
-          <div class="quest-column" [style.--column-color]="column.color">
+          <div class="quest-column pillar-{{ column.key }}" [style.--column-color]="column.color">
+            <img class="pillar-art" [src]="'/quest-art/pillar-' + column.key + '.svg'" alt="" aria-hidden="true" />
             <header class="quest-column-header">
               <span>{{ column.label }}</span>
               <strong>{{ column.totalXp }} total XP</strong>
@@ -309,7 +311,7 @@
 
   @if (activityDialogOpen() && selectedClaim(); as selectedClaim) {
     <div class="modal-backdrop" (click)="closeActivityDialog()">
-      <section class="activity-dialog" role="dialog" aria-modal="true" aria-labelledby="activity-dialog-title" (click)="$event.stopPropagation()">
+      <section class="activity-dialog" [class.claim-ritual-active]="activitySaving()" role="dialog" aria-modal="true" aria-labelledby="activity-dialog-title" (click)="$event.stopPropagation()">
         <header class="dialog-header">
           <div class="dialog-heading">
             <svg lucideZap size="22"></svg>
@@ -344,11 +346,20 @@
             <small>{{ selectedClaim.occurredAt | date:'medium' }}</small>
           </div>
 
+          @if (activitySaving()) {
+            <div class="claim-impact" aria-hidden="true">
+              <img src="/quest-art/xp-burst.svg" alt="" />
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          }
+
           @if (activityError()) {
             <p class="error">{{ activityError() }}</p>
           }
 
-          <button type="button" class="app-button primary-action" [class.is-loading]="activitySaving()" [disabled]="activitySaving()" (click)="saveActivity()">
+          <button type="button" class="app-button primary-action claim-button" [class.is-loading]="activitySaving()" [class.claiming]="activitySaving()" [disabled]="activitySaving()" (click)="saveActivity()">
             @if (activitySaving()) {
               <span class="button-spinner" aria-hidden="true"></span>
             } @else {

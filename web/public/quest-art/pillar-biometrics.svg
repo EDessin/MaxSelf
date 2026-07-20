@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 720" role="img" aria-labelledby="title desc">
+  <title id="title">Biometrics pillar</title>
+  <desc id="desc">A cyan metrics pillar with scale, ruler, pulse, and measurement grid.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#083344"/>
+      <stop offset=".55" stop-color="#155e75"/>
+      <stop offset="1" stop-color="#0f172a"/>
+    </linearGradient>
+  </defs>
+  <rect width="280" height="720" rx="34" fill="url(#bg)"/>
+  <path d="M0 116h280M0 188h280M0 260h280M0 332h280M0 404h280M0 476h280M0 548h280M0 620h280M48 0v720M116 0v720M184 0v720M252 0v720" stroke="#cffafe" stroke-width="1" opacity=".1"/>
+  <circle cx="140" cy="168" r="92" fill="#06b6d4" opacity=".2"/>
+  <g transform="translate(64 106)" fill="none" stroke="#ecfeff" stroke-linecap="round" stroke-linejoin="round" opacity=".85">
+    <rect x="0" y="0" width="152" height="114" rx="24" stroke-width="8"/>
+    <path d="M46 48c20-22 40-22 60 0" stroke-width="8"/>
+    <path d="M76 48v36" stroke-width="8"/>
+    <circle cx="76" cy="84" r="6" fill="#ecfeff" stroke="none"/>
+  </g>
+  <path d="M34 344h52l16-36 30 102 22-58h92" fill="none" stroke="#67e8f9" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" opacity=".8"/>
+  <g transform="translate(70 458)" fill="#cffafe" opacity=".72">
+    <rect x="0" y="0" width="140" height="34" rx="9"/>
+    <rect x="16" y="34" width="8" height="28"/>
+    <rect x="48" y="34" width="8" height="20"/>
+    <rect x="80" y="34" width="8" height="28"/>
+    <rect x="112" y="34" width="8" height="20"/>
+    <rect x="132" y="34" width="8" height="28"/>
+  </g>
+  <path d="M44 636c46-22 90-22 132 0 24 13 46 13 68 0" fill="none" stroke="#cffafe" stroke-width="5" stroke-linecap="round" opacity=".36"/>
+</svg>
