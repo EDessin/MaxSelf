@@ -46,6 +46,14 @@ func TestRulesAndRuleFor(t *testing.T) {
 		t.Fatalf("unexpected hydration diamond rule: %+v", rule)
 	}
 
+	rule, err = RuleFor(TypeSleep)
+	if err != nil {
+		t.Fatalf("RuleFor returned error for sleep: %v", err)
+	}
+	if rule.Title != "Sleep Goal Met" || rule.XP != 35 || rule.Stat != StatRecovery || rule.ThresholdValue != SleepGoalHours || rule.ThresholdUnit != "hours" {
+		t.Fatalf("unexpected sleep rule: %+v", rule)
+	}
+
 	rule, err = RuleFor(TypeExercise)
 	if err != nil {
 		t.Fatalf("RuleFor returned error: %v", err)

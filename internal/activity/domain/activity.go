@@ -44,6 +44,8 @@ const (
 	ColorRecovery   = "#6366f1"
 	ColorMindset    = "#a855f7"
 	ColorBiometrics = "#0891b2"
+
+	SleepGoalHours = 7
 )
 
 type Activity struct {
@@ -85,7 +87,7 @@ func Rules() []ActivityRule {
 		{Type: TypeHydrationSilver, Title: "Hydration Boost — Silver", XP: 15, Stat: StatFuel, Icon: "droplet", Tier: "Silver", ThresholdValue: 1000, ThresholdUnit: "ml", FollowUpType: TypeHydrationGold, PrerequisiteType: TypeHydrationBronze},
 		{Type: TypeHydrationGold, Title: "Hydration Boost — Gold", XP: 20, Stat: StatFuel, Icon: "droplet", Tier: "Gold", ThresholdValue: 1500, ThresholdUnit: "ml", FollowUpType: TypeHydrationDiamond, PrerequisiteType: TypeHydrationSilver},
 		{Type: TypeHydrationDiamond, Title: "Hydration Boost — Diamond", XP: 30, Stat: StatFuel, Icon: "droplet", Tier: "Diamond", ThresholdValue: 2000, ThresholdUnit: "ml", PrerequisiteType: TypeHydrationGold},
-		{Type: TypeSleep, Title: "Sleep Goal Met", XP: 35, Stat: StatRecovery, Icon: "moon"},
+		{Type: TypeSleep, Title: "Sleep Goal Met", XP: 35, Stat: StatRecovery, Icon: "moon", ThresholdValue: SleepGoalHours, ThresholdUnit: "hours"},
 		{Type: TypeMindfulness, Title: "Mindset Moment", XP: 20, Stat: StatMindset, Icon: "sparkles"},
 		{Type: TypeRecovery, Title: "Recovery Ritual", XP: 20, Stat: StatRecovery, Icon: "heart-pulse"},
 		{Type: TypeScaleMeasurement, Title: "Scale Measurement", XP: 15, Stat: StatBiometrics, Icon: "scale"},

@@ -116,7 +116,7 @@ export class App implements OnInit {
     { type: 'hydration_silver', title: 'Hydration Boost — Silver', xp: 15, stat: 'fuel', icon: 'droplet', color: '#22c55e', tier: 'Silver', thresholdValue: 1000, thresholdUnit: 'ml', followUpType: 'hydration_gold', prerequisiteType: 'hydration_bronze' },
     { type: 'hydration_gold', title: 'Hydration Boost — Gold', xp: 20, stat: 'fuel', icon: 'droplet', color: '#22c55e', tier: 'Gold', thresholdValue: 1500, thresholdUnit: 'ml', followUpType: 'hydration_diamond', prerequisiteType: 'hydration_silver' },
     { type: 'hydration_diamond', title: 'Hydration Boost — Diamond', xp: 30, stat: 'fuel', icon: 'droplet', color: '#22c55e', tier: 'Diamond', thresholdValue: 2000, thresholdUnit: 'ml', prerequisiteType: 'hydration_gold' },
-    { type: 'sleep', title: 'Sleep Goal Met', xp: 35, stat: 'recovery', icon: 'moon', color: '#6366f1' },
+    { type: 'sleep', title: 'Sleep Goal Met', xp: 35, stat: 'recovery', icon: 'moon', color: '#6366f1', thresholdValue: 7, thresholdUnit: 'hours' },
     { type: 'mindfulness', title: 'Mindset Moment', xp: 20, stat: 'mindset', icon: 'sparkles', color: '#a855f7' },
     { type: 'recovery', title: 'Recovery Ritual', xp: 20, stat: 'recovery', icon: 'heart-pulse', color: '#6366f1' },
     { type: 'scale_measurement', title: 'Scale Measurement', xp: 15, stat: 'biometrics', icon: 'scale', color: '#0891b2' },
@@ -385,8 +385,11 @@ export class App implements OnInit {
 
   questSubtitle(rule: ActivityRule): string {
     if (rule.thresholdValue && rule.thresholdUnit) {
+      if (!rule.tier) {
+        return `${rule.thresholdValue} ${rule.thresholdUnit}`;
+      }
       const topTier = rule.followUpType ? '' : ' · top tier';
-      return `${rule.tier ?? 'Tier'} · ${rule.thresholdValue} ${rule.thresholdUnit}${topTier}`;
+      return `${rule.tier} · ${rule.thresholdValue} ${rule.thresholdUnit}${topTier}`;
     }
     return rule.type === 'waist_to_height_ratio' ? 'Enter measurement' : 'Sync to unlock';
   }

@@ -269,6 +269,10 @@ func TestHealthHelpers(t *testing.T) {
 	if sleepEvidence(450) != "7 hours 30 minutes asleep" || sleepEvidence(421) != "7 hours 1 minute asleep" {
 		t.Fatal("sleep evidence display regressed")
 	}
+	sleepRule := ruleForType("sleep")
+	if sleepRule.ThresholdValue != sleepGoalHours || sleepRule.ThresholdUnit != "hours" {
+		t.Fatalf("unexpected sleep rule threshold: %+v", sleepRule)
+	}
 	if (HealthDataPoint{DataPointName: "data-point", Name: "name"}).ID() != "data-point" ||
 		(HealthDataPoint{Name: "name"}).ID() != "name" ||
 		(HealthDataPoint{}).ID() == "" {

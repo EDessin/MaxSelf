@@ -19,6 +19,8 @@ const (
 
 	QuestClaimSourceGoogleHealth = "google_health"
 	QuestClaimSourceManual       = "manual"
+
+	sleepGoalHours = 7
 )
 
 var (
@@ -510,7 +512,7 @@ func healthCandidates(userID string, pointsByType map[string][]HealthDataPoint) 
 			continue
 		}
 		minutes, _ := strconv.Atoi(point.Sleep.Summary.MinutesAsleep)
-		if minutes < 420 {
+		if minutes < sleepGoalHours*60 {
 			continue
 		}
 		occurredAt := intervalEnd(point.Sleep.Interval)
@@ -738,7 +740,7 @@ func localActivityRules() []ActivityRule {
 		{Type: "hydration_silver", Title: "Hydration Boost — Silver", XP: 15, Stat: "fuel", Icon: "droplet", Tier: "Silver", ThresholdValue: 1000, ThresholdUnit: "ml", FollowUpType: "hydration_gold", PrerequisiteType: "hydration_bronze"},
 		{Type: "hydration_gold", Title: "Hydration Boost — Gold", XP: 20, Stat: "fuel", Icon: "droplet", Tier: "Gold", ThresholdValue: 1500, ThresholdUnit: "ml", FollowUpType: "hydration_diamond", PrerequisiteType: "hydration_silver"},
 		{Type: "hydration_diamond", Title: "Hydration Boost — Diamond", XP: 30, Stat: "fuel", Icon: "droplet", Tier: "Diamond", ThresholdValue: 2000, ThresholdUnit: "ml", PrerequisiteType: "hydration_gold"},
-		{Type: "sleep", Title: "Sleep Goal Met", XP: 35, Stat: "recovery", Icon: "moon"},
+		{Type: "sleep", Title: "Sleep Goal Met", XP: 35, Stat: "recovery", Icon: "moon", ThresholdValue: sleepGoalHours, ThresholdUnit: "hours"},
 		{Type: "mindfulness", Title: "Mindset Moment", XP: 20, Stat: "mindset", Icon: "sparkles"},
 		{Type: "recovery", Title: "Recovery Ritual", XP: 20, Stat: "recovery", Icon: "heart-pulse"},
 		{Type: "scale_measurement", Title: "Scale Measurement", XP: 15, Stat: "biometrics", Icon: "scale"},
